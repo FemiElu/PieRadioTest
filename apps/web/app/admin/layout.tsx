@@ -1,37 +1,29 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/auth-context";
+import { requireServerAdmin } from "@/lib/auth/server-auth";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
-import { ActivityIndicator } from "react-native-web"; // Wait, this is web app. using Lucide spinner or similar. 
-import { Loader2 } from "lucide-react";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, profile, isLoading } = useAuth();
-  const router = useRouter();
-  const [isAuthorized, setIsAuthorized] = useState(false);
+export const metadata = {
+  title: 'Admin Dashboard | Pie Radio',
+  description: 'Pie Radio administration panel',
+};
 
-  useEffect(() => {
-    if (!isLoading) {
-      if (!user) {
-        router.push("/login?redirect=/admin");
-      } else if (profile?.role !== "admin") {
-        // Not an admin
-        router.push("/dashboard"); // Redirect to normal dashboard
-      } else {
-        setIsAuthorized(true);
-      }
-    }
-  }, [user, profile, isLoading, router]);
-
-  if (isLoading || !isAuthorized) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+/**
+ * Admin Layout
+ * 
+ * Server Component that provides the admin layout wrapper.
+ * Authentication and role checking is handled by:
+ * 1. Middleware (first line of defense, checks role before page loads)
+ * 2. requireServerAdmin (second check, redirects if somehow bypassed)
+ * 
+ * This provides server-side security (not just client-side checks).
+ */
+export default async function AdminLayout({
+  children
+}: {
+  children: React.ReactNode
+}) {
+  // Server-side role verification - will redirect to /unauthorized if not admin
+  // This is a backup to middleware, which should have already caught unauthorized access
+  await requireServerAdmin('/admin');
 
   return (
     <div className="flex min-h-screen bg-background text-foreground font-sans">
