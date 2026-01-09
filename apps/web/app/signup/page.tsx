@@ -2,101 +2,79 @@
 
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
-import { Loader2, Music, ShieldCheck, Mail, Lock, CheckCircle2 } from "lucide-react";
-import { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Loader2, Music, ShieldCheck, Mail, User, Lock, ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function LoginPage() {
-    return (
-        <Suspense fallback={
-            <div className="flex min-h-screen items-center justify-center bg-white">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            </div>
-        }>
-            <LoginForm />
-        </Suspense>
-    );
-}
-
-function LoginForm() {
-    const { signInWithGoogle, signInWithEmail, user, profile, isLoading } = useAuth();
-    const [isSigningIn, setIsSigningIn] = useState(false);
+export default function SignupPage() {
+    const { signUpWithEmail, signInWithGoogle, user, isLoading } = useAuth();
+    const [isSigningUp, setIsSigningUp] = useState(false);
+    const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const redirectPath = searchParams.get('redirect');
 
-    useEffect(() => {
-        if (!isLoading && user) {
-            // Priority: Query Param Redirect > Role Based Redirect
-            if (redirectPath) {
-                router.push(redirectPath);
-                return;
-            }
+    if (user && !isLoading) {
+        router.push("/"); // Already logged in
+        return null;
+    }
 
-            // Role based redirect
-            if (profile) {
-                if (profile.role === 'admin') {
-                    router.push('/admin');
-                } else if (profile.role === 'presenter') {
-                    router.push('/dashboard/presenter');
-                } else {
-                    router.push('/');
-                }
-            } else {
-                // Determine redirect based on profile being null?
-                // Wait for profile to load or just go home
-                // If profile is still loading we might want to wait, but isLoading usually covers auth+profile
-                router.push('/');
-            }
-        }
-    }, [user, profile, isLoading, router, redirectPath]);
-
-    const handleEmailLogin = async (e: React.FormEvent) => {
+    const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
-        if (!email || !password) {
-            setError("Please fill in all fields");
+
+        if (!fullName || !email || !password || !confirmPassword) {
+            setError("All fields are required");
             return;
         }
 
-        setIsSigningIn(true);
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters");
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setError("Passwords do not match");
+            return;
+        }
+
+        setIsSigningUp(true);
         try {
-            await signInWithEmail(email, password);
-            // Redirection is handled by the useEffect above once user state updates
-        } catch (error: any) {
-            console.error("Login failed", error);
-            setError(error.message || "Invalid email or password");
-            setIsSigningIn(false);
+            await signUpWithEmail(email, password, fullName);
+            // Sign up successful - usually triggers a confirmation email
+            // You might want to show a success message or redirect to a "check email" page
+            // For now, we'll just redirect to login with a query param
+            // But since signUpWithEmail in context handles errors, if we get here it's likely success
+            // However, Supabase default is "Check your email".
+            // Let's assume auto-login if email confirm is off, otherwise check email.
+            // Safe bet:
+            alert("Account created! Please check your email to verify your account.");
+            router.push("/login");
+        } catch (err: any) {
+            console.error("Signup failed", err);
+            setError(err.message || "Failed to create account");
+        } finally {
+            setIsSigningUp(false);
         }
     };
 
     const handleGoogleLogin = async () => {
-        setIsSigningIn(true);
+        setIsSigningUp(true);
         try {
             await signInWithGoogle();
         } catch (error) {
             console.error("Google login failed", error);
-            setIsSigningIn(false);
+            setIsSigningUp(false);
         }
     };
 
-    // If already authenticated, show loading while redirecting
-    if (user && !isLoading) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-white">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            </div>
-        );
-    }
-
     return (
         <div className="flex min-h-screen bg-white">
-            {/* Left Side: Brand & Visual */}
+            {/* Left Side: Brand & Visual - Matching Login Page */}
             <div className="hidden lg:flex lg:w-1/2 relative bg-[#141827] overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <Image
@@ -119,11 +97,11 @@ function LoginForm() {
                     <div className="space-y-6">
                         <div className="space-y-2">
                             <h2 className="text-5xl font-bold font-display leading-tight">
-                                Your Sound, <br />
-                                <span className="text-primary">Your Soul.</span>
+                                Join the <br />
+                                <span className="text-primary">Movement.</span>
                             </h2>
                             <p className="text-xl text-white/60 font-medium max-w-md">
-                                Sign in to unlock exclusive features, chat with presenters, and control your music experience.
+                                Create an account to curate your playlist, follow your favorite shows, and never miss a beat.
                             </p>
                         </div>
 
@@ -133,8 +111,8 @@ function LoginForm() {
                                     <ShieldCheck className="w-6 h-6 text-primary" />
                                 </div>
                                 <div>
-                                    <p className="font-bold">Secure Access</p>
-                                    <p className="text-sm text-white/40 font-medium">Industry standard encryption</p>
+                                    <p className="font-bold">Music for You</p>
+                                    <p className="text-sm text-white/40 font-medium">Personalized experience</p>
                                 </div>
                             </div>
                         </div>
@@ -146,9 +124,9 @@ function LoginForm() {
                 </div>
             </div>
 
-            {/* Right Side: Login Form */}
+            {/* Right Side: Signup Form */}
             <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-[#fcfcfd]">
-                <div className="w-full max-w-md space-y-10">
+                <div className="w-full max-w-md space-y-8">
                     <div className="space-y-3">
                         <div className="lg:hidden flex items-center gap-2 mb-8">
                             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
@@ -156,11 +134,11 @@ function LoginForm() {
                             </div>
                             <span className="text-xl font-black font-display tracking-tight italic">PIE RADIO</span>
                         </div>
-                        <h1 className="text-4xl font-black font-display tracking-tight text-[#141827]">Welcome back</h1>
-                        <p className="text-lg text-zinc-500 font-medium">Please enter your details to sign in.</p>
+                        <h1 className="text-4xl font-black font-display tracking-tight text-[#141827]">Create Account</h1>
+                        <p className="text-lg text-zinc-500 font-medium">Join us and start listening today.</p>
                     </div>
 
-                    <form onSubmit={handleEmailLogin} className="space-y-6">
+                    <form onSubmit={handleSignup} className="space-y-5">
                         {error && (
                             <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-red-600 text-sm font-medium">
                                 {error}
@@ -168,6 +146,23 @@ function LoginForm() {
                         )}
 
                         <div className="space-y-4">
+                            {/* Full Name */}
+                            <div className="space-y-1.5">
+                                <label className="text-sm font-bold text-zinc-700">Full Name</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <User className="h-5 w-5 text-zinc-400" />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={fullName}
+                                        onChange={(e) => setFullName(e.target.value)}
+                                        className="block w-full pl-10 h-12 rounded-xl border-zinc-200 bg-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 transition-all font-medium"
+                                        placeholder="John Doe"
+                                    />
+                                </div>
+                            </div>
+
                             {/* Email */}
                             <div className="space-y-1.5">
                                 <label className="text-sm font-bold text-zinc-700">Email Address</label>
@@ -187,10 +182,7 @@ function LoginForm() {
 
                             {/* Password */}
                             <div className="space-y-1.5">
-                                <div className="flex items-center justify-between">
-                                    <label className="text-sm font-bold text-zinc-700">Password</label>
-                                    <span className="text-xs text-primary font-bold cursor-pointer hover:underline">Forgot Password?</span>
-                                </div>
+                                <label className="text-sm font-bold text-zinc-700">Password</label>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <Lock className="h-5 w-5 text-zinc-400" />
@@ -204,18 +196,35 @@ function LoginForm() {
                                     />
                                 </div>
                             </div>
+
+                            {/* Confirm Password */}
+                            <div className="space-y-1.5">
+                                <label className="text-sm font-bold text-zinc-700">Confirm Password</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <Lock className="h-5 w-5 text-zinc-400" />
+                                    </div>
+                                    <input
+                                        type="password"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        className="block w-full pl-10 h-12 rounded-xl border-zinc-200 bg-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 transition-all font-medium"
+                                        placeholder="••••••••"
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         <Button
                             type="submit"
                             size="lg"
                             className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-lg shadow-primary/25"
-                            disabled={isSigningIn || isLoading}
+                            disabled={isSigningUp || isLoading}
                         >
-                            {isSigningIn ? (
+                            {isSigningUp ? (
                                 <Loader2 className="h-5 w-5 animate-spin" />
                             ) : (
-                                "Sign In"
+                                "Create Account"
                             )}
                         </Button>
                     </form>
@@ -234,7 +243,7 @@ function LoginForm() {
                         size="lg"
                         className="h-14 w-full relative rounded-2xl border-2 hover:bg-zinc-50 transition-all font-bold gap-3"
                         onClick={handleGoogleLogin}
-                        disabled={isSigningIn || isLoading}
+                        disabled={isSigningUp || isLoading}
                     >
                         <svg className="h-5 w-5" viewBox="0 0 24 24">
                             <path
@@ -254,17 +263,17 @@ function LoginForm() {
                                 fill="#EA4335"
                             />
                         </svg>
-                        Sign in with Google
+                        Sign up with Google
                     </Button>
 
                     <p className="text-center text-sm text-zinc-500 font-medium">
-                        Don&apos;t have an account? <Link href="/signup" className="text-primary font-bold cursor-pointer hover:underline">Join the team</Link>
+                        Already have an account? <Link href="/login" className="text-primary font-bold cursor-pointer hover:underline">Sign In</Link>
                     </p>
 
-                    <div className="pt-8 text-center text-[10px] text-zinc-400 font-bold uppercase tracking-widest flex items-center justify-center gap-6">
-                        <span className="hover:text-primary transition-colors cursor-pointer">Terms of Service</span>
+                    <div className="pt-2 text-center text-[10px] text-zinc-400 font-bold uppercase tracking-widest flex items-center justify-center gap-6">
+                        <span className="hover:text-primary transition-colors cursor-pointer">Terms</span>
                         <span className="w-1 h-1 bg-zinc-200 rounded-full" />
-                        <span className="hover:text-primary transition-colors cursor-pointer">Privacy Policy</span>
+                        <span className="hover:text-primary transition-colors cursor-pointer">Privacy</span>
                         <span className="w-1 h-1 bg-zinc-200 rounded-full" />
                         <span className="hover:text-primary transition-colors cursor-pointer">Security</span>
                     </div>
