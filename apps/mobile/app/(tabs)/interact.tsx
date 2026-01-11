@@ -1,30 +1,22 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, TextInput, FlatList, KeyboardAvoidingView, Platform, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, FlatList, KeyboardAvoidingView, Platform, TouchableOpacity, ActivityIndicator, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { supabase } from "@/lib/supabase"; // Assuming we have a mobile supabase client
+import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import { Filter } from "bad-words";
-import { formatDistanceToNow } from "date-fns";
-
-// We need a way to get Current User in mobile. 
-// Assuming we haven't built full Mobile Auth UI yet, this part usually blocks.
-// However, the Phase 5/6 plan mentioned Auth was "In Progress".
-// I'll assume we can get session. If not, I'll show a "Login Required" text.
+import { router } from "expo-router";
+import { useAuth } from "@/context/auth-context";
+import { MobileHeader } from "../../components/mobile-header";
 
 export default function InteractScreen() {
+    const { user, profile, isAuthenticated, isLoading: authLoading } = useAuth();
     const [messages, setMessages] = useState<any[]>([]);
     const [newMessage, setNewMessage] = useState("");
-    const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const flatListRef = useRef<FlatList>(null);
     const filter = new Filter();
 
     useEffect(() => {
-        // Check Session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setUser(session?.user ?? null);
-        });
-
         // Fetch History
         const fetchMessages = async () => {
             const { data } = await supabase
@@ -83,7 +75,7 @@ export default function InteractScreen() {
         const { error } = await supabase.from('chat_messages').insert({
             user_id: user.id,
             content: text
-        });
+        } as any);
 
         if (error) {
             console.error(error);
@@ -91,37 +83,39 @@ export default function InteractScreen() {
         }
     };
 
-    if (loading) {
+    const handleLoginPress = () => {
+        router.push('/auth/login');
+    };
+
+    if (loading || authLoading) {
         return (
-            <SafeAreaView className="flex-1 bg-black items-center justify-center">
+            <SafeAreaView style={styles.loadingContainer}>
                 <ActivityIndicator color="#ef4444" />
             </SafeAreaView>
         );
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-black" edges={['top']}>
-            <View className="p-4 border-b border-zinc-800">
-                <Text className="text-white text-2xl font-bold">Community Chat</Text>
-            </View>
+        <SafeAreaView style={styles.container} edges={['top']}>
+            <MobileHeader title="Community Chat" />
 
+            {/* Messages */}
             <FlatList
                 ref={flatListRef}
                 data={messages}
                 keyExtractor={(item) => item.id}
-                contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+                contentContainerStyle={styles.messageList}
                 renderItem={({ item }) => {
                     const isMe = user?.id === item.user_id;
                     return (
-                        <View className={`mb-4 flex-row ${isMe ? 'justify-end' : 'justify-start'}`}>
-                            <View className={`max-w-[80%] rounded-lg p-3 ${isMe ? 'bg-red-500' : 'bg-zinc-800'
-                                }`}>
+                        <View style={[styles.messageRow, isMe ? styles.messageRowMe : styles.messageRowOther]}>
+                            <View style={[styles.messageBubble, isMe ? styles.messageBubbleMe : styles.messageBubbleOther]}>
                                 {!isMe && (
-                                    <Text className="text-xs font-bold text-zinc-400 mb-1">
+                                    <Text style={styles.messageUsername}>
                                         {item.profiles?.username || "Anon"}
                                     </Text>
                                 )}
-                                <Text className={`text-base ${isMe ? 'text-white' : 'text-zinc-200'}`}>
+                                <Text style={[styles.messageText, isMe ? styles.messageTextMe : styles.messageTextOther]}>
                                     {item.content}
                                 </Text>
                             </View>
@@ -130,29 +124,145 @@ export default function InteractScreen() {
                 }}
             />
 
+            {/* Input Area */}
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
             >
-                <View className="p-4 bg-zinc-900 border-t border-zinc-800 flex-row items-center">
-                    {user ? (
+                <View style={styles.inputContainer}>
+                    {isAuthenticated ? (
                         <>
                             <TextInput
-                                className="flex-1 bg-zinc-800 text-white rounded-full px-4 py-2 mr-2"
+                                style={styles.input}
                                 placeholder="Type a message..."
                                 placeholderTextColor="#71717a"
                                 value={newMessage}
                                 onChangeText={setNewMessage}
                             />
-                            <TouchableOpacity onPress={handleSend} className="bg-red-500 p-2 rounded-full">
+                            <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
                                 <Ionicons name="send" size={20} color="white" />
                             </TouchableOpacity>
                         </>
                     ) : (
-                        <Text className="text-zinc-500 w-full text-center">Login to chat</Text>
+                        <TouchableOpacity style={styles.loginPrompt} onPress={handleLoginPress}>
+                            <Ionicons name="log-in-outline" size={20} color="#dc2626" />
+                            <Text style={styles.loginPromptText}>Sign in to join the chat</Text>
+                        </TouchableOpacity>
                     )}
                 </View>
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#000000',
+    },
+    loadingContainer: {
+        flex: 1,
+        backgroundColor: '#000000',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    header: {
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#27272a',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    headerTitle: {
+        color: '#ffffff',
+        fontSize: 24,
+        fontWeight: '700',
+    },
+    userBadge: {
+        backgroundColor: '#1a1a1a',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 16,
+    },
+    userBadgeText: {
+        color: '#a1a1aa',
+        fontSize: 12,
+    },
+    messageList: {
+        padding: 16,
+        paddingBottom: 100,
+    },
+    messageRow: {
+        marginBottom: 12,
+        flexDirection: 'row',
+    },
+    messageRowMe: {
+        justifyContent: 'flex-end',
+    },
+    messageRowOther: {
+        justifyContent: 'flex-start',
+    },
+    messageBubble: {
+        maxWidth: '80%',
+        borderRadius: 12,
+        padding: 12,
+    },
+    messageBubbleMe: {
+        backgroundColor: '#dc2626',
+    },
+    messageBubbleOther: {
+        backgroundColor: '#27272a',
+    },
+    messageUsername: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#a1a1aa',
+        marginBottom: 4,
+    },
+    messageText: {
+        fontSize: 15,
+    },
+    messageTextMe: {
+        color: '#ffffff',
+    },
+    messageTextOther: {
+        color: '#e4e4e7',
+    },
+    inputContainer: {
+        padding: 16,
+        backgroundColor: '#0a0a0a',
+        borderTopWidth: 1,
+        borderTopColor: '#27272a',
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    input: {
+        flex: 1,
+        backgroundColor: '#27272a',
+        color: '#ffffff',
+        borderRadius: 24,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        marginRight: 8,
+        fontSize: 15,
+    },
+    sendButton: {
+        backgroundColor: '#dc2626',
+        padding: 10,
+        borderRadius: 20,
+    },
+    loginPrompt: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        paddingVertical: 8,
+    },
+    loginPromptText: {
+        color: '#dc2626',
+        fontSize: 15,
+        fontWeight: '500',
+    },
+});

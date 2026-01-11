@@ -3,6 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { Database } from "@packages/types";
+import { MobileHeader } from "../../components/mobile-header";
 
 // Initialize Supabase Client (Mobile doesn't use SSR helpers usually, just direct client)
 // We need the URL and Key. In Expo we use process.env.EXPO_PUBLIC_...
@@ -54,12 +55,15 @@ export default function ScheduleScreen() {
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-background px-4">
-            <Text className="text-text font-bold text-2xl mb-6 mt-4">Today's Schedule</Text>
-
+        <SafeAreaView className="flex-1 bg-background">
+            <MobileHeader title="Schedule" />
             <FlatList
                 data={slots}
                 keyExtractor={(item) => item.id}
+                contentContainerStyle={{ padding: 16 }}
+                ListHeaderComponent={
+                    <Text className="text-text font-bold text-2xl mb-6">Today's Schedule</Text>
+                }
                 renderItem={({ item }) => (
                     <View className="flex-row mb-6 bg-card rounded-xl overflow-hidden border border-zinc-800">
                         <View className="w-24 h-24 bg-zinc-800">
