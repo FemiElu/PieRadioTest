@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Play, Pause, Volume2, Loader2, Music2, Radio } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import RequestSongModal from "@/components/requests/RequestSongModal";
 
 export function PersistentPlayer() {
     const { isPlaying, togglePlay, currentTrack, isLoading } = useAudio();
@@ -87,10 +88,18 @@ export function PersistentPlayer() {
                         </div>
                     </div>
 
+                    <RequestSongModal />
+
                     <button className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-zinc-500 hover:text-white">
                         <Radio className="w-4 h-4" />
                     </button>
                 </div>
+
+                {/* Mobile Request Button (Absolute on Right) */}
+                <div className="md:hidden flex items-center">
+                    <RequestSongModal />
+                </div>
+
             </div>
         </div>
     );

@@ -8,8 +8,10 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "turbo": "latest",
-    "prettier": "latest"
+    "expo": "^54.0.31",
+    "metro": "^0.80.12",
+    "prettier": "latest",
+    "turbo": "latest"
   },
   "packageManager": "npm@10.0.0",
   "workspaces": [

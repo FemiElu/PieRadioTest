@@ -117,6 +117,15 @@ export type Database = {
                     song_title: string
                     status: Database["public"]["Enums"]["request_status"] | null
                     user_id: string | null
+                    requested_by_user_id: string | null
+                    station_id: number | null
+                    show_id: string | null
+                    listener_note: string | null
+                    device_id: string | null
+                    rejection_reason: string | null
+                    approved_at: string | null
+                    played_at: string | null
+                    updated_at: string | null
                 }
                 Insert: {
                     artist_name: string
@@ -127,6 +136,15 @@ export type Database = {
                     song_title: string
                     status?: Database["public"]["Enums"]["request_status"] | null
                     user_id?: string | null
+                    requested_by_user_id?: string | null
+                    station_id?: number | null
+                    show_id?: string | null
+                    listener_note?: string | null
+                    device_id?: string | null
+                    rejection_reason?: string | null
+                    approved_at?: string | null
+                    played_at?: string | null
+                    updated_at?: string | null
                 }
                 Update: {
                     artist_name?: string
@@ -137,6 +155,15 @@ export type Database = {
                     song_title?: string
                     status?: Database["public"]["Enums"]["request_status"] | null
                     user_id?: string | null
+                    requested_by_user_id?: string | null
+                    station_id?: number | null
+                    show_id?: string | null
+                    listener_note?: string | null
+                    device_id?: string | null
+                    rejection_reason?: string | null
+                    approved_at?: string | null
+                    played_at?: string | null
+                    updated_at?: string | null
                 }
             }
             news_articles: {
@@ -178,6 +205,7 @@ export type Database = {
                     twitter_handle: string | null
                     user_id: string
                     website_url: string | null
+                    category: string | null
                 }
                 Insert: {
                     instagram_handle?: string | null
@@ -185,6 +213,7 @@ export type Database = {
                     twitter_handle?: string | null
                     user_id: string
                     website_url?: string | null
+                    category?: string | null
                 }
                 Update: {
                     instagram_handle?: string | null
@@ -192,6 +221,39 @@ export type Database = {
                     twitter_handle?: string | null
                     user_id?: string
                     website_url?: string | null
+                    category?: string | null
+                }
+            }
+            presenter_messages: {
+                Row: {
+                    id: string
+                    presenter_id: string
+                    sender_name: string
+                    sender_email: string
+                    message: string
+                    is_read: boolean | null
+                    created_at: string | null
+                    updated_at: string | null
+                }
+                Insert: {
+                    id?: string
+                    presenter_id: string
+                    sender_name: string
+                    sender_email: string
+                    message: string
+                    is_read?: boolean | null
+                    created_at?: string | null
+                    updated_at?: string | null
+                }
+                Update: {
+                    id?: string
+                    presenter_id?: string
+                    sender_name?: string
+                    sender_email?: string
+                    message?: string
+                    is_read?: boolean | null
+                    created_at?: string | null
+                    updated_at?: string | null
                 }
             }
             profiles: {
@@ -204,6 +266,7 @@ export type Database = {
                     id: string
                     is_live: boolean | null
                     role: Database["public"]["Enums"]["user_role"] | null
+                    slug: string | null
                     updated_at: string | null
                     username: string | null
                 }
@@ -216,6 +279,7 @@ export type Database = {
                     id: string
                     is_live?: boolean | null
                     role?: Database["public"]["Enums"]["user_role"] | null
+                    slug?: string | null
                     updated_at?: string | null
                     username?: string | null
                 }
@@ -228,6 +292,7 @@ export type Database = {
                     id?: string
                     is_live?: boolean | null
                     role?: Database["public"]["Enums"]["user_role"] | null
+                    slug?: string | null
                     updated_at?: string | null
                     username?: string | null
                 }
@@ -408,7 +473,7 @@ export type Database = {
             }
         }
         Enums: {
-            request_status: "pending" | "approved" | "declined" | "played"
+            request_status: "pending" | "approved" | "declined" | "played" | "rejected" | "expired"
             user_role: "listener" | "presenter" | "admin"
         }
         CompositeTypes: {
