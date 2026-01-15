@@ -23,9 +23,9 @@ export async function middleware(request: NextRequest) {
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    img-src 'self' blob: data: https://*.supabase.co https://*.googleusercontent.com https://i.scdn.co https://cdn.discordapp.com;
+    img-src 'self' blob: data: https://*.supabase.co https://*.unsplash.com https://*.googleusercontent.com https://i.scdn.co https://cdn.discordapp.com;
     font-src 'self' https://fonts.gstatic.com;
-    connect-src 'self' https://*.supabase.co https://*.aiir.com https://api.stripe.com;
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.aiir.com https://api.stripe.com;
     media-src 'self' https://*.aiir.com blob:;
     frame-src 'self' https://js.stripe.com;
   `;

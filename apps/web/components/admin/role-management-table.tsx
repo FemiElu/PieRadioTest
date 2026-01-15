@@ -11,9 +11,11 @@ import {
     User,
     Shield,
     Crown,
-    Search
+    Search,
+    ExternalLink
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
@@ -251,6 +253,19 @@ export function RoleManagementTable({ users: initialUsers }: RoleManagementTable
                                                 Change
                                             </Button>
                                         )}
+
+                                        {user.role === 'presenter' && (
+                                            <Link href={`/admin/presenters?edit=${user.id}`}>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="ml-2 rounded-lg gap-1.5 text-xs text-primary border-primary/20 hover:bg-primary/5"
+                                                >
+                                                    <ExternalLink className="w-3 h-3" />
+                                                    Edit Profile
+                                                </Button>
+                                            </Link>
+                                        )}
                                     </td>
                                 </tr>
                             );
@@ -274,6 +289,6 @@ export function RoleManagementTable({ users: initialUsers }: RoleManagementTable
             <div className="p-4 border-t border-border/50 text-sm text-muted-foreground">
                 Showing {filteredUsers.length} of {users.length} users
             </div>
-        </div>
+        </div >
     );
 }

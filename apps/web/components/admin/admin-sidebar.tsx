@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, Music, ShieldAlert } from "lucide-react";
+import { LayoutDashboard, Users, Music, ShieldAlert, Mic2 } from "lucide-react";
 
 const sidebarItems = [
   {
@@ -20,6 +20,11 @@ const sidebarItems = [
     title: "User Management",
     href: "/admin/users",
     icon: Users,
+  },
+  {
+    title: "Presenters",
+    href: "/admin/presenters",
+    icon: Mic2,
   },
   {
     title: "Schedule / Shows",

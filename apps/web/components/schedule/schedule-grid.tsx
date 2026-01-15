@@ -1,113 +1,226 @@
 "use client";
 
-import { useState } from "react";
-import { ScheduleSlot } from "@/lib/schedule"; // We need to export this type properly or redefine
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 import Image from "next/image";
-import { Calendar, Mic2, Play } from "lucide-react";
+import { ChevronDown, Play } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-// Re-defining for client usage if import fails (or we should move type to @packages/types completely)
-// For now, let's assume the type is compatible
-type SlotWithShow = any;
+// --- DUMMY DATA ---
+const DAYS = [
+    { name: "Monday", date: "1st", full: "Mon 1st" },
+    { name: "Tuesday", date: "2nd", full: "Tue 2nd", isCurrent: true },
+    { name: "Wednesday", date: "3rd", full: "Wed 3rd" },
+    { name: "Thursday", date: "4th", full: "Thu 4th" },
+    { name: "Friday", date: "5th", full: "Fri 5th" },
+    { name: "Saturday", date: "6th", full: "Sat 6th" },
+    { name: "Sunday", date: "7th", full: "Sun 7th" },
+];
 
-const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const DUMMY_SCHEDULE = [
+    {
+        id: "1",
+        startTime: "06:00",
+        endTime: "10:00",
+        title: "Morning Rise",
+        host: "Alex Thompson",
+        image: "/assets/artist-spotlight.jpg",
+        description: "Start your day with the best mix of news, music, and entertainment. Wake up with energy and positivity.",
+        isLive: false,
+    },
+    {
+        id: "2",
+        startTime: "10:00",
+        endTime: "14:00",
+        title: "Midday Mix",
+        host: "Jamie Lee & Sarah Wilson",
+        image: "/assets/featured-event.jpg",
+        description: "The perfect soundtrack to your workday. Chart hits, classic throwbacks, and guest interviews with your favorite artists.",
+        isLive: true, // Currently live
+    },
+    {
+        id: "3",
+        startTime: "14:00",
+        endTime: "18:00",
+        title: "Afternoon Sessions",
+        host: "Marcus Chen",
+        image: "/assets/hero-main.jpg",
+        description: "Deep dives into history, exclusive sessions, and artist spotlights. Discover new music.",
+        isLive: false,
+    },
+    {
+        id: "4",
+        startTime: "18:00",
+        endTime: "20:00",
+        title: "Drive Time",
+        host: "Rachel Martinez",
+        image: "/assets/artist-spotlight.jpg",
+        description: "Your nonstop companion with the biggest hits, traffic updates, and conversations.",
+        isLive: false,
+    },
+];
 
-export function ScheduleGrid({ slots }: { slots: SlotWithShow[] }) {
-    const todayIndex = new Date().getDay();
-    const [activeDay, setActiveDay] = useState(todayIndex);
+// Blinking Live Indicator Component
+function BlinkingDot() {
+    const [isVisible, setIsVisible] = useState(true);
 
-    const filteredSlots = slots.filter((slot) => slot.day_of_week === activeDay);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setIsVisible((prev) => !prev);
+        }, 600);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
-        <div className="space-y-12">
-            {/* Day Tabs */}
-            <div className="flex overflow-x-auto pb-4 gap-3 no-scrollbar border-b border-border/40">
+        <div
+            className={cn(
+                "absolute top-2 left-2 w-3 h-3 rounded-full bg-red-500 border-2 border-white shadow-lg transition-opacity duration-150",
+                isVisible ? "opacity-100" : "opacity-30"
+            )}
+        />
+    );
+}
+
+export function ScheduleGrid() {
+    const currentDayIndex = DAYS.findIndex((d) => d.isCurrent) || 1;
+    const [activeDay, setActiveDay] = useState(currentDayIndex);
+
+    // For demo, show same schedule for all days
+    const activeSchedule = DUMMY_SCHEDULE;
+
+    return (
+        <div className="space-y-8">
+            {/* --- Date Selection Controls --- */}
+
+            {/* Mobile: Select Dropdown */}
+            <div className="md:hidden">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="w-full h-12 justify-between text-base font-semibold rounded-xl border bg-card px-4">
+                            <span>{DAYS[activeDay].name}, {DAYS[activeDay].date}</span>
+                            <ChevronDown className="w-5 h-5 opacity-50" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-[calc(100vw-32px)]">
+                        {DAYS.map((day, index) => (
+                            <DropdownMenuItem
+                                key={day.name}
+                                onClick={() => setActiveDay(index)}
+                                className="text-base py-3 font-medium cursor-pointer"
+                            >
+                                {day.name}, {day.date}
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+
+            {/* Desktop: Horizontal Pills */}
+            <div className="hidden md:flex flex-wrap gap-3">
                 {DAYS.map((day, index) => (
                     <button
-                        key={day}
+                        key={day.name}
                         onClick={() => setActiveDay(index)}
                         className={cn(
-                            "px-6 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-200",
+                            "px-6 py-3 rounded-full text-base font-bold transition-all duration-200 border-2",
                             activeDay === index
-                                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105"
-                                : "bg-zinc-100 text-muted-foreground hover:bg-zinc-200 hover:text-foreground"
+                                ? "bg-primary border-primary text-white shadow-lg shadow-primary/20 scale-105"
+                                : "bg-white border-border text-foreground hover:border-zinc-300 hover:bg-zinc-50"
                         )}
                     >
-                        {day}
+                        {day.full}
                     </button>
                 ))}
             </div>
 
-            {/* Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {filteredSlots.length === 0 ? (
-                    <div className="col-span-full py-24 text-center space-y-4 bg-muted/30 rounded-3xl border-2 border-dashed border-border/60">
-                        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
-                            <Calendar className="w-8 h-8 text-muted-foreground" />
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-xl font-bold font-display">No shows scheduled</p>
-                            <p className="text-muted-foreground">We haven&apos;t added the schedule for {DAYS[activeDay]} yet.</p>
-                        </div>
-                    </div>
+            {/* --- Show List --- */}
+            <div className="space-y-4">
+                {activeSchedule.length === 0 ? (
+                    <div className="py-20 text-center text-muted-foreground">No shows for this day.</div>
                 ) : (
-                    filteredSlots.map((slot) => (
-                        <div
-                            key={slot.id}
-                            className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/50 bg-white hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
-                        >
-                            <div className="aspect-[16/10] relative bg-muted overflow-hidden">
-                                {slot.shows?.cover_image_url ? (
-                                    <Image
-                                        src={slot.shows.cover_image_url}
-                                        alt={slot.shows.title}
-                                        fill
-                                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                                    />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-zinc-900 text-zinc-800 font-display font-black text-3xl select-none">
-                                        PIE RADIO
-                                    </div>
+                    activeSchedule.map((show) => {
+                        const isLive = show.isLive;
+
+                        return (
+                            <div
+                                key={show.id}
+                                className={cn(
+                                    "group relative flex flex-col md:flex-row items-center gap-6 p-6 rounded-3xl border-2 transition-all duration-300 hover:scale-[1.01]",
+                                    isLive
+                                        ? "bg-white border-primary/30 shadow-xl shadow-primary/10 ring-2 ring-primary/20"
+                                        : "bg-white border-border hover:border-zinc-300 hover:shadow-lg"
                                 )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-                                <div className="absolute top-4 left-4">
-                                    <div className="px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-md text-white text-[11px] font-black uppercase tracking-widest border border-white/10">
-                                        {slot.start_time.slice(0, 5)} - {slot.end_time.slice(0, 5)}
-                                    </div>
+                            >
+                                {/* Time Column */}
+                                <div className="flex flex-col items-start justify-center min-w-[100px] shrink-0">
+                                    <span className="text-3xl font-bold text-foreground tracking-tight leading-none">
+                                        {show.startTime}
+                                    </span>
+                                    <span className="text-sm font-medium text-muted-foreground mt-1">
+                                        {show.endTime}
+                                    </span>
                                 </div>
-                            </div>
 
-                            <div className="p-5 flex-1 flex flex-col justify-between">
-                                <div className="space-y-2">
-                                    {slot.shows?.genre && (
-                                        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-                                            {slot.shows.genre}
+                                {/* Content Container */}
+                                <div className="flex-1 flex flex-col md:flex-row gap-6 items-center w-full">
+                                    {/* Image */}
+                                    <div className="relative w-28 h-28 md:w-32 md:h-32 shrink-0 rounded-2xl overflow-hidden bg-zinc-100 shadow-md">
+                                        <Image
+                                            src={show.image}
+                                            alt={show.title}
+                                            fill
+                                            className="object-cover"
+                                        />
+                                        {isLive && <BlinkingDot />}
+                                    </div>
+
+                                    {/* Text Info */}
+                                    <div className="flex-1 text-center md:text-left space-y-2">
+                                        <div className="flex items-center justify-center md:justify-start gap-3">
+                                            <h3 className="text-xl md:text-2xl font-bold text-foreground leading-tight">
+                                                {show.title}
+                                            </h3>
+                                            {isLive && (
+                                                <span className="px-2.5 py-1 rounded-md bg-red-500 text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
+                                                    Live Now
+                                                </span>
+                                            )}
                                         </div>
-                                    )}
-                                    <h3 className="font-bold font-display text-xl leading-snug group-hover:text-primary transition-colors line-clamp-2">
-                                        {slot.shows?.title}
-                                    </h3>
-                                    {slot.shows?.description && (
-                                        <p className="text-sm text-muted-foreground line-clamp-2">
-                                            {slot.shows.description}
+                                        <p className="font-semibold text-muted-foreground text-sm">{show.host}</p>
+                                        <p className="text-sm text-zinc-600 leading-relaxed max-w-2xl">
+                                            {show.description}
                                         </p>
-                                    )}
-                                </div>
-
-                                <div className="mt-4 pt-4 border-t border-border/40 flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center">
-                                            <Mic2 className="w-4 h-4 text-primary" />
-                                        </div>
-                                        <span className="text-xs font-bold text-muted-foreground">Live Host</span>
                                     </div>
-                                    <Play className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                                    {/* Action Button */}
+                                    <div className="shrink-0 mt-4 md:mt-0">
+                                        {isLive ? (
+                                            <Button
+                                                size="lg"
+                                                className="rounded-full px-8 py-6 font-bold text-base shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
+                                            >
+                                                Listen Live
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                variant="outline"
+                                                size="icon"
+                                                className="w-12 h-12 rounded-full border-2 hover:border-primary hover:bg-primary/5 hover:text-primary transition-all"
+                                            >
+                                                <Play className="w-5 h-5 ml-0.5" />
+                                            </Button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))
+                        );
+                    })
                 )}
             </div>
         </div>
