@@ -35,12 +35,15 @@ export default function UsersPage() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold text-white">User Management</h1>
+                <h1 className="text-3xl font-black font-display tracking-tight text-[#141827]">User Management</h1>
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+            <div className="bg-white border border-border shadow-sm rounded-2xl overflow-hidden">
                 {loading ? (
-                    <div className="p-8 text-center text-zinc-500">Loading users...</div>
+                    <div className="p-12 text-center text-muted-foreground flex flex-col items-center gap-3">
+                        <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+                        <span className="font-bold">Loading users...</span>
+                    </div>
                 ) : (
                     <RoleManagementTable users={users} />
                 )}
