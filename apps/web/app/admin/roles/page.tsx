@@ -58,8 +58,8 @@ export default async function AdminRolesPage() {
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-3xl font-bold font-display tracking-tight">User Roles</h1>
-                <p className="text-muted-foreground mt-1">
+                <h1 className="text-4xl font-black font-display tracking-tight text-[#141827]">User Roles</h1>
+                <p className="text-zinc-500 font-medium mt-1">
                     Manage user permissions and role assignments
                 </p>
             </div>

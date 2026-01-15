@@ -5,7 +5,7 @@ export default function AdminDashboardPage() {
     <div className="space-y-10">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-2">
-          <h1 className="text-4xl font-black font-display tracking-tight text-white">Dashboard <span className="text-primary italic">Overview</span></h1>
+          <h1 className="text-4xl font-black font-display tracking-tight text-[#141827]">Dashboard <span className="text-primary italic">Overview</span></h1>
           <p className="text-zinc-500 font-medium">Welcome back, Admin. Here&apos;s what&apos;s happening with Pie Radio today.</p>
         </div>
         <div className="flex items-center gap-3">
@@ -65,7 +65,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="bg-[#141827] rounded-3xl p-8 space-y-6 text-white shadow-xl shadow-black/10">
+        <div className="bg-white rounded-3xl p-8 space-y-6 text-[#141827] shadow-sm border border-zinc-100">
           <h3 className="text-xl font-bold font-display tracking-tight">Quick Actions</h3>
           <div className="space-y-3">
             {[
@@ -73,7 +73,7 @@ export default function AdminDashboardPage() {
               { label: "Send Broadcast", icon: Music2 },
               { label: "System Maintenance", icon: ShieldCheck },
             ].map((action, i) => (
-              <button key={i} className="w-full flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all text-left font-bold text-sm">
+              <button key={i} className="w-full flex items-center justify-between p-4 rounded-2xl bg-zinc-50 border border-zinc-100 hover:bg-zinc-100 transition-all text-left font-bold text-sm">
                 {action.label}
                 <action.icon className="w-4 h-4 text-primary" />
               </button>
