@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Pieradio Light Mode Palette */
+    --background: 0 0% 97%;
+    /* #f7f6f6 */
+    --foreground: 227 32% 12%;
+    /* #141827 - Dark Blue/Black */
+
+    --card: 0 0% 100%;
+    /* White cards on light grey bg */
+    --card-foreground: 227 32% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 227 32% 12%;
+
+    --primary: 232 100% 60%;
+    /* #334aff - Brand Blue */
+    --primary-foreground: 0 0% 100%;
+    /* White text on primary */
+
+    --secondary: 0 0% 90%;
+    /* Light grey for secondary actions */
+    --secondary-foreground: 227 32% 12%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 36%;
+    /* #5d5d5d - Secondary Text */
+
+    --accent: 232 100% 96%;
+    /* Very light blue tint for accents */
+    --accent-foreground: 232 100% 60%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 84%;
+    /* #d5d5d5 */
+    --input: 0 0% 84%;
+    --ring: 232 100% 60%;
+    /* Primary Blue Ring */
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Complimentary Dark Mode (Dark Blue Base) */
+    --background: 227 32% 12%;
+    /* #141827 - Using the dark header color as bg */
+    --foreground: 0 0% 100%;
+
+    --card: 227 32% 15%;
+    /* Slightly lighter than bg */
+    --card-foreground: 0 0% 100%;
+
+    --popover: 227 32% 12%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 232 100% 60%;
+    /* #334aff - Keep Brand Blue */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 227 32% 20%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 227 32% 20%;
+    --muted-foreground: 227 10% 65%;
+
+    --accent: 227 32% 20%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 227 32% 25%;
+    --input: 227 32% 25%;
+    --ring: 232 100% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.font-sans {
+  font-family: var(--font-inter);
+}
+
+.font-display {
+  font-family: var(--font-outfit);
+}

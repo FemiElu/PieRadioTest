@@ -1,0 +1,381 @@
+"use client";
+
+import { useState } from "react";
+import { Loader2, Save, X, Upload, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { createClient } from "@/lib/supabase/client";
+import Image from "next/image";
+
+// Category options
+const CATEGORIES = [
+    { value: "Main Station", label: "Main Station" },
+    { value: "80s Hits", label: "80s Hits" },
+    { value: "Afrobeats", label: "Afrobeats" },
+    { value: "Chill Vibes", label: "Chill Vibes" },
+    { value: "Rock Classics", label: "Rock Classics" },
+];
+
+export interface PresenterFormData {
+    id?: string;
+    full_name: string;
+    username: string;
+    email: string;
+    bio: string;
+    avatar_url: string;
+    category: string;
+    instagram_handle: string;
+    twitter_handle: string;
+    website_url: string;
+}
+
+interface PresenterFormModalProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    presenter?: PresenterFormData | null;
+    onSuccess?: () => void;
+}
+
+const defaultFormData: PresenterFormData = {
+    full_name: "",
+    username: "",
+    email: "",
+    bio: "",
+    avatar_url: "",
+    category: "Main Station",
+    instagram_handle: "",
+    twitter_handle: "",
+    website_url: "",
+};
+
+export function PresenterFormModal({
+    open,
+    onOpenChange,
+    presenter,
+    onSuccess,
+}: PresenterFormModalProps) {
+    const [formData, setFormData] = useState<PresenterFormData>(
+        presenter || defaultFormData
+    );
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [imageError, setImageError] = useState(false);
+
+    const isEditing = Boolean(presenter?.id);
+
+    // Reset form when modal opens/closes or presenter changes
+    const handleOpenChange = (newOpen: boolean) => {
+        if (newOpen) {
+            setFormData(presenter || defaultFormData);
+            setError(null);
+            setImageError(false);
+        }
+        onOpenChange(newOpen);
+    };
+
+    const handleInputChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+        if (name === "avatar_url") {
+            setImageError(false);
+        }
+    };
+
+    const handleCategoryChange = (value: string) => {
+        setFormData((prev) => ({ ...prev, category: value }));
+    };
+
+    const generateSlug = (name: string) => {
+        return name
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, "")
+            .replace(/\s+/g, "-")
+            .replace(/-+/g, "-")
+            .trim();
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        setError(null);
+
+        try {
+            const supabase = createClient();
+            const slug = generateSlug(formData.full_name || formData.username);
+
+            if (isEditing && presenter?.id) {
+                // Update existing presenter profile
+                const { error: profileError } = await supabase
+                    .from("profiles")
+                    .update({
+                        full_name: formData.full_name,
+                        username: formData.username,
+                        email: formData.email,
+                        bio: formData.bio,
+                        avatar_url: formData.avatar_url,
+                        slug: slug,
+                        updated_at: new Date().toISOString(),
+                    })
+                    .eq("id", presenter.id);
+
+                if (profileError) throw profileError;
+
+                // Update or insert presenter_meta
+                const { error: metaError } = await supabase
+                    .from("presenter_meta")
+                    .upsert({
+                        user_id: presenter.id,
+                        category: formData.category,
+                        instagram_handle: formData.instagram_handle || null,
+                        twitter_handle: formData.twitter_handle || null,
+                        website_url: formData.website_url || null,
+                    });
+
+                if (metaError) throw metaError;
+            } else {
+                // Creating a new presenter requires an existing user account
+                // For now, we'll show a message about how to add presenters
+                setError(
+                    "To add a new presenter, first create a user account, then change their role to 'presenter' in User Management."
+                );
+                setIsSubmitting(false);
+                return;
+            }
+
+            onSuccess?.();
+            onOpenChange(false);
+        } catch (err: any) {
+            console.error("Error saving presenter:", err);
+            setError(err.message || "Failed to save presenter. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle className="text-xl font-bold font-display">
+                        {isEditing ? "Edit Presenter" : "Add New Presenter"}
+                    </DialogTitle>
+                    <DialogDescription>
+                        {isEditing
+                            ? "Update the presenter's profile information."
+                            : "Fill in the details to create a new presenter profile."}
+                    </DialogDescription>
+                </DialogHeader>
+
+                <form onSubmit={handleSubmit} className="space-y-6 py-4">
+                    {/* Avatar Preview */}
+                    <div className="flex items-center gap-4">
+                        <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-zinc-100 border border-border">
+                            {formData.avatar_url && !imageError ? (
+                                <Image
+                                    src={formData.avatar_url}
+                                    alt="Avatar preview"
+                                    fill
+                                    className="object-cover"
+                                    onError={() => setImageError(true)}
+                                    unoptimized // Optional: sometimes helps with unpredictable external URLs
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-zinc-400">
+                                    <User className="w-8 h-8" />
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex-1">
+                            <Label htmlFor="avatar_url">Avatar URL</Label>
+                            <Input
+                                id="avatar_url"
+                                name="avatar_url"
+                                value={formData.avatar_url}
+                                onChange={handleInputChange}
+                                placeholder="https://example.com/avatar.jpg"
+                                className="mt-1"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Basic Info */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <Label htmlFor="full_name">Full Name *</Label>
+                            <Input
+                                id="full_name"
+                                name="full_name"
+                                value={formData.full_name}
+                                onChange={handleInputChange}
+                                placeholder="Sarah Wilson"
+                                required
+                                className="mt-1"
+                            />
+                        </div>
+                        <div>
+                            <Label htmlFor="username">Username *</Label>
+                            <Input
+                                id="username"
+                                name="username"
+                                value={formData.username}
+                                onChange={handleInputChange}
+                                placeholder="sarah-wilson"
+                                required
+                                className="mt-1"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            placeholder="sarah@pieradio.co.uk"
+                            className="mt-1"
+                        />
+                    </div>
+
+                    <div>
+                        <Label htmlFor="bio">Bio</Label>
+                        <Textarea
+                            id="bio"
+                            name="bio"
+                            value={formData.bio}
+                            onChange={handleInputChange}
+                            placeholder="Tell us about this presenter..."
+                            rows={4}
+                            className="mt-1 resize-none"
+                        />
+                    </div>
+
+                    {/* Category */}
+                    <div>
+                        <Label htmlFor="category">Category / Station</Label>
+                        <Select
+                            value={formData.category}
+                            onValueChange={handleCategoryChange}
+                        >
+                            <SelectTrigger className="mt-1">
+                                <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {CATEGORIES.map((cat) => (
+                                    <SelectItem key={cat.value} value={cat.value}>
+                                        {cat.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {/* Social Links */}
+                    <div className="space-y-4">
+                        <h4 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                            Social Links
+                        </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <Label htmlFor="instagram_handle">Instagram Handle</Label>
+                                <div className="relative mt-1">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                                        @
+                                    </span>
+                                    <Input
+                                        id="instagram_handle"
+                                        name="instagram_handle"
+                                        value={formData.instagram_handle}
+                                        onChange={handleInputChange}
+                                        placeholder="sarahwilson"
+                                        className="pl-7"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <Label htmlFor="twitter_handle">Twitter Handle</Label>
+                                <div className="relative mt-1">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                                        @
+                                    </span>
+                                    <Input
+                                        id="twitter_handle"
+                                        name="twitter_handle"
+                                        value={formData.twitter_handle}
+                                        onChange={handleInputChange}
+                                        placeholder="sarahwilson"
+                                        className="pl-7"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <Label htmlFor="website_url">Website URL</Label>
+                            <Input
+                                id="website_url"
+                                name="website_url"
+                                value={formData.website_url}
+                                onChange={handleInputChange}
+                                placeholder="https://sarahwilson.com"
+                                className="mt-1"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Error Message */}
+                    {error && (
+                        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+                            {error}
+                        </div>
+                    )}
+
+                    {/* Footer */}
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                            disabled={isSubmitting}
+                        >
+                            Cancel
+                        </Button>
+                        <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Saving...
+                                </>
+                            ) : (
+                                <>
+                                    <Save className="w-4 h-4 mr-2" />
+                                    {isEditing ? "Update Presenter" : "Add Presenter"}
+                                </>
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
+}
