@@ -172,7 +172,7 @@ export default async function PresenterPage({ params }: PresenterPageProps) {
                                 <Button
                                     variant="outline"
                                     size="lg"
-                                    className="rounded-full border-white/30 text-white hover:bg-white/10 font-bold px-8"
+                                    className="rounded-full border-white/30 text-white bg-white/10 hover:bg-white/10 font-bold px-8"
                                 >
                                     View Schedule
                                 </Button>

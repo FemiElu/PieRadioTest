@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2, Save, X, Upload, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -77,16 +77,21 @@ export function PresenterFormModal({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [imageError, setImageError] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
 
     const isEditing = Boolean(presenter?.id);
 
-    // Reset form when modal opens/closes or presenter changes
-    const handleOpenChange = (newOpen: boolean) => {
-        if (newOpen) {
+    // Update form data when modal opens or presenter changes
+    useEffect(() => {
+        if (open) {
             setFormData(presenter || defaultFormData);
             setError(null);
             setImageError(false);
         }
+    }, [open, presenter]);
+
+    // Reset form when modal opens/closes or presenter changes
+    const handleOpenChange = (newOpen: boolean) => {
         onOpenChange(newOpen);
     };
 
@@ -113,6 +118,61 @@ export function PresenterFormModal({
             .trim();
     };
 
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validation
+        if (!file.type.startsWith("image/")) {
+            setError("Please upload an image file (JPG, PNG, WebP).");
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            setError("Image size must be less than 5MB.");
+            return;
+        }
+
+        try {
+            setIsUploading(true);
+            setError(null);
+            const supabase = createClient();
+
+            // Create a unique file path: avatars/{user_id}/{timestamp}-{filename}
+            // If creating new user (no ID yet), use 'temp/{timestamp}-{filename}'
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const filePath = `avatars/${presenter?.id || 'temp'}/${fileName}`;
+
+            const { error: uploadError, data } = await supabase.storage
+                .from("avatars")
+                .upload(filePath, file);
+
+            if (uploadError) {
+                // Check if bucket exists error or permissions
+                if (uploadError.message.includes("Bucket not found")) {
+                    throw new Error("Storage bucket 'avatars' not found. Please contact admin.");
+                }
+                throw uploadError;
+            }
+
+            // Get Public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from("avatars")
+                .getPublicUrl(filePath);
+
+            setFormData(prev => ({ ...prev, avatar_url: publicUrl }));
+            setImageError(false);
+
+        } catch (err: any) {
+            console.error("Upload error:", err);
+            setError(err.message || "Failed to upload image.");
+        } finally {
+            setIsUploading(false);
+            // Reset input value so same file can be selected again if needed
+            e.target.value = "";
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -134,7 +194,7 @@ export function PresenterFormModal({
                         avatar_url: formData.avatar_url,
                         slug: slug,
                         updated_at: new Date().toISOString(),
-                    })
+                    } as any)
                     .eq("id", presenter.id);
 
                 if (profileError) throw profileError;
@@ -186,9 +246,9 @@ export function PresenterFormModal({
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-6 py-4">
-                    {/* Avatar Preview */}
-                    <div className="flex items-center gap-4">
-                        <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-zinc-100 border border-border">
+                    {/* Avatar Preview & Upload */}
+                    <div className="flex items-start gap-4">
+                        <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-zinc-100 border border-border flex-shrink-0">
                             {formData.avatar_url && !imageError ? (
                                 <Image
                                     src={formData.avatar_url}
@@ -203,17 +263,50 @@ export function PresenterFormModal({
                                     <User className="w-8 h-8" />
                                 </div>
                             )}
+                            {isUploading && (
+                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                    <Loader2 className="w-6 h-6 text-white animate-spin" />
+                                </div>
+                            )}
                         </div>
-                        <div className="flex-1">
-                            <Label htmlFor="avatar_url">Avatar URL</Label>
-                            <Input
-                                id="avatar_url"
-                                name="avatar_url"
-                                value={formData.avatar_url}
-                                onChange={handleInputChange}
-                                placeholder="https://example.com/avatar.jpg"
-                                className="mt-1"
-                            />
+                        <div className="flex-1 space-y-3">
+                            <div>
+                                <Label htmlFor="avatar_url">Avatar Source</Label>
+                                <div className="flex gap-2 mt-1.5">
+                                    <Input
+                                        id="avatar_url"
+                                        name="avatar_url"
+                                        value={formData.avatar_url}
+                                        onChange={handleInputChange}
+                                        placeholder="https://example.com/avatar.jpg"
+                                        className="flex-1"
+                                        disabled={isUploading}
+                                    />
+                                    <div className="relative">
+                                        <Input
+                                            type="file"
+                                            id="avatar-upload"
+                                            className="hidden"
+                                            onChange={handleFileUpload}
+                                            accept="image/*"
+                                            disabled={isUploading}
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => document.getElementById('avatar-upload')?.click()}
+                                            disabled={isUploading}
+                                            className="whitespace-nowrap"
+                                        >
+                                            <Upload className="w-4 h-4 mr-2" />
+                                            Upload
+                                        </Button>
+                                    </div>
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-1.5">
+                                    Enter a URL or upload an image (max 5MB).
+                                </p>
+                            </div>
                         </div>
                     </div>
 
