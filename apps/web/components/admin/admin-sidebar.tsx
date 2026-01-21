@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, Music, ShieldAlert, Mic2 } from "lucide-react";
+import { LayoutDashboard, Users, Music, ShieldAlert, Mic2, ListMusic } from "lucide-react";
+import { useAuth } from "@/context/auth-context";
 
 const sidebarItems = [
   {
@@ -15,6 +16,11 @@ const sidebarItems = [
     title: "Moderation Queue",
     href: "/admin/moderation",
     icon: ShieldAlert,
+  },
+  {
+    title: "Music Requests",
+    href: "/admin/requests",
+    icon: ListMusic,
   },
   {
     title: "User Management",
@@ -35,6 +41,7 @@ const sidebarItems = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const { profile, isLoading } = useAuth();
 
   return (
     <div className="w-72 bg-white border-r border-border h-screen sticky top-0 hidden lg:flex flex-col shadow-sm">
@@ -81,11 +88,19 @@ export function AdminSidebar() {
       <div className="p-6 border-t border-border/50">
         <div className="bg-zinc-50 rounded-2xl p-4 border border-border/50 flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-            <Users className="w-4 h-4 text-primary" />
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover shadow-sm" />
+            ) : (
+              <Users className="w-4 h-4 text-primary" />
+            )}
           </div>
           <div className="flex flex-col overflow-hidden">
-            <span className="text-[10px] font-bold text-zinc-400 uppercase">Current Session</span>
-            <span className="text-xs font-bold text-[#141827] truncate">Admin User</span>
+            <span className="text-[10px] font-bold text-zinc-400 uppercase truncate">
+              {isLoading ? "Loading..." : (profile?.role || "System User")}
+            </span>
+            <span className="text-xs font-bold text-[#141827] truncate">
+              {profile?.full_name || profile?.email || "Admin User"}
+            </span>
           </div>
         </div>
         <p className="text-[10px] text-zinc-300 font-bold uppercase tracking-widest text-center mt-6">
