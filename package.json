@@ -1,0 +1,21 @@
+{
+  "name": "pie-radio-monorepo",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "devDependencies": {
+    "expo": "^54.0.31",
+    "metro": "^0.80.12",
+    "prettier": "latest",
+    "turbo": "latest"
+  },
+  "packageManager": "npm@10.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
