@@ -190,7 +190,6 @@ export default function SignupPage() {
                                         <Lock className="h-5 w-5 text-zinc-400" />
                                     </div>
                                     <input
-                                        <input
                                         type={showPassword ? "text" : "password"}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
@@ -219,7 +218,6 @@ export default function SignupPage() {
                                         <Lock className="h-5 w-5 text-zinc-400" />
                                     </div>
                                     <input
-                                        <input
                                         type={showConfirmPassword ? "text" : "password"}
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}

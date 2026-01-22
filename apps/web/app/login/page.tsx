@@ -197,7 +197,6 @@ function LoginForm() {
                                         <Lock className="h-5 w-5 text-zinc-400" />
                                     </div>
                                     <input
-                                        <input
                                         type={showPassword ? "text" : "password"}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
