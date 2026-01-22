@@ -1,10 +1,15 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { Play, Calendar, Music, Radio, ChevronRight, Mic2 } from "lucide-react";
+import { Play, Pause, Loader2, Calendar, Music, Radio, ChevronRight, Mic2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAudio } from "@/context/audio-context";
 
 export default function Home() {
+  const { isPlaying, togglePlay, isLoading } = useAudio();
+
   return (
     <div className="flex flex-col w-full">
       {/* Hero Section */}
@@ -39,9 +44,24 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Button size="lg" className="h-14 px-8 rounded-full text-lg shadow-2xl shadow-primary/40 gap-3 group bg-primary hover:bg-primary/90">
-                <Play className="fill-current group-hover:scale-110 transition-transform" />
-                Listen Live
+              <Button
+                size="lg"
+                className="h-14 px-8 rounded-full text-lg shadow-2xl shadow-primary/40 gap-3 group bg-primary hover:bg-primary/90 min-w-[200px]"
+                onClick={togglePlay}
+              >
+                {isLoading ? (
+                  <Loader2 className="h-6 w-6 animate-spin text-white" />
+                ) : isPlaying ? (
+                  <>
+                    <Pause className="fill-current group-hover:scale-110 transition-transform" />
+                    Pause Live
+                  </>
+                ) : (
+                  <>
+                    <Play className="fill-current group-hover:scale-110 transition-transform" />
+                    Listen Live
+                  </>
+                )}
               </Button>
               <Button variant="outline" size="lg" className="h-14 px-8 rounded-full text-lg border-2 gap-3 bg-white/5 backdrop-blur-sm text-white border-white/20 hover:bg-white/10 hover:border-white/40" asChild>
                 <Link href="/schedule">
@@ -53,7 +73,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Content Grid Section */}
       <section className="container max-w-screen-2xl mx-auto py-16 px-4 md:px-8 space-y-16">
 
