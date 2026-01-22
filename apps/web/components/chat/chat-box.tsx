@@ -91,7 +91,7 @@ export function ChatBox() {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, []);
+    }, [supabase, user]);
 
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();

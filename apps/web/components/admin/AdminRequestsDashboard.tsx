@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import Image from 'next/image';
 
 /**
  * Music Request type for admin dashboard
@@ -120,17 +121,19 @@ export default function AdminRequestsDashboard({ initialRequests }: AdminRequest
                                             <div className="text-muted-foreground">{req.artist_name}</div>
                                             {req.listener_note && (
                                                 <div className="text-xs italic mt-1 text-muted-foreground">
-                                                    "{req.listener_note}"
+                                                    &quot;{req.listener_note}&quot;
                                                 </div>
                                             )}
                                         </td>
                                         <td className="p-4">
                                             <div className="flex items-center gap-2">
                                                 {req.profiles?.avatar_url && (
-                                                    <img
+                                                    <Image
                                                         src={req.profiles.avatar_url}
+                                                        width={24}
+                                                        height={24}
                                                         className="w-6 h-6 rounded-full"
-                                                        alt=""
+                                                        alt={req.profiles.full_name || req.profiles.username || "User"}
                                                     />
                                                 )}
                                                 <div>

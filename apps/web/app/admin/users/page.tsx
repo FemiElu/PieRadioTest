@@ -30,7 +30,7 @@ export default function UsersPage() {
         };
 
         fetchUsers();
-    }, []);
+    }, [supabase]);
 
     return (
         <div className="space-y-6">

@@ -19,31 +19,31 @@ export default function ModerationPage() {
 
   const supabase = createClient();
 
-  const fetchPendingUploads = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("artist_uploads")
-      .select(`
-        *,
-        profiles (*)
-      `)
-      .eq("status", "pending")
-      .order("created_at", { ascending: false });
-
-    if (!error && data) {
-      setUploads(data as any);
-    }
-    setLoading(false);
-  };
-
   useEffect(() => {
+    const fetchPendingUploads = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("artist_uploads")
+        .select(`
+          *,
+          profiles (*)
+        `)
+        .eq("status", "pending")
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        setUploads(data as any);
+      }
+      setLoading(false);
+    };
+
     fetchPendingUploads();
     return () => {
       if (audio) {
         audio.pause();
       }
-    }
-  }, []);
+    };
+  }, [supabase, audio]);
 
   const handlePlay = (url: string, id: string) => {
     if (currentPlaying === id) {

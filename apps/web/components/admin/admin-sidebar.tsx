@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Users, Music, ShieldAlert, Mic2, ListMusic } from "lucide-react";
+import Image from "next/image";
 import { useAuth } from "@/context/auth-context";
 
 const sidebarItems = [
@@ -89,7 +90,13 @@ export function AdminSidebar() {
         <div className="bg-zinc-50 rounded-2xl p-4 border border-border/50 flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
             {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover shadow-sm" />
+              <Image
+                src={profile.avatar_url}
+                alt={profile.full_name || "User Avatar"}
+                width={32}
+                height={32}
+                className="w-full h-full rounded-full object-cover shadow-sm"
+              />
             ) : (
               <Users className="w-4 h-4 text-primary" />
             )}

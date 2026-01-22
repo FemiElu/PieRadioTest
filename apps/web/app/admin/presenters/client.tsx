@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Mic2, Plus, Edit, Trash2, Mail, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -38,7 +38,7 @@ export default function AdminPresentersClient() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    const fetchPresenters = async () => {
+    const fetchPresenters = useCallback(async () => {
         setIsLoading(true);
         const supabase = createClient();
 
@@ -98,11 +98,11 @@ export default function AdminPresentersClient() {
                 router.replace(`/admin/presenters?${newParams.toString()}`);
             }
         }
-    };
+    }, [searchParams, router]);
 
     useEffect(() => {
         fetchPresenters();
-    }, []);
+    }, [fetchPresenters]);
 
     const handleEditPresenter = (presenter: DisplayPresenter) => {
         const formData: PresenterFormData = {

@@ -240,7 +240,7 @@ export async function getAdminRequests() {
  */
 export async function updateRequestStatus(
     requestId: string,
-    newStatus: 'approved' | 'rejected',
+    newStatus: 'approved' | 'rejected' | 'played',
     rejectionReason?: string
 ) {
     const supabase = await createClient();
@@ -283,8 +283,13 @@ export async function updateRequestStatus(
     }
 
     // 4. Status transition check (DB trigger also enforces)
-    if (request.status !== 'pending') {
-        throw new Error('Request already processed - cannot modify status again.');
+    // Valid transitions: pending -> approved/rejected, approved -> played
+    if (request.status === 'rejected' || request.status === 'played') {
+        throw new Error(`Request already ${request.status} - cannot modify status again.`);
+    }
+
+    if (newStatus === 'played' && request.status !== 'approved') {
+        throw new Error('Can only mark as played from approved status.');
     }
 
     // 5. Perform Update (only mutable fields)
