@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
-import { Loader2, Music, ShieldCheck, Mail, Lock, CheckCircle2 } from "lucide-react";
+import { Loader2, Music, ShieldCheck, Mail, Lock, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -25,6 +25,7 @@ function LoginForm() {
     const [isSigningIn, setIsSigningIn] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -196,12 +197,23 @@ function LoginForm() {
                                         <Lock className="h-5 w-5 text-zinc-400" />
                                     </div>
                                     <input
-                                        type="password"
+                                        type={showPassword ? "text" : "password"}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="block w-full pl-10 h-12 rounded-xl border-zinc-200 bg-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 transition-all font-medium"
+                                        className="block w-full pl-10 pr-10 h-12 rounded-xl border-zinc-200 bg-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 transition-all font-medium"
                                         placeholder="••••••••"
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-zinc-600 transition-colors"
+                                    >
+                                        {showPassword ? (
+                                            <EyeOff className="h-5 w-5" />
+                                        ) : (
+                                            <Eye className="h-5 w-5" />
+                                        )}
+                                    </button>
                                 </div>
                             </div>
                         </div>

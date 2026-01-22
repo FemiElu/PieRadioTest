@@ -3,6 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useMobileAudio } from "../../context/mobile-audio-context";
 import { Ionicons } from "@expo/vector-icons";
 import { MobileHeader } from "../../components/mobile-header";
+import { RequestSongModal } from "../../components/RequestSongModal";
 
 export default function HomeScreen() {
     const { isPlaying, isLoading, togglePlay } = useMobileAudio();
@@ -34,6 +35,10 @@ export default function HomeScreen() {
                 <Text className="mt-8 text-gray-500 text-sm">
                     {isPlaying ? "Now Streaming..." : "Tap to Listen"}
                 </Text>
+
+                <View className="mt-8">
+                    <RequestSongModal />
+                </View>
             </View>
         </SafeAreaView>
     );

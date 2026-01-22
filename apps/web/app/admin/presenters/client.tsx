@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Mic2, Plus, Edit, Trash2, Mail, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -38,7 +38,7 @@ export default function AdminPresentersClient() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    const fetchPresenters = async () => {
+    const fetchPresenters = useCallback(async () => {
         setIsLoading(true);
         const supabase = createClient();
 
@@ -98,11 +98,11 @@ export default function AdminPresentersClient() {
                 router.replace(`/admin/presenters?${newParams.toString()}`);
             }
         }
-    };
+    }, [searchParams, router]);
 
     useEffect(() => {
         fetchPresenters();
-    }, []);
+    }, [fetchPresenters]);
 
     const handleEditPresenter = (presenter: DisplayPresenter) => {
         const formData: PresenterFormData = {
@@ -137,8 +137,8 @@ export default function AdminPresentersClient() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold font-display tracking-tight">Presenters</h1>
-                    <p className="text-muted-foreground mt-1">Manage your radio presenters and their profiles</p>
+                    <h1 className="text-4xl font-black font-display tracking-tight text-[#141827]">Presenters</h1>
+                    <p className="text-zinc-500 font-medium mt-1">Manage your radio presenters and their profiles</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <Button variant="outline" onClick={fetchPresenters} className="rounded-xl gap-2">

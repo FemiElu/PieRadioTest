@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import Image from 'next/image';
 
 type MusicRequest = Database['public']['Tables']['music_requests']['Row'] & {
     profiles: {
@@ -88,13 +89,19 @@ export default function RequestsDashboard({ initialRequests }: RequestsDashboard
                                             <div className="font-medium text-foreground">{req.song_title}</div>
                                             <div className="text-muted-foreground">{req.artist_name}</div>
                                             {req.listener_note && (
-                                                <div className="text-xs italic mt-1 text-muted-foreground">"{req.listener_note}"</div>
+                                                <div className="text-xs italic mt-1 text-muted-foreground">&quot;{req.listener_note}&quot;</div>
                                             )}
                                         </td>
                                         <td className="p-4">
                                             <div className="flex items-center gap-2">
                                                 {req.profiles?.avatar_url && (
-                                                    <img src={req.profiles.avatar_url} className="w-6 h-6 rounded-full" alt="" />
+                                                    <Image
+                                                        src={req.profiles.avatar_url}
+                                                        width={24}
+                                                        height={24}
+                                                        className="w-6 h-6 rounded-full"
+                                                        alt={req.profiles.full_name || req.profiles.username || "User"}
+                                                    />
                                                 )}
                                                 <span>{req.profiles?.full_name || req.profiles?.username || 'Unknown'}</span>
                                             </div>

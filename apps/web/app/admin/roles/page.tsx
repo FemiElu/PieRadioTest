@@ -13,7 +13,7 @@ async function getUsersWithRoles() {
 
     const { data: users, error } = await supabase
         .from('profiles')
-        .select('id, email, username, full_name, role, avatar_url, created_at, updated_at')
+        .select('id, email, username, full_name, role, avatar_url, bio, is_live, slug, created_at, updated_at')
         .order('created_at', { ascending: false });
 
     if (error) {
@@ -58,8 +58,8 @@ export default async function AdminRolesPage() {
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-3xl font-bold font-display tracking-tight">User Roles</h1>
-                <p className="text-muted-foreground mt-1">
+                <h1 className="text-4xl font-black font-display tracking-tight text-[#141827]">User Roles</h1>
+                <p className="text-zinc-500 font-medium mt-1">
                     Manage user permissions and role assignments
                 </p>
             </div>
@@ -106,7 +106,7 @@ export default async function AdminRolesPage() {
                 <div className="p-4 border-b border-border/50">
                     <h2 className="text-lg font-semibold">All Users</h2>
                     <p className="text-sm text-muted-foreground">
-                        Click on a user's role to change it
+                        Click on a user&apos;s role to change it
                     </p>
                 </div>
                 <RoleManagementTable users={users} />

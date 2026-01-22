@@ -17,39 +17,11 @@ export async function middleware(request: NextRequest) {
     });
 
     // =========================================================================
-    // 1. Security Headers (CSP, HSTS)
-    // =========================================================================
-    const cspHeader = `
-    default-src 'self';
-    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com;
-    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    img-src 'self' blob: data: https://*.supabase.co https://*.unsplash.com https://*.googleusercontent.com https://i.scdn.co https://cdn.discordapp.com;
-    font-src 'self' https://fonts.gstatic.com;
-    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.aiir.com https://api.stripe.com;
-    media-src 'self' https://*.aiir.com blob:;
-    frame-src 'self' https://js.stripe.com;
-  `;
-    const contentSecurityPolicyHeaderValue = cspHeader
-        .replace(/\s{2,}/g, " ")
-        .trim();
-
-    response.headers.set(
-        "Content-Security-Policy",
-        contentSecurityPolicyHeaderValue
-    );
-
-    // HSTS
-    response.headers.set(
-        'Strict-Transport-Security',
-        'max-age=31536000; includeSubDomains; preload'
-    );
-
-    // =========================================================================
-    // 2. Supabase Session Refresh
+    // 1. Supabase Session Refresh
     // =========================================================================
     const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',
+        (process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim(),
+        (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '').trim(),
         {
             cookies: {
                 getAll() {
@@ -178,6 +150,30 @@ export async function middleware(request: NextRequest) {
             );
         }
     }
+
+    // =========================================================================
+    // 4. Finalize Response (Apply Security Headers)
+    // =========================================================================
+
+    // Explicitly add your project URL to ensure wildcard doesn't fail
+    const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
+
+    const cspHeader = `
+        default-src 'self';
+        script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        img-src 'self' blob: data: https://*.supabase.co https://*.unsplash.com https://*.googleusercontent.com https://i.scdn.co https://cdn.discordapp.com;
+        font-src 'self' https://fonts.gstatic.com;
+        connect-src 'self' ${supabaseUrl} https://*.supabase.co wss://*.supabase.co https://*.aiir.com https://api.stripe.com;
+        media-src 'self' https://*.aiir.com blob:;
+        frame-src 'self' https://js.stripe.com;
+    `.replace(/\s{2,}/g, " ").trim();
+
+    response.headers.set("Content-Security-Policy", cspHeader);
+    response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('X-XSS-Protection', '1; mode=block');
 
     return response;
 }

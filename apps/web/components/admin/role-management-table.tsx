@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
@@ -157,9 +158,11 @@ export function RoleManagementTable({ users: initialUsers }: RoleManagementTable
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                                                 {user.avatar_url ? (
-                                                    <img
+                                                    <Image
                                                         src={user.avatar_url}
-                                                        alt=""
+                                                        alt={user.full_name || user.username || "User avatar"}
+                                                        width={32}
+                                                        height={32}
                                                         className="w-full h-full object-cover"
                                                     />
                                                 ) : (

@@ -1,59 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useEffect } from "react";
 import { Mail, Send, Loader2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { createClient } from "@/lib/supabase/client";
+import { sendPresenterMessage } from "@/actions/send-presenter-message";
 
 interface PresenterContactFormProps {
     presenterId: string;
     presenterName: string | null;
 }
 
+const initialState = {
+    success: false,
+    error: undefined,
+    message: undefined
+};
+
 export function PresenterContactForm({ presenterId, presenterName }: PresenterContactFormProps) {
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isSuccess, setIsSuccess] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [state, formAction, isPending] = useActionState(sendPresenterMessage, initialState);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        setError(null);
-
-        const formData = new FormData(e.currentTarget);
-        const senderName = formData.get("name") as string;
-        const senderEmail = formData.get("email") as string;
-        const message = formData.get("message") as string;
-
-        try {
-            const supabase = createClient();
-
-            const { error: insertError } = await supabase
-                .from("presenter_messages")
-                .insert({
-                    presenter_id: presenterId,
-                    sender_name: senderName,
-                    sender_email: senderEmail,
-                    message: message,
-                });
-
-            if (insertError) {
-                throw insertError;
-            }
-
-            setIsSuccess(true);
-            (e.target as HTMLFormElement).reset();
-        } catch (err: any) {
-            console.error("Error sending message:", err);
-            setError(err.message || "Failed to send message. Please try again.");
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    if (isSuccess) {
+    if (state.success) {
         return (
             <div className="bg-white rounded-3xl border border-border p-8">
                 <div className="text-center py-8 space-y-4">
@@ -66,7 +34,7 @@ export function PresenterContactForm({ presenterId, presenterName }: PresenterCo
                     </p>
                     <Button
                         variant="outline"
-                        onClick={() => setIsSuccess(false)}
+                        onClick={() => window.location.reload()} // Simple reload to reset state or we could add a reset handler
                         className="mt-4"
                     >
                         Send Another Message
@@ -85,14 +53,16 @@ export function PresenterContactForm({ presenterId, presenterName }: PresenterCo
                 <h2 className="text-xl font-bold font-display">Send a Message</h2>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form action={formAction} className="space-y-4">
+                <input type="hidden" name="presenterId" value={presenterId} />
+
                 <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
+                    <label htmlFor="senderName" className="block text-sm font-medium text-foreground mb-2">
                         Your Name
                     </label>
                     <Input
-                        id="name"
-                        name="name"
+                        id="senderName"
+                        name="senderName"
                         type="text"
                         placeholder="Enter your name"
                         required
@@ -101,12 +71,12 @@ export function PresenterContactForm({ presenterId, presenterName }: PresenterCo
                 </div>
 
                 <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+                    <label htmlFor="senderEmail" className="block text-sm font-medium text-foreground mb-2">
                         Email Address
                     </label>
                     <Input
-                        id="email"
-                        name="email"
+                        id="senderEmail"
+                        name="senderEmail"
                         type="email"
                         placeholder="you@email.com"
                         required
@@ -128,18 +98,18 @@ export function PresenterContactForm({ presenterId, presenterName }: PresenterCo
                     />
                 </div>
 
-                {error && (
+                {state.error && (
                     <p className="text-sm text-red-600 bg-red-50 p-3 rounded-xl">
-                        {error}
+                        {state.error}
                     </p>
                 )}
 
                 <Button
                     type="submit"
                     className="w-full rounded-xl font-bold"
-                    disabled={isSubmitting}
+                    disabled={isPending}
                 >
-                    {isSubmitting ? (
+                    {isPending ? (
                         <>
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                             Sending...
