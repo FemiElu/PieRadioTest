@@ -40,11 +40,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setUser(session?.user ?? null);
 
                 if (session?.user) {
-                    await fetchProfile(session.user.id);
+                    // Fetch profile in the background, don't block isLoading
+                    fetchProfile(session.user.id);
                 }
             } catch (error) {
                 console.error("Auth initialization error:", error);
             } finally {
+                // Ensure loading is false even if profile fetch hasn't finished
                 setIsLoading(false);
             }
         };
@@ -59,17 +61,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUser(session?.user ?? null);
 
             if (session?.user) {
+                // Background fetch if profile is missing or different user
                 if (!profile || profile.id !== session.user.id) {
-                    await fetchProfile(session.user.id);
+                    fetchProfile(session.user.id);
                 }
             } else {
                 setProfile(null);
             }
 
+            // Always clear loading on auth change events
             setIsLoading(false);
 
             if (event === 'SIGNED_OUT') {
                 router.refresh();
+                router.push('/');
             }
         });
 
@@ -79,20 +84,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [supabase, router]);
 
     const fetchProfile = async (userId: string) => {
-        const { data, error } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", userId)
-            .single();
+        try {
+            const { data, error } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", userId)
+                .single();
 
-        if (!error && data) {
-            setProfile(data);
+            if (error) {
+                console.warn("Profile fetch error:", error.message);
+                return;
+            }
+
+            if (data) {
+                setProfile(data);
+            }
+        } catch (err) {
+            console.error("Unexpected error fetching profile:", err);
         }
     };
 
     const signOut = async () => {
-        await supabase.auth.signOut();
-        router.push("/");
+        try {
+            await supabase.auth.signOut();
+            router.push("/");
+            router.refresh();
+        } catch (error) {
+            console.error("Sign out error:", error);
+        }
     };
 
     const signInWithEmail = async (email: string, password: string) => {

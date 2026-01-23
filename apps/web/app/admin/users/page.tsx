@@ -9,7 +9,7 @@ import { RoleManagementTable } from "@/components/admin/role-management-table";
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 export default function UsersPage() {
-    const [users, setUsers] = useState<Profile[]>([]);
+    const [users, setUsers] = useState<Partial<Profile>[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
 
@@ -20,8 +20,8 @@ export default function UsersPage() {
             setLoading(true);
             const { data, error } = await supabase
                 .from("profiles")
-                .select("*")
-                .order("created_at", { ascending: false }); // Assuming created_at exists on profile, if not, remove order or use id
+                .select("id, full_name, username, email, role, avatar_url, created_at")
+                .order("created_at", { ascending: false });
 
             if (!error && data) {
                 setUsers(data);
@@ -30,7 +30,7 @@ export default function UsersPage() {
         };
 
         fetchUsers();
-    }, [supabase]);
+    }, []);
 
     return (
         <div className="space-y-6">
@@ -45,7 +45,7 @@ export default function UsersPage() {
                         <span className="font-bold">Loading users...</span>
                     </div>
                 ) : (
-                    <RoleManagementTable users={users} />
+                    <RoleManagementTable users={users as Profile[]} />
                 )}
             </div>
         </div>

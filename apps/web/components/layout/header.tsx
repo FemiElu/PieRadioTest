@@ -26,7 +26,12 @@ const navigation = [
 
 export function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
     const { user, profile, signOut, isLoading } = useAuth();
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // Close menu when resizing to desktop
     useEffect(() => {
@@ -91,7 +96,7 @@ export function Header() {
                         </Button>
 
                         {/* Auth Buttons / User Menu */}
-                        {!isLoading && (
+                        {mounted && !isLoading && (
                             <>
                                 {user ? (
                                     <DropdownMenu>
@@ -173,7 +178,7 @@ export function Header() {
                     ))}
 
                     <div className="mt-4 flex flex-col gap-4">
-                        {!user && !isLoading && (
+                        {mounted && !user && !isLoading && (
                             <>
                                 <Button asChild className="w-full" size="lg">
                                     <Link href="/signup" onClick={() => setIsMenuOpen(false)}>Sign Up</Link>
@@ -183,8 +188,7 @@ export function Header() {
                                 </Button>
                             </>
                         )}
-
-                        {user && (
+                        {mounted && user && (
                             <>
                                 <div className="border-t border-border/40 pt-4 mt-2">
                                     <div className="flex items-center gap-3 mb-4 px-2">
