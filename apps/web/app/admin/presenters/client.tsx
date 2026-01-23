@@ -42,61 +42,67 @@ export default function AdminPresentersClient() {
         setIsLoading(true);
         const supabase = createClient();
 
-        // Fetch presenters with their metadata
-        const { data: presentersData, error } = await supabase
-            .from("profiles")
-            .select(`
-                id,
-                full_name,
-                username,
-                slug,
-                email,
-                avatar_url,
-                bio,
-                is_live,
-                role,
-                created_at,
-                presenter_meta (
-                    category,
-                    instagram_handle,
-                    twitter_handle,
-                    website_url
-                )
-            `)
-            .eq("role", "presenter")
-            .order("full_name");
+        try {
+            const [presentersResponse, messagesResponse] = await Promise.all([
+                // Fetch presenters with their metadata
+                supabase
+                    .from("profiles")
+                    .select(`
+                        id,
+                        full_name,
+                        username,
+                        slug,
+                        email,
+                        avatar_url,
+                        bio,
+                        is_live,
+                        role,
+                        created_at,
+                        presenter_meta (
+                            category,
+                            instagram_handle,
+                            twitter_handle,
+                            website_url
+                        )
+                    `)
+                    .eq("role", "presenter")
+                    .order("full_name"),
 
-        if (!error && presentersData) {
-            setPresenters(presentersData as DisplayPresenter[]);
-        }
+                // Fetch unread message counts
+                supabase
+                    .from("presenter_messages")
+                    .select("presenter_id")
+                    .eq("is_read", false)
+            ]);
 
-        // Fetch unread message counts
-        const { data: messageCounts } = await supabase
-            .from("presenter_messages")
-            .select("presenter_id")
-            .eq("is_read", false);
-
-        if (messageCounts) {
-            const counts = messageCounts.reduce((acc: Record<string, number>, msg: { presenter_id: string }) => {
-                acc[msg.presenter_id] = (acc[msg.presenter_id] || 0) + 1;
-                return acc;
-            }, {});
-            setUnreadByPresenter(counts);
-        }
-
-        setIsLoading(false);
-
-        // Check for edit parameter after loading presenters
-        const editId = searchParams.get("edit");
-        if (editId && presentersData) {
-            const presenterToEdit = (presentersData as DisplayPresenter[]).find(p => p.id === editId);
-            if (presenterToEdit) {
-                handleEditPresenter(presenterToEdit);
-                // Clear the param without refreshing
-                const newParams = new URLSearchParams(searchParams.toString());
-                newParams.delete("edit");
-                router.replace(`/admin/presenters?${newParams.toString()}`);
+            if (!presentersResponse.error && presentersResponse.data) {
+                setPresenters(presentersResponse.data as DisplayPresenter[]);
             }
+
+            if (messagesResponse.data) {
+                const counts = messagesResponse.data.reduce((acc: Record<string, number>, msg: { presenter_id: string }) => {
+                    acc[msg.presenter_id] = (acc[msg.presenter_id] || 0) + 1;
+                    return acc;
+                }, {});
+                setUnreadByPresenter(counts);
+            }
+
+            // Check for edit parameter after loading presenters
+            const editId = searchParams.get("edit");
+            if (editId && presentersResponse.data) {
+                const presenterToEdit = (presentersResponse.data as DisplayPresenter[]).find(p => p.id === editId);
+                if (presenterToEdit) {
+                    handleEditPresenter(presenterToEdit);
+                    // Clear the param without refreshing
+                    const newParams = new URLSearchParams(searchParams.toString());
+                    newParams.delete("edit");
+                    router.replace(`/admin/presenters?${newParams.toString()}`);
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching presenters:", error);
+        } finally {
+            setIsLoading(false);
         }
     }, [searchParams, router]);
 
