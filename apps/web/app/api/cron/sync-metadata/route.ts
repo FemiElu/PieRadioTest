@@ -91,18 +91,6 @@ export async function GET(request: Request) {
             }
         }
 
-        // 4. Update Supabase with Service Role (Bypass RLS)
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-        // Ensure we have the keys logic handles env var checking gracefully
-        if (!supabaseUrl || !supabaseServiceKey) {
-            console.error("Missing Supabase configuration");
-            return NextResponse.json({ error: "Server Configuration Error" }, { status: 500 });
-        }
-
-        const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
         const payload = {
             title,
             artist,
