@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { PresenterMessagesList } from "@/components/presenters/messages-list";
 import { getPresenterMessages } from "@/actions/presenter-messages";
 import { DashboardClient } from "./client";

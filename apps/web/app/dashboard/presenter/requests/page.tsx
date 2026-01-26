@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getRequests } from '@/app/actions/music-requests';
 import RequestsDashboard from '@/components/admin/RequestsDashboard';
 import { createClient } from '@/lib/supabase/server';
@@ -19,7 +21,7 @@ export default async function RequestsPage() {
         .limit(1)
         .single();
 
-    const stationId = station?.id || 1;
+    const stationId = Number(station?.id || 1);
 
     const requests = await getRequests(stationId);
 

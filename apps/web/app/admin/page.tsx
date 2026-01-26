@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { ShieldCheck, Users, Clock, ArrowUpRight, Music2, MessageSquare } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";

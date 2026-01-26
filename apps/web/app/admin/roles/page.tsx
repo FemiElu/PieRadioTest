@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { requireServerAdmin } from "@/lib/auth/server-auth";
 import { createClient } from "@/lib/supabase/server";
 import { RoleManagementTable } from "@/components/admin/role-management-table";
