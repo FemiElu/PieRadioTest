@@ -1,4 +1,10 @@
 {
   "buildCommand": "next build",
+  "crons": [
+    {
+      "path": "/api/cron/sync-metadata",
+      "schedule": "* * * * *"
+    }
+  ],
   "framework": "nextjs"
 }

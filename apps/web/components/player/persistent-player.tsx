@@ -16,14 +16,9 @@ export function PersistentPlayer() {
     // If we have a current Show but no specific "Song" metadata (or it's just "Pie Radio"), prioritize Show info?
     // Strategy: Always show Metadata if available, otherwise Show info.
 
-    const title = (currentTrack?.title === "Pie Radio Live" && currentShow?.shows?.title)
-        ? currentShow.shows.title
-        : (currentTrack?.title || "Pie Radio");
-
-    const artist = (currentTrack?.artist === "The Number One Station" && currentShow?.shows?.host_id)
-        ? `Hosted by ${currentShow.shows.host_id}`
-        : (currentTrack?.artist || "Live Stream");
-    const artwork = currentShow?.shows?.cover_image_url || currentTrack?.artwork || "";
+    const title = currentTrack?.title || currentShow?.shows?.title || "Pie Radio";
+    const artist = currentTrack?.artist || (currentShow?.shows?.host_id ? `Hosted by ${currentShow.shows.host_id}` : "Live Stream");
+    const artwork = currentTrack?.artwork || currentShow?.shows?.cover_image_url || "";
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-800 bg-black/95 backdrop-blur-xl supports-[backdrop-filter]:bg-black/80 px-4 py-3 md:px-8 shadow-[0_-10px_40px_rgba(0,0,0,0.4)] transition-all duration-300">

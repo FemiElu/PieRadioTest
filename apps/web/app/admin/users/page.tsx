@@ -13,9 +13,8 @@ export default function UsersPage() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
 
-    const supabase = createClient();
-
     useEffect(() => {
+        const supabase = createClient();
         const fetchUsers = async () => {
             setLoading(true);
             const { data, error } = await supabase

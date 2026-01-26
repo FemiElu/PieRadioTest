@@ -63,12 +63,13 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         const supabase = createClient();
 
         const fetchInitial = async () => {
-            const { data } = await supabase.from('station_metadata').select('*').eq('id', 1).single();
+            const { data } = await supabase.from('station_metadata').select('*').eq('id', 1 as any).single();
             if (data) {
+                const metadata = data as any;
                 setCurrentTrack({
-                    title: data.title || "Pie Radio Live",
-                    artist: data.artist || "The Number One Station",
-                    artwork: data.cover_url || "/placeholder-cover.jpg"
+                    title: metadata.title || "Pie Radio Live",
+                    artist: metadata.artist || "The Number One Station",
+                    artwork: metadata.cover_url || "/placeholder-cover.jpg"
                 });
             }
         };
@@ -118,6 +119,28 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             soundRef.current.volume(val);
         }
     };
+
+    // Local Development Automation: Trigger Sync API Periodically
+    useEffect(() => {
+        if (process.env.NODE_ENV !== 'development') return;
+
+        const triggerSync = async () => {
+            try {
+                // In local dev, we don't strictly require the CRON_SECRET 
+                // but we call it to ensure the DB stays fresh.
+                await fetch('/api/cron/sync-metadata');
+            } catch (error) {
+                console.error("Local sync trigger failed:", error);
+            }
+        };
+
+        // Trigger immediately on mount
+        triggerSync();
+
+        // Then every 60 seconds
+        const interval = setInterval(triggerSync, 60000);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <AudioContext.Provider value={{ isPlaying, volume, currentTrack, togglePlay, setVolume, isLoading }}>

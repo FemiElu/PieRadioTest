@@ -1,9 +1,17 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { Audio, InterruptionModeIOS, InterruptionModeAndroid } from "expo-av";
+import { supabase } from "../lib/supabase";
+
+interface Track {
+    title: string;
+    artist: string;
+    artwork?: string;
+}
 
 interface MobileAudioContextType {
     isPlaying: boolean;
     isLoading: boolean;
+    currentTrack: Track | null;
     togglePlay: () => Promise<void>;
 }
 
@@ -15,6 +23,11 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
     const [sound, setSound] = useState<Audio.Sound | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [currentTrack, setCurrentTrack] = useState<Track | null>({
+        title: "Pie Radio Live",
+        artist: "The Number One Station",
+        artwork: undefined
+    });
 
     useEffect(() => {
         // Configure Audio Mode for Background Playback
@@ -34,6 +47,48 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
             }
         };
         configureAudio();
+    }, []);
+
+    // Realtime Metadata
+    useEffect(() => {
+        const fetchInitial = async () => {
+            const { data } = await supabase.from('station_metadata').select('*').eq('id', 1 as any).single();
+            if (data) {
+                const metadata = data as any;
+                setCurrentTrack({
+                    title: metadata.title || "Pie Radio Live",
+                    artist: metadata.artist || "The Number One Station",
+                    artwork: metadata.cover_url || undefined
+                });
+            }
+        };
+
+        fetchInitial();
+
+        const channel = supabase
+            .channel('station_metadata_updates')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'station_metadata',
+                    filter: 'id=eq.1'
+                },
+                (payload) => {
+                    const newData = payload.new as any;
+                    setCurrentTrack({
+                        title: newData.title || "Pie Radio Live",
+                        artist: newData.artist || "The Number One Station",
+                        artwork: newData.cover_url || undefined
+                    });
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, []);
 
     const togglePlay = async () => {
@@ -91,7 +146,7 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
     }, [sound]);
 
     return (
-        <MobileAudioContext.Provider value={{ isPlaying, isLoading, togglePlay }}>
+        <MobileAudioContext.Provider value={{ isPlaying, isLoading, currentTrack, togglePlay }}>
             {children}
         </MobileAudioContext.Provider>
     );
