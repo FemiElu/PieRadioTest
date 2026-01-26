@@ -122,15 +122,12 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
     // Local Development Automation: Trigger Sync API Periodically
     useEffect(() => {
-        if (process.env.NODE_ENV !== 'development') return;
-
         const triggerSync = async () => {
             try {
-                // In local dev, we don't strictly require the CRON_SECRET 
-                // but we call it to ensure the DB stays fresh.
+                // Polling is now safe because the API has a 1-minute cooldown check
                 await fetch('/api/cron/sync-metadata');
             } catch (error) {
-                console.error("Local sync trigger failed:", error);
+                console.error("Sync trigger failed:", error);
             }
         };
 
