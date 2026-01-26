@@ -52,12 +52,13 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
     // Realtime Metadata
     useEffect(() => {
         const fetchInitial = async () => {
-            const { data } = await supabase.from('station_metadata').select('*').eq('id', 1).single();
+            const { data } = await supabase.from('station_metadata').select('*').eq('id', 1 as any).single();
             if (data) {
+                const metadata = data as any;
                 setCurrentTrack({
-                    title: data.title || "Pie Radio Live",
-                    artist: data.artist || "The Number One Station",
-                    artwork: data.cover_url || undefined
+                    title: metadata.title || "Pie Radio Live",
+                    artist: metadata.artist || "The Number One Station",
+                    artwork: metadata.cover_url || undefined
                 });
             }
         };

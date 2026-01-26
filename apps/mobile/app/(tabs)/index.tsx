@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, ActivityIndicator, Image, Dimensions } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMobileAudio } from "../../context/mobile-audio-context";
 import { Ionicons } from "@expo/vector-icons";
 import { MobileHeader } from "../../components/mobile-header";
@@ -10,9 +10,10 @@ const ARTWORK_SIZE = width * 0.7;
 
 export default function HomeScreen() {
     const { isPlaying, isLoading, togglePlay, currentTrack } = useMobileAudio();
+    const insets = useSafeAreaInsets();
 
     return (
-        <SafeAreaView className="flex-1 bg-background">
+        <View style={{ flex: 1, backgroundColor: '#000', paddingTop: insets.top }}>
             <MobileHeader />
 
             <View className="flex-1 items-center justify-center p-6">
@@ -82,6 +83,6 @@ export default function HomeScreen() {
                     <RequestSongModal />
                 </View>
             </View>
-        </SafeAreaView>
+        </View>
     );
 }
