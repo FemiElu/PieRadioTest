@@ -190,7 +190,7 @@ function LoginForm() {
                             <div className="space-y-1.5">
                                 <div className="flex items-center justify-between">
                                     <label className="text-sm font-bold text-zinc-700">Password</label>
-                                    <span className="text-xs text-primary font-bold cursor-pointer hover:underline">Forgot Password?</span>
+                                    <Link href="/forgot-password" title="Go to Forgot Password" className="text-xs text-primary font-bold cursor-pointer hover:underline">Forgot Password?</Link>
                                 </div>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

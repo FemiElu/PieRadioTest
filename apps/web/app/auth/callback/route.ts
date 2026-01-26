@@ -6,8 +6,12 @@ export async function GET(request: NextRequest) {
     const code = searchParams.get("code");
     // if "next" is in param, use it as the redirect URL
     const next = searchParams.get("next") ?? "/";
+    const type = searchParams.get("type");
     const error = searchParams.get("error");
     const error_description = searchParams.get("error_description");
+
+    // If this is a password recovery link, force redirect to reset-password
+    const redirectPath = type === 'recovery' ? '/reset-password' : next;
 
     if (error) {
         console.error("Auth error in callback:", error, error_description);
@@ -23,11 +27,11 @@ export async function GET(request: NextRequest) {
             const isLocalEnv = process.env.NODE_ENV === 'development';
 
             if (isLocalEnv) {
-                return NextResponse.redirect(`${origin}${next}`);
+                return NextResponse.redirect(`${origin}${redirectPath}`);
             } else if (forwardedHost) {
-                return NextResponse.redirect(`https://${forwardedHost}${next}`);
+                return NextResponse.redirect(`https://${forwardedHost}${redirectPath}`);
             } else {
-                return NextResponse.redirect(`${origin}${next}`);
+                return NextResponse.redirect(`${origin}${redirectPath}`);
             }
         } else {
             console.error("Exchange code error:", exchangeError);

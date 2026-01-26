@@ -12,6 +12,7 @@ import { Database } from '@packages/types';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { Alert } from 'react-native';
+import { router } from 'expo-router';
 
 // Types
 export type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -30,6 +31,8 @@ interface AuthContextType {
     signUpWithEmail: (email: string, password: string, fullName?: string) => Promise<void>;
     signInWithGoogle: () => Promise<void>;
     signOut: () => Promise<void>;
+    resetPasswordForEmail: (email: string) => Promise<void>;
+    updatePassword: (password: string) => Promise<void>;
 
     // Profile methods
     refreshProfile: () => Promise<void>;
@@ -116,7 +119,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         initSession();
 
-        // Listen for auth state changes
+        // 3. Handle deep links
+        const handleDeepLink = (url: string) => {
+            console.log('Mobile App Deep Link received:', url);
+            const parsed = Linking.parse(url);
+
+            // If the URL has an access token (from email link)
+            if (url.includes('access_token=') || url.includes('refresh_token=')) {
+                // Supabase handles the token extraction automatically when initialized 
+                // but we might need to refresh the session manually if it doesn't
+                supabase.auth.getSession().then(({ data: { session } }) => {
+                    if (session) {
+                        setSession(session);
+                        setUser(session.user);
+                        fetchProfile(session.user.id);
+                    }
+                });
+            }
+        };
+
+        const subscription_url = Linking.addEventListener('url', ({ url }) => {
+            handleDeepLink(url);
+        });
+
+        // Check for initial URL
+        Linking.getInitialURL().then((url) => {
+            if (url) handleDeepLink(url);
+        });
+
+        // 2. Listen for auth state changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {
                 console.log('Auth state changed:', event);
@@ -131,11 +162,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 }
 
                 setIsLoading(false);
+
+                if (event === 'PASSWORD_RECOVERY') {
+                    router.replace('/auth/reset-password');
+                }
             }
         );
 
         return () => {
             subscription.unsubscribe();
+            subscription_url.remove();
         };
     }, [fetchProfile]);
 
@@ -264,6 +300,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    /**
+     * Send password reset email
+     */
+    const resetPasswordForEmail = async (email: string) => {
+        setIsLoading(true);
+        try {
+            // Create a deep link for the auth callback
+            const redirectUrl = Linking.createURL('auth/callback');
+
+            const { error } = await supabase.auth.resetPasswordForEmail(
+                email.trim().toLowerCase(),
+                { redirectTo: redirectUrl }
+            );
+
+            if (error) throw error;
+
+            Alert.alert(
+                'Check Your Email',
+                'We sent you a link to reset your password. Please check your email.',
+                [{ text: 'OK' }]
+            );
+        } catch (error) {
+            const authError = error as AuthError;
+            Alert.alert('Reset Failed', authError.message);
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    /**
+     * Update user password
+     */
+    const updatePassword = async (password: string) => {
+        setIsLoading(true);
+        try {
+            const { error } = await supabase.auth.updateUser({ password });
+            if (error) throw error;
+
+            Alert.alert('Success', 'Your password has been updated.');
+        } catch (error) {
+            const authError = error as AuthError;
+            Alert.alert('Update Failed', authError.message);
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     // =========================================================================
     // Role Helper Methods
     // =========================================================================
@@ -298,6 +383,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signUpWithEmail,
         signInWithGoogle,
         signOut,
+        resetPasswordForEmail,
+        updatePassword,
         refreshProfile,
         hasRole,
         hasAnyRole,
