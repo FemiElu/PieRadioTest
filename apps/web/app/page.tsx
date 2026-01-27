@@ -6,9 +6,27 @@ import { Play, Pause, Loader2, Calendar, Music, Radio, ChevronRight, Mic2 } from
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAudio } from "@/context/audio-context";
+import { useCurrentShow } from "@/hooks/use-current-show";
 
 export default function Home() {
-  const { isPlaying, togglePlay, isLoading } = useAudio();
+  const { isPlaying, togglePlay, isLoading, currentTrack } = useAudio();
+  const { currentShow } = useCurrentShow();
+
+  const title = currentTrack?.title || currentShow?.shows?.title || "Pie Radio Live";
+  const artist = currentTrack?.artist || (currentShow?.shows?.host_id ? `Hosted by ${currentShow.shows.host_id}` : "The Number One Station");
+
+  // Helper to format text to Title Case (first letter capital, rest lowercase for each word)
+  // Handles all-caps input from AIIR nicely.
+  const formatTitleCase = (str: string) => {
+    return str
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  const formattedTitle = formatTitleCase(title);
+  const formattedArtist = formatTitleCase(artist);
 
   return (
     <div className="flex flex-col w-full">
@@ -30,9 +48,29 @@ export default function Home() {
 
         <div className="container relative h-full max-w-screen-2xl mx-auto px-4 md:px-8 flex items-center z-10">
           <div className="w-full max-w-2xl space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-white text-xs font-bold uppercase tracking-wider backdrop-blur-md border border-white/10 animate-pulse">
-              <div className="w-2 h-2 rounded-full bg-primary" />
-              Live Now
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-white text-xs font-bold uppercase tracking-wider backdrop-blur-md border border-white/10 animate-pulse">
+                  <div className="w-2 h-2 rounded-full bg-primary" />
+                  Live Now
+                </div>
+                <div className="h-px w-8 bg-white/20" />
+                <span className="text-primary text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">
+                  Now Playing
+                </span>
+              </div>
+
+              <div className="flex flex-col md:flex-row md:items-baseline md:gap-1.5">
+                <h2 className="text-white text-xl md:text-2xl font-black font-display italic tracking-tight line-clamp-1">
+                  {formattedTitle}
+                </h2>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-zinc-500 md:text-zinc-400 text-xs md:text-lg font-bold italic">by</span>
+                  <p className="text-zinc-400 text-sm md:text-lg font-bold tracking-tight">
+                    {formattedArtist}
+                  </p>
+                </div>
+              </div>
             </div>
 
             <h1 className="text-5xl md:text-7xl font-bold font-display tracking-tight text-white leading-[1.1]">
