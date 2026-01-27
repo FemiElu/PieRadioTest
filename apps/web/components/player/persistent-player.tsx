@@ -25,8 +25,8 @@ export function PersistentPlayer() {
             <div className="container mx-auto flex max-w-screen-2xl items-center justify-between gap-4 md:gap-8">
 
                 {/* Track Info */}
-                <div className="flex items-center gap-4 w-full md:w-1/3">
-                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-900 border border-white/5 shadow-2xl">
+                <div className="flex items-center gap-3 flex-1 min-w-0 md:w-1/3">
+                    <div className="relative h-12 w-12 md:h-14 md:w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-900 border border-white/5 shadow-2xl">
                         {artwork && artwork !== "/placeholder-cover.jpg" ? (
                             <Image src={artwork} alt={title} fill className="object-cover" />
                         ) : (
@@ -36,7 +36,7 @@ export function PersistentPlayer() {
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                     </div>
-                    <div className="flex flex-col overflow-hidden">
+                    <div className="flex flex-col overflow-hidden min-w-0">
                         <div className="flex items-center gap-2">
                             <span className="truncate text-[13px] md:text-sm font-black font-display tracking-tight text-white uppercase italic">
                                 {title}
@@ -46,18 +46,18 @@ export function PersistentPlayer() {
                                 Live
                             </div>
                         </div>
-                        <span className="truncate text-[10px] md:text-xs font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
+                        <span className="truncate text-[9px] md:text-xs font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
                             {artist}
                         </span>
                     </div>
                 </div>
 
                 {/* Controls */}
-                <div className="flex items-center justify-center gap-6 w-auto md:w-1/3">
+                <div className="flex items-center justify-center shrink-0 md:w-1/3">
                     <Button
                         size="icon"
                         variant="default"
-                        className="h-14 w-14 rounded-full shadow-[0_0_20px_rgba(51,74,255,0.3)] hover:scale-105 active:scale-95 transition-all bg-primary hover:bg-primary/90 text-white border-0"
+                        className="h-12 w-12 md:h-14 md:w-14 rounded-full shadow-[0_0_20px_rgba(51,74,255,0.3)] hover:scale-105 active:scale-95 transition-all bg-primary hover:bg-primary/90 text-white border-0"
                         onClick={togglePlay}
                     >
                         {isLoading ? (
@@ -91,7 +91,7 @@ export function PersistentPlayer() {
                 </div>
 
                 {/* Mobile Request Button (Absolute on Right) */}
-                <div className="md:hidden flex items-center">
+                <div className="md:hidden flex items-center shrink-0">
                     <RequestSongModal />
                 </div>
 
