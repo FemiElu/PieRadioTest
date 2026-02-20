@@ -39,14 +39,13 @@ export async function POST(request: Request) {
         const supabase = await createClient();
 
         // 4. Update Current Metadata (ID=1)
-        const { error: updateError } = await supabase
-            .from('station_metadata')
+        const { error: updateError } = await (supabase.from('station_metadata' as any) as any)
             .update({
                 title,
                 artist,
                 cover_url: cover_url || null,
                 updated_at: new Date().toISOString()
-            } as any)
+            })
             .eq('id', 1);
 
         if (updateError) {
@@ -55,8 +54,7 @@ export async function POST(request: Request) {
         }
 
         // 5. Log History
-        const { error: historyError } = await supabase
-            .from('station_metadata_history')
+        const { error: historyError } = await (supabase.from('station_metadata_history' as any) as any)
             .insert({
                 metadata_id: 1,
                 title,

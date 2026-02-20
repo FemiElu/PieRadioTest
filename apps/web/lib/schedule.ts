@@ -1,8 +1,22 @@
 import { Database } from "@packages/types";
 
-export type ScheduleSlot = Database["public"]["Tables"]["schedule_slots"]["Row"] & {
-    shows: Database["public"]["Tables"]["shows"]["Row"] | null;
-};
+export interface ScheduleSlot {
+    id: string;
+    show_id: string | null;
+    day_of_week: number | null;
+    start_time: string;
+    end_time: string;
+    is_recurring?: boolean | null;
+    override_date?: string | null;
+    created_at?: string | null;
+    shows?: {
+        id?: string;
+        title?: string;
+        description?: string | null;
+        host_id?: string | null;
+        cover_image_url?: string | null;
+    } | null;
+}
 
 // Map JS getDay() (0=Sun) to our DB day_of_week (assuming 0=Sun)
 export function getCurrentDayOfWeek(): number {

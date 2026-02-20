@@ -7,13 +7,32 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAudio } from "@/context/audio-context";
 import { useCurrentShow } from "@/hooks/use-current-show";
+import { useSchedule } from "@/hooks/use-schedule";
+import { format } from "date-fns";
 
 export default function Home() {
   const { isPlaying, togglePlay, isLoading, currentTrack } = useAudio();
   const { currentShow } = useCurrentShow();
+  const { schedule: todaySchedule, loading: scheduleLoading } = useSchedule(new Date());
 
-  const title = currentTrack?.title || currentShow?.shows?.title || "Pie Radio Live";
-  const artist = currentTrack?.artist || (currentShow?.shows?.host_id ? `Hosted by ${currentShow.shows.host_id}` : "The Number One Station");
+  // Determine the display title and artist
+  // We prioritize real-time metadata from the stream, but fallback to 
+  // the scheduled show if metadata is generic (e.g., "Pie Radio Live")
+  const isGenericMetadata = !currentTrack ||
+    currentTrack.title === "Pie Radio Live" ||
+    currentTrack.title === "Live Stream";
+
+  const title = !isGenericMetadata
+    ? currentTrack.title
+    : (currentShow?.shows?.title || "Pie Radio Live");
+
+  const artist = !isGenericMetadata
+    ? currentTrack.artist
+    : (currentShow?.shows?.host_id || "The Number One Station");
+
+  const artwork = (!isGenericMetadata && currentTrack.artwork && currentTrack.artwork !== "/placeholder-cover.jpg")
+    ? currentTrack.artwork
+    : (currentShow?.shows?.cover_image_url || "/placeholder-cover.jpg");
 
   // Helper to format text to Title Case (first letter capital, rest lowercase for each word)
   // Handles all-caps input from AIIR nicely.
@@ -165,20 +184,25 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex-1 bg-white p-6 rounded-2xl border border-border/50 shadow-sm hover:border-primary/50 transition-all cursor-pointer hover:shadow-lg">
+              <div className="flex-1 bg-white p-6 rounded-2xl border border-border/50 shadow-sm hover:border-primary/50 transition-all cursor-pointer hover:shadow-lg" onClick={togglePlay}>
                 <div className="space-y-4">
                   <div className="text-primary text-xs font-bold uppercase tracking-widest">On Air Now</div>
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-xl bg-zinc-100 flex items-center justify-center text-primary">
-                      <Mic2 className="w-8 h-8" />
+                    <div className="w-16 h-16 rounded-xl bg-zinc-100 flex items-center justify-center text-primary relative overflow-hidden">
+                      {artwork && artwork !== "/placeholder-cover.jpg" ? (
+                        <Image src={artwork} alt={title} fill className="object-cover" />
+                      ) : (
+                        <Mic2 className="w-8 h-8" />
+                      )}
                     </div>
                     <div>
-                      <h4 className="font-bold text-lg leading-tight">Afternoon Hustle</h4>
-                      <p className="text-sm text-muted-foreground">with DJ Flex & Tasha</p>
+                      <h4 className="font-bold text-lg leading-tight">{formattedTitle}</h4>
+                      <p className="text-sm text-muted-foreground">{formattedArtist}</p>
                     </div>
                   </div>
                   <Button variant="outline" className="w-full rounded-full border-2 gap-2">
-                    <Radio className="w-4 h-4" /> Go Live
+                    {isPlaying ? <Pause className="w-4 h-4" /> : <Radio className="w-4 h-4" />}
+                    {isPlaying ? "Pause Stream" : "Listen Live"}
                   </Button>
                 </div>
               </div>
@@ -194,25 +218,34 @@ export default function Home() {
               <Calendar className="text-primary" /> Today&apos;s Schedule
             </h3>
             <div className="space-y-1">
-              {[
-                { time: "12:00", title: "The Midday Mix", host: "Sarah J" },
-                { time: "15:00", title: "Afternoon Hustle", host: "DJ Flex" },
-                { time: "18:00", title: "Drive Time Melodies", host: "Marcus Kane" },
-                { time: "21:00", title: "The Late Night Show", host: "Tasha Wright" },
-              ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-4 rounded-xl hover:bg-white hover:shadow-md border border-transparent hover:border-border/50 transition-all group cursor-pointer">
-                  <div className="flex gap-6 items-center">
-                    <span className="text-lg font-bold text-primary/40 font-mono group-hover:text-primary transition-colors">{item.time}</span>
-                    <div>
-                      <h4 className="font-bold">{item.title}</h4>
-                      <p className="text-sm text-muted-foreground">{item.host}</p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="icon" className="group-hover:text-primary">
-                    <Play className="w-5 h-5" />
-                  </Button>
+              {scheduleLoading ? (
+                <div className="p-8 text-center text-zinc-400 animate-pulse font-bold tracking-widest uppercase text-xs">
+                  Loading Schedule...
                 </div>
-              ))}
+              ) : todaySchedule && todaySchedule.length > 0 ? (
+                todaySchedule.slice(0, 5).map((item, i) => (
+                  <div key={i} className="flex items-center justify-between p-4 rounded-xl hover:bg-white hover:shadow-md border border-transparent hover:border-border/50 transition-all group cursor-pointer">
+                    <div className="flex gap-6 items-center">
+                      <span className="text-lg font-bold text-primary/40 font-mono group-hover:text-primary transition-colors">
+                        {format(new Date(item.start_time), "HH:mm")}
+                      </span>
+                      <div>
+                        <h4 className="font-bold">{item.title}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {item.presenter?.full_name || "Pie Radio Presenter"}
+                        </p>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="icon" className="group-hover:text-primary">
+                      <Play className="w-5 h-5" />
+                    </Button>
+                  </div>
+                ))
+              ) : (
+                <div className="p-8 text-center text-zinc-400 bg-zinc-50/50 rounded-2xl border-2 border-dashed border-zinc-100 font-bold tracking-widest uppercase text-[10px]">
+                  No shows scheduled for today
+                </div>
+              )}
             </div>
             <Button variant="link" className="text-primary px-0 font-bold" asChild>
               <Link href="/schedule">View Full Schedule &rarr;</Link>
