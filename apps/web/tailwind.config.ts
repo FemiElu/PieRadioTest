@@ -56,6 +56,11 @@ const config = {
                     DEFAULT: "hsl(var(--card))",
                     foreground: "hsl(var(--card-foreground))",
                 },
+                /* Partnership / Popeyes brand tokens */
+                "popeyes-orange": "#FF6A00",
+                "cajun-red": "#A31919",
+                "warm-cream": "#F7EFE6",
+                "deep-text": "#222222",
             },
             borderRadius: {
                 lg: "var(--radius)",
@@ -71,10 +76,30 @@ const config = {
                     from: { height: "var(--radix-accordion-content-height)" },
                     to: { height: "0" },
                 },
+                "equalizer-bar": {
+                    "0%, 100%": { height: "20%" },
+                    "50%": { height: "100%" },
+                },
+                "slide-in-up": {
+                    from: { opacity: "0", transform: "translateY(30px)" },
+                    to: { opacity: "1", transform: "translateY(0)" },
+                },
+                "confetti-fall": {
+                    "0%": { opacity: "1", transform: "translateY(0) rotate(0deg) scale(1)" },
+                    "100%": { opacity: "0", transform: "translateY(120px) rotate(720deg) scale(0.3)" },
+                },
+                float: {
+                    "0%, 100%": { transform: "translateY(0)" },
+                    "50%": { transform: "translateY(-8px)" },
+                },
             },
             animation: {
                 "accordion-down": "accordion-down 0.2s ease-out",
                 "accordion-up": "accordion-up 0.2s ease-out",
+                "equalizer-bar": "equalizer-bar 1s ease-in-out infinite",
+                "slide-in-up": "slide-in-up 0.6s ease-out forwards",
+                "confetti-fall": "confetti-fall 1.2s ease-out forwards",
+                float: "float 3s ease-in-out infinite",
             },
         },
     },

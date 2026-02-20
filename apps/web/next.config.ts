@@ -3,15 +3,15 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   transpilePackages: ["@packages/types"],
   typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
+    // !! IMPORTANT !!
+    // Do NOT allow production builds to successfully complete if
     // your project has type errors.
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
+    // Warning: This prevents production builds from succeeding if
     // your project has ESLint errors.
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   images: {
     remotePatterns: [
@@ -38,6 +38,22 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: '**.mzstatic.com'
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos'
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com'
+      },
+      {
+        protocol: 'https',
+        hostname: '**.googleusercontent.com'
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com'
       }
     ]
   }
