@@ -98,7 +98,7 @@ export async function submitRequest(
         const { data: station, error: stationError } = await supabase
             .from('station_metadata')
             .select('id')
-            .eq('id', String(station_id))
+            .eq('id', station_id)
             .single();
 
         if (stationError || !station) {
@@ -314,7 +314,7 @@ export async function updateRequestStatus(
     // 6. AFTER commit: Send notifications (async, non-blocking)
     if (newStatus === 'approved') {
         // Get user info for notification
-        const userProfile = request.profiles as {
+        const userProfile = (request as any).profiles as {
             email: string | null;
             full_name: string | null;
             username: string | null;

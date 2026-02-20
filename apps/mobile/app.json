@@ -15,7 +15,12 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.pieradio.mobile"
+      "bundleIdentifier": "com.pieradio.mobile",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "audio"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -30,7 +35,13 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-av",
+        {
+          "microphonePermission": false
+        }
+      ]
     ]
   }
 }

@@ -1,61 +1,21 @@
-import { View, Text, Image, TouchableOpacity, ScrollView, Animated } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useState, useEffect, useRef } from "react";
+import { View, Text, Image, TouchableOpacity, ScrollView, Animated, ActivityIndicator, RefreshControl } from "react-native";
+import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
+import { styled } from "nativewind";
+
+const SafeAreaView = styled(RNSafeAreaView);
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Ionicons } from "@expo/vector-icons";
+import { useSchedule } from "../../hooks/useSchedule";
 
-// --- DUMMY DATA ---
-const DAYS = [
-    { name: "Mon", full: "Monday", date: "January 1", isCurrent: false },
-    { name: "Tue", full: "Tuesday", date: "January 2", isCurrent: true }, // Current date
-    { name: "Wed", full: "Wednesday", date: "January 3", isCurrent: false },
-    { name: "Thu", full: "Thursday", date: "January 4", isCurrent: false },
-    { name: "Fri", full: "Friday", date: "January 5", isCurrent: false },
-    { name: "Sat", full: "Saturday", date: "January 6", isCurrent: false },
-    { name: "Sun", full: "Sunday", date: "January 7", isCurrent: false },
-];
+// Helper to format date like "Monday"
+const formatDayName = (date: Date) => date.toLocaleDateString('en-US', { weekday: 'long' });
+const formatDayShort = (date: Date) => date.toLocaleDateString('en-US', { weekday: 'short' });
+const formatDatePart = (date: Date) => date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
 
-const DUMMY_SCHEDULE = [
-    {
-        id: "1",
-        startTime: "06:00",
-        endTime: "10:00",
-        title: "Morning Rise",
-        host: "Alex Thompson",
-        image: "https://images.unsplash.com/photo-1478737270239-2f52b27fa34e?w=800&q=80",
-        description: "Start your day with the best mix of news, music, and entertainment. Wake up with energy and positivity.",
-        isLive: false,
-    },
-    {
-        id: "2",
-        startTime: "10:00",
-        endTime: "14:00",
-        title: "Midday Mix",
-        host: "Jamie Lee & Sarah Wilson",
-        image: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=800&q=80",
-        description: "The perfect soundtrack to your workday. Chart hits, classic throwbacks, and guest interviews with your favorite artists.",
-        isLive: true, // Currently live
-    },
-    {
-        id: "3",
-        startTime: "14:00",
-        endTime: "18:00",
-        title: "Afternoon Sessions",
-        host: "Marcus Chen",
-        image: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&q=80",
-        description: "Deep dives into History, exclusive sessions, and artist spotlights. Discover new music.",
-        isLive: false,
-    },
-    {
-        id: "4",
-        startTime: "18:00",
-        endTime: "20:00",
-        title: "Drive Time",
-        host: "Rachel Martinez",
-        image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&q=80",
-        description: "Your nonstop companion with the biggest hits, traffic updates, and conversations. Music without limits.",
-        isLive: false,
-    },
-];
+// Helper to format time "HH:mm"
+const formatTime = (isoString: string) => {
+    return new Date(isoString).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+};
 
 // Blinking Live Indicator Component
 function BlinkingDot() {
@@ -89,13 +49,35 @@ function BlinkingDot() {
 }
 
 export default function ScheduleScreen() {
-    const currentDayIndex = DAYS.findIndex(d => d.isCurrent);
-    const [activeDay, setActiveDay] = useState(currentDayIndex);
+    // Generate next 7 days
+    const days = useMemo(() => {
+        const result = [];
+        for (let i = 0; i < 7; i++) {
+            const d = new Date();
+            d.setDate(d.getDate() + i);
+            result.push({
+                dateObj: d,
+                name: formatDayShort(d),
+                full: formatDayName(d),
+                date: formatDatePart(d),
+                isCurrent: i === 0
+            });
+        }
+        return result;
+    }, []);
+
+    const [activeDayIndex, setActiveDayIndex] = useState(0);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    const activeDateObj = days[activeDayIndex].dateObj;
+    const { schedule, loading: isLoading, error } = useSchedule(activeDateObj);
 
     return (
         <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-            <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
+            <ScrollView
+                className="flex-1"
+                contentContainerStyle={{ paddingBottom: 24 }}
+            >
                 {/* Compact Header */}
                 <View className="px-5 pt-3 pb-4">
                     <Text className="text-white font-bold text-2xl font-display tracking-tight text-center mb-0.5">
@@ -109,9 +91,10 @@ export default function ScheduleScreen() {
                     <TouchableOpacity
                         onPress={() => setIsDropdownOpen(!isDropdownOpen)}
                         className="flex-row items-center justify-between bg-card border border-white/10 rounded-xl px-4 py-3 mt-4"
+                        disabled={isLoading && schedule.length === 0}
                     >
                         <Text className="text-white font-semibold text-base">
-                            {DAYS[activeDay].full}, {DAYS[activeDay].date}
+                            {days[activeDayIndex].full}, {days[activeDayIndex].date}
                         </Text>
                         <Ionicons name={isDropdownOpen ? "chevron-up" : "chevron-down"} size={18} color="white" />
                     </TouchableOpacity>
@@ -119,17 +102,17 @@ export default function ScheduleScreen() {
                     {/* Dropdown Content */}
                     {isDropdownOpen && (
                         <View className="bg-card border border-white/10 rounded-xl mt-2 overflow-hidden">
-                            {DAYS.map((day, index) => (
+                            {days.map((day, index) => (
                                 <TouchableOpacity
                                     key={day.name}
                                     onPress={() => {
-                                        setActiveDay(index);
+                                        setActiveDayIndex(index);
                                         setIsDropdownOpen(false);
                                     }}
-                                    className={`px-4 py-3 ${day.isCurrent ? "bg-primary" : ""} ${index < DAYS.length - 1 ? "border-b border-white/5" : ""
+                                    className={`px-4 py-3 ${index === activeDayIndex ? "bg-primary" : ""} ${index < days.length - 1 ? "border-b border-white/5" : ""
                                         }`}
                                 >
-                                    <Text className={`font-semibold ${day.isCurrent ? "text-white" : "text-zinc-300"}`}>
+                                    <Text className={`font-semibold ${index === activeDayIndex ? "text-white" : "text-zinc-300"}`}>
                                         {day.full}, {day.date}
                                     </Text>
                                 </TouchableOpacity>
@@ -138,67 +121,85 @@ export default function ScheduleScreen() {
                     )}
                 </View>
 
-                {/* Schedule List - Horizontal Card Layout */}
+                {/* Content Area */}
                 <View className="px-5 space-y-3">
-                    {DUMMY_SCHEDULE.map((item) => (
-                        <TouchableOpacity
-                            key={item.id}
-                            activeOpacity={0.7}
-                            className="flex-row items-center bg-card rounded-xl p-3 border border-white/5"
-                        >
-                            {/* Image / Play Button */}
-                            <View className="relative w-16 h-16 rounded-lg overflow-hidden bg-zinc-800 shrink-0">
-                                <Image
-                                    source={{ uri: item.image }}
-                                    className="w-full h-full"
-                                    resizeMode="cover"
-                                />
-                                {/* Blinking Red Dot for Live */}
-                                {item.isLive && (
-                                    <View className="absolute top-1 left-1">
-                                        <BlinkingDot />
-                                    </View>
-                                )}
-                                {/* Centered Play Button */}
-                                <View className="absolute inset-0 flex items-center justify-center">
-                                    <View className={`w-7 h-7 rounded-full items-center justify-center ${item.isLive ? 'bg-primary' : 'bg-black/40'
-                                        }`}>
-                                        <Ionicons name="play" size={12} color="white" style={{ marginLeft: 2 }} />
-                                    </View>
-                                </View>
-                            </View>
-
-                            {/* Content */}
-                            <View className="flex-1 ml-3">
-                                {/* Time & Live Badge */}
-                                <View className="flex-row items-center mb-1">
-                                    <Text className="text-white font-semibold text-xs">
-                                        {item.startTime} - {item.endTime}
-                                    </Text>
-                                    {item.isLive && (
-                                        <View className="ml-2 bg-red-500 px-1.5 py-0.5 rounded">
-                                            <Text className="text-white text-[9px] font-bold uppercase">LIVE</Text>
+                    {isLoading ? (
+                        <View className="py-20 items-center justify-center">
+                            <ActivityIndicator size="large" color="#E11D48" />
+                            <Text className="text-zinc-500 mt-4 text-sm">Loading schedule...</Text>
+                        </View>
+                    ) : error ? (
+                        <View className="py-10 items-center justify-center bg-card rounded-xl border border-white/5 p-6">
+                            <Ionicons name="alert-circle-outline" size={32} color="#EF4444" />
+                            <Text className="text-white font-semibold mt-2 text-center">Failed to load schedule</Text>
+                            <Text className="text-zinc-500 text-xs text-center mt-1">{error}</Text>
+                        </View>
+                    ) : schedule.length === 0 ? (
+                        <View className="py-20 items-center justify-center bg-card rounded-xl border border-white/5">
+                            <Ionicons name="calendar-outline" size={40} color="#3F3F46" />
+                            <Text className="text-zinc-500 mt-4 font-medium">No shows scheduled for this day.</Text>
+                        </View>
+                    ) : (
+                        schedule.map((item) => (
+                            <TouchableOpacity
+                                key={item.id}
+                                activeOpacity={0.7}
+                                className="flex-row items-center bg-card rounded-xl p-3 border border-white/5"
+                            >
+                                {/* Image / Play Button */}
+                                <View className="relative w-16 h-16 rounded-lg overflow-hidden bg-zinc-800 shrink-0">
+                                    <Image
+                                        source={{ uri: item.image_url || 'https://images.unsplash.com/photo-1478737270239-2f52b27fa34e?w=800&q=80' }} // Fallback image
+                                        className="w-full h-full"
+                                        resizeMode="cover"
+                                    />
+                                    {/* Blinking Red Dot for Live */}
+                                    {item.is_live && (
+                                        <View className="absolute top-1 left-1">
+                                            <BlinkingDot />
                                         </View>
                                     )}
+                                    {/* Centered Play Button */}
+                                    <View className="absolute inset-0 flex items-center justify-center">
+                                        <View className={`w-7 h-7 rounded-full items-center justify-center ${item.is_live ? 'bg-primary' : 'bg-black/40'
+                                            }`}>
+                                            <Ionicons name="play" size={12} color="white" style={{ marginLeft: 2 }} />
+                                        </View>
+                                    </View>
                                 </View>
 
-                                {/* Title */}
-                                <Text className="text-white font-bold text-base leading-tight mb-0.5" numberOfLines={1}>
-                                    {item.title}
-                                </Text>
+                                {/* Content */}
+                                <View className="flex-1 ml-3">
+                                    {/* Time & Live Badge */}
+                                    <View className="flex-row items-center mb-1">
+                                        <Text className="text-white font-semibold text-xs">
+                                            {formatTime(item.start_time)} - {formatTime(item.end_time)}
+                                        </Text>
+                                        {item.is_live && (
+                                            <View className="ml-2 bg-red-500 px-1.5 py-0.5 rounded">
+                                                <Text className="text-white text-[9px] font-bold uppercase">LIVE</Text>
+                                            </View>
+                                        )}
+                                    </View>
 
-                                {/* Host */}
-                                <Text className="text-zinc-500 font-medium text-xs mb-1" numberOfLines={1}>
-                                    {item.host}
-                                </Text>
+                                    {/* Title */}
+                                    <Text className="text-white font-bold text-base leading-tight mb-0.5" numberOfLines={1}>
+                                        {item.title}
+                                    </Text>
 
-                                {/* Description */}
-                                <Text className="text-zinc-400 text-[11px] leading-snug" numberOfLines={2}>
-                                    {item.description}
-                                </Text>
-                            </View>
-                        </TouchableOpacity>
-                    ))}
+                                    {/* Host */}
+                                    <Text className="text-zinc-500 font-medium text-xs mb-1" numberOfLines={1}>
+                                        {item.presenter?.full_name || item.presenter?.username || "Pie Radio"}
+                                    </Text>
+
+                                    {/* Description */}
+                                    <Text className="text-zinc-400 text-[11px] leading-snug" numberOfLines={2}>
+                                        {item.description || "Tune in for the best hits!"}
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+                        ))
+                    )}
                 </View>
 
                 {/* Bottom Spacer */}

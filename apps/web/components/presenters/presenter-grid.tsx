@@ -38,13 +38,17 @@ interface PresenterGridProps {
     presenters: Presenter[];
     selectedCategory?: string;
     onCategoryChange?: (category: string) => void;
+    clickable?: boolean;
 }
 
-export function PresenterGrid({ presenters, selectedCategory = "all", onCategoryChange }: PresenterGridProps) {
+export function PresenterGrid({ presenters, selectedCategory = "all", onCategoryChange, clickable = true }: PresenterGridProps) {
     // Filter presenters by category if not "all"
     const filteredPresenters = selectedCategory === "all"
         ? presenters
-        : presenters.filter(p => p.presenter_meta?.category?.toLowerCase() === selectedCategory);
+        : presenters.filter(p => {
+            const meta = Array.isArray(p.presenter_meta) ? p.presenter_meta[0] : p.presenter_meta;
+            return meta?.category?.toLowerCase() === selectedCategory;
+        });
 
     if (presenters.length === 0) {
         return (
@@ -84,65 +88,94 @@ export function PresenterGrid({ presenters, selectedCategory = "all", onCategory
 
             {/* Presenter Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredPresenters.map((presenter) => (
-                    <Link
-                        key={presenter.id}
-                        href={`/presenters/${presenter.slug || presenter.username || presenter.id}`}
-                        className="group relative flex flex-col rounded-3xl overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2"
-                    >
-                        {/* Image Area with Gradient Background */}
-                        <div className="aspect-[4/5] relative overflow-hidden">
-                            {/* Gradient Background */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-primary via-violet-600 to-purple-700" />
+                {filteredPresenters.map((presenter) => {
+                    const CardContent = (
+                        <>
+                            {/* Image Area with Gradient Background */}
+                            <div className="aspect-[4/5] relative overflow-hidden">
+                                {/* Gradient Background */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary via-violet-600 to-purple-700" />
 
-                            {/* Presenter Image */}
-                            {presenter.avatar_url ? (
-                                <Image
-                                    src={presenter.avatar_url}
-                                    alt={presenter.full_name || presenter.username || "Presenter"}
-                                    fill
-                                    className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                                />
-                            ) : (
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-white/20 font-display font-black text-8xl">
-                                        {(presenter.full_name || presenter.username || "P").charAt(0).toUpperCase()}
-                                    </span>
-                                </div>
-                            )}
+                                {/* Presenter Image */}
+                                {presenter.avatar_url ? (
+                                    <Image
+                                        src={presenter.avatar_url}
+                                        alt={presenter.full_name || presenter.username || "Presenter"}
+                                        fill
+                                        className={cn(
+                                            "object-cover object-top transition-transform duration-700",
+                                            clickable && "group-hover:scale-105"
+                                        )}
+                                    />
+                                ) : (
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <span className="text-white/20 font-display font-black text-8xl">
+                                            {(presenter.full_name || presenter.username || "P").charAt(0).toUpperCase()}
+                                        </span>
+                                    </div>
+                                )}
 
-                            {/* Live Indicator */}
-                            {presenter.is_live && (
-                                <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white text-[10px] font-black uppercase tracking-widest animate-pulse shadow-lg">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                                    On Air
-                                </div>
-                            )}
+                                {/* Live Indicator */}
+                                {presenter.is_live && (
+                                    <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white text-[10px] font-black uppercase tracking-widest animate-pulse shadow-lg">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                                        On Air
+                                    </div>
+                                )}
 
-                            {/* Gradient Overlay at Bottom */}
-                            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/40 to-transparent" />
-                        </div>
-
-                        {/* Info Area */}
-                        <div className="p-5 bg-white">
-                            <h3 className="text-lg font-bold font-display tracking-tight text-foreground group-hover:text-primary transition-colors">
-                                {presenter.full_name || presenter.username || "Unknown Presenter"}
-                            </h3>
-
-                            {/* Show Info */}
-                            <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
-                                {presenter.shows?.[0]?.title || presenter.presenter_meta?.category || "Presenter"}
-                                {presenter.shows?.[0] && " • Weekdays"}
-                            </p>
-
-                            {/* More Link */}
-                            <div className="mt-3 flex items-center gap-2 text-primary text-sm font-bold group-hover:gap-3 transition-all">
-                                More
-                                <ArrowRight className="w-4 h-4" />
+                                {/* Gradient Overlay at Bottom */}
+                                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/40 to-transparent" />
                             </div>
-                        </div>
-                    </Link>
-                ))}
+
+                            {/* Info Area */}
+                            <div className="p-5 bg-white">
+                                <h3 className={cn(
+                                    "text-lg font-bold font-display tracking-tight text-foreground transition-colors",
+                                    clickable && "group-hover:text-primary"
+                                )}>
+                                    {presenter.full_name || presenter.username || "Unknown Presenter"}
+                                </h3>
+
+                                {/* Show Info */}
+                                <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
+                                    {presenter.shows?.[0]?.title ||
+                                        (Array.isArray(presenter.presenter_meta) ? presenter.presenter_meta[0]?.category : presenter.presenter_meta?.category) ||
+                                        "Presenter"}
+                                    {presenter.shows?.[0] && " • Weekdays"}
+                                </p>
+
+                                {/* More Link - Only if clickable */}
+                                {clickable && (
+                                    <div className="mt-3 flex items-center gap-2 text-primary text-sm font-bold group-hover:gap-3 transition-all">
+                                        More
+                                        <ArrowRight className="w-4 h-4" />
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    );
+
+                    if (!clickable) {
+                        return (
+                            <div
+                                key={presenter.id}
+                                className="group relative flex flex-col rounded-3xl overflow-hidden border border-border/50"
+                            >
+                                {CardContent}
+                            </div>
+                        );
+                    }
+
+                    return (
+                        <Link
+                            key={presenter.id}
+                            href={`/presenters/${presenter.slug || presenter.username || presenter.id}`}
+                            className="group relative flex flex-col rounded-3xl overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2"
+                        >
+                            {CardContent}
+                        </Link>
+                    );
+                })}
             </div>
 
             {/* Empty state for filtered results */}

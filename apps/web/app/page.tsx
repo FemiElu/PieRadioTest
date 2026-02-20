@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Play, Pause, Loader2, Calendar, Music, Radio, ChevronRight, Mic2 } from "lucide-react";
@@ -7,13 +8,83 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAudio } from "@/context/audio-context";
 import { useCurrentShow } from "@/hooks/use-current-show";
+import { useSchedule } from "@/hooks/use-schedule";
+import { format } from "date-fns";
 
 export default function Home() {
   const { isPlaying, togglePlay, isLoading, currentTrack } = useAudio();
   const { currentShow } = useCurrentShow();
+  const { schedule: todaySchedule, loading: scheduleLoading } = useSchedule(new Date());
 
-  const title = currentTrack?.title || currentShow?.shows?.title || "Pie Radio Live";
-  const artist = currentTrack?.artist || (currentShow?.shows?.host_id ? `Hosted by ${currentShow.shows.host_id}` : "The Number One Station");
+  // State for recently played tracks
+  type PlayedTrack = { title: string; artist: string; time: string };
+  const [recentlyPlayed, setRecentlyPlayed] = React.useState<PlayedTrack[]>([]);
+  const [recentLoading, setRecentLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function fetchRecentTracks() {
+      try {
+        const res = await fetch('https://streaming-api.aiir.com/mounts/metadata/history/dnjp99nozxavv?limit=4');
+        if (!res.ok) throw new Error('Failed to fetch recent tracks');
+        const data = await res.json();
+
+        // Ensure formatDistanceToNow is available
+        const { formatDistanceToNow } = await import('date-fns');
+
+        // Parse AIIR API format
+        const parsed = data.map((item: any) => {
+          // AIIR formats title as "Artist - Title" or "Artist -Title"
+          const splitIndex = item.title.indexOf('-');
+          let artist = "Unknown Artist";
+          let songTitle = item.title;
+
+          if (splitIndex !== -1) {
+            artist = item.title.substring(0, splitIndex).trim();
+            songTitle = item.title.substring(splitIndex + 1).trim();
+          }
+
+          // Calculate relative time
+          const relativeTime = formatDistanceToNow(new Date(item.timestamp), { addSuffix: true });
+
+          return {
+            title: songTitle,
+            artist: artist,
+            time: relativeTime
+          };
+        });
+
+        setRecentlyPlayed(parsed);
+      } catch (error) {
+        console.error('Error fetching recent tracks:', error);
+      } finally {
+        setRecentLoading(false);
+      }
+    }
+
+    fetchRecentTracks();
+    // Poll every 60 seconds to keep fresh
+    const interval = setInterval(fetchRecentTracks, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Determine the display title and artist
+  // We prioritize real-time metadata from the stream, but fallback to 
+  // the scheduled show if metadata is generic (e.g., "Pie Radio Live")
+  const isGenericMetadata = !currentTrack ||
+    currentTrack.title === "Pie Radio Live" ||
+    currentTrack.title === "Live Stream";
+
+  const title = !isGenericMetadata
+    ? currentTrack.title
+    : (currentShow?.shows?.title || "Pie Radio Live");
+
+  const artist = !isGenericMetadata
+    ? currentTrack.artist
+    : (currentShow?.shows?.host_id || "The Number One Station");
+
+  const artwork = (!isGenericMetadata && currentTrack.artwork && currentTrack.artwork !== "/placeholder-cover.jpg")
+    ? currentTrack.artwork
+    : (currentShow?.shows?.cover_image_url || "/placeholder-cover.jpg");
 
   // Helper to format text to Title Case (first letter capital, rest lowercase for each word)
   // Handles all-caps input from AIIR nicely.
@@ -127,34 +198,34 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            {/* Main Featured Card */}
-            <div className="md:col-span-8 group relative aspect-video md:aspect-auto md:h-[450px] overflow-hidden rounded-2xl border border-border/50 bg-card hover:border-primary/50 transition-all cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1">
+            {/* Main Featured Card - Partnership */}
+            <Link href="/partnership" className="md:col-span-8 group relative aspect-video md:aspect-auto md:h-[450px] overflow-hidden rounded-2xl border border-border/50 bg-card hover:border-primary/50 transition-all cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1 block">
               <Image
-                src="/assets/featured-event.jpg"
-                alt="Featured Event"
+                src="/assets/pie-x-popeyes-promo.png"
+                alt="Pie Radio x Popeyes Partnership"
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
               <div className="absolute bottom-0 p-8 space-y-3">
-                <div className="px-3 py-1 bg-primary text-white text-xs font-bold rounded-full w-fit uppercase tracking-wider">
-                  Featured Event
+                <div className="px-3 py-1 bg-[#F96D00] text-white text-xs font-bold rounded-full w-fit uppercase tracking-wider backdrop-blur-md">
+                  Partnership
                 </div>
-                <h3 className="text-3xl font-bold text-white leading-tight max-w-xl group-hover:text-primary transition-colors">
-                  Winter Vibes: The Ultimate Artist Showcase Coming This December
+                <h3 className="text-3xl font-bold text-white leading-tight max-w-xl group-hover:text-[#F96D00] transition-colors">
+                  Pie Radio Collabs with Popeyes
                 </h3>
                 <p className="text-zinc-300 text-sm max-w-md line-clamp-2">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Eum recusandae velit, obcaecati magni, vel odit fuga quasi cupiditate praesentium, ut autem esse. Non reprehenderit quos perferendis saepe magnam dolore itaque eum provident, qui quis autem? Voluptatem facere nam et distinctio est? Recusandae, tenetur? Laudantium officiis unde adipisci quia nostrum dolor a beatae aliquam expedita cum rem corporis laborum perspiciatis, eligendi culpa ducimus! Aliquid placeat doloribus repudiandae ipsam, labore quisquam ut.
+                  The ultimate combo: crispy chicken meets the freshest beats. Check out what we&apos;re cooking up with Louisiana&apos;s finest. 🍗🎶
                 </p>
               </div>
-            </div>
+            </Link>
 
             {/* Sidebar Cards */}
             <div className="md:col-span-4 flex flex-col gap-6">
               <div className="flex-1 group relative overflow-hidden rounded-2xl border border-border/50 bg-card hover:border-primary/50 transition-all cursor-pointer shadow-sm hover:shadow-lg">
                 <Image
-                  src="/assets/artist-spotlight.jpg"
-                  alt="Artist Spotlight"
+                  src="/assets/abstract-avatar.png"
+                  alt="Artist Spotlight Placeholder"
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
@@ -165,20 +236,25 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex-1 bg-white p-6 rounded-2xl border border-border/50 shadow-sm hover:border-primary/50 transition-all cursor-pointer hover:shadow-lg">
+              <div className="flex-1 bg-white p-6 rounded-2xl border border-border/50 shadow-sm hover:border-primary/50 transition-all cursor-pointer hover:shadow-lg" onClick={togglePlay}>
                 <div className="space-y-4">
                   <div className="text-primary text-xs font-bold uppercase tracking-widest">On Air Now</div>
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-xl bg-zinc-100 flex items-center justify-center text-primary">
-                      <Mic2 className="w-8 h-8" />
+                    <div className="w-16 h-16 rounded-xl bg-zinc-100 flex items-center justify-center text-primary relative overflow-hidden">
+                      {artwork && artwork !== "/placeholder-cover.jpg" ? (
+                        <Image src={artwork} alt={title} fill className="object-cover" />
+                      ) : (
+                        <Mic2 className="w-8 h-8" />
+                      )}
                     </div>
                     <div>
-                      <h4 className="font-bold text-lg leading-tight">Afternoon Hustle</h4>
-                      <p className="text-sm text-muted-foreground">with DJ Flex & Tasha</p>
+                      <h4 className="font-bold text-lg leading-tight">{formattedTitle}</h4>
+                      <p className="text-sm text-muted-foreground">{formattedArtist}</p>
                     </div>
                   </div>
                   <Button variant="outline" className="w-full rounded-full border-2 gap-2">
-                    <Radio className="w-4 h-4" /> Go Live
+                    {isPlaying ? <Pause className="w-4 h-4" /> : <Radio className="w-4 h-4" />}
+                    {isPlaying ? "Pause Stream" : "Listen Live"}
                   </Button>
                 </div>
               </div>
@@ -194,25 +270,34 @@ export default function Home() {
               <Calendar className="text-primary" /> Today&apos;s Schedule
             </h3>
             <div className="space-y-1">
-              {[
-                { time: "12:00", title: "The Midday Mix", host: "Sarah J" },
-                { time: "15:00", title: "Afternoon Hustle", host: "DJ Flex" },
-                { time: "18:00", title: "Drive Time Melodies", host: "Marcus Kane" },
-                { time: "21:00", title: "The Late Night Show", host: "Tasha Wright" },
-              ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-4 rounded-xl hover:bg-white hover:shadow-md border border-transparent hover:border-border/50 transition-all group cursor-pointer">
-                  <div className="flex gap-6 items-center">
-                    <span className="text-lg font-bold text-primary/40 font-mono group-hover:text-primary transition-colors">{item.time}</span>
-                    <div>
-                      <h4 className="font-bold">{item.title}</h4>
-                      <p className="text-sm text-muted-foreground">{item.host}</p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="icon" className="group-hover:text-primary">
-                    <Play className="w-5 h-5" />
-                  </Button>
+              {scheduleLoading ? (
+                <div className="p-8 text-center text-zinc-400 animate-pulse font-bold tracking-widest uppercase text-xs">
+                  Loading Schedule...
                 </div>
-              ))}
+              ) : todaySchedule && todaySchedule.length > 0 ? (
+                todaySchedule.slice(0, 5).map((item, i) => (
+                  <div key={i} className="flex items-center justify-between p-4 rounded-xl hover:bg-white hover:shadow-md border border-transparent hover:border-border/50 transition-all group cursor-pointer">
+                    <div className="flex gap-6 items-center">
+                      <span className="text-lg font-bold text-primary/40 font-mono group-hover:text-primary transition-colors">
+                        {format(new Date(item.start_time), "HH:mm")}
+                      </span>
+                      <div>
+                        <h4 className="font-bold">{item.title}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {item.presenter?.full_name || "Pie Radio Presenter"}
+                        </p>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="icon" className="group-hover:text-primary">
+                      <Play className="w-5 h-5" />
+                    </Button>
+                  </div>
+                ))
+              ) : (
+                <div className="p-8 text-center text-zinc-400 bg-zinc-50/50 rounded-2xl border-2 border-dashed border-zinc-100 font-bold tracking-widest uppercase text-[10px]">
+                  No shows scheduled for today
+                </div>
+              )}
             </div>
             <Button variant="link" className="text-primary px-0 font-bold" asChild>
               <Link href="/schedule">View Full Schedule &rarr;</Link>
@@ -225,31 +310,34 @@ export default function Home() {
               <Music className="text-primary" /> Recently Played
             </h3>
             <div className="space-y-1">
-              {[
-                { title: "Rush Over Me", artist: "Hillsong & Seven Lions", time: "2 mins ago" },
-                { title: "Levitating", artist: "Dua Lipa", time: "8 mins ago" },
-                { title: "Starboy", artist: "The Weeknd", time: "15 mins ago" },
-                { title: "Circles", artist: "Post Malone", time: "22 mins ago" },
-              ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-4 rounded-xl border border-transparent hover:border-border/50 hover:bg-white transition-all">
-                  <div className="flex gap-4 items-center">
-                    <div className="w-10 h-10 rounded-lg bg-zinc-100 flex items-center justify-center text-zinc-400">
-                      <Music className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-sm leading-none pt-1">{item.title}</h4>
-                      <p className="text-xs text-muted-foreground pt-1">{item.artist}</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground bg-muted px-2 py-1 rounded-md">
-                    {item.time}
-                  </span>
+              {recentLoading ? (
+                <div className="p-8 text-center text-zinc-400 animate-pulse font-bold tracking-widest uppercase text-xs">
+                  Loading Playlist...
                 </div>
-              ))}
+              ) : recentlyPlayed.length > 0 ? (
+                recentlyPlayed.map((item, i) => (
+                  <div key={i} className="flex items-center justify-between p-4 rounded-xl border border-transparent hover:border-border/50 hover:bg-white transition-all">
+                    <div className="flex gap-4 items-center">
+                      <div className="w-10 h-10 rounded-lg bg-zinc-100 flex items-center justify-center text-zinc-400">
+                        <Music className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-sm leading-none pt-1">{formatTitleCase(item.title)}</h4>
+                        <p className="text-xs text-muted-foreground pt-1">{formatTitleCase(item.artist)}</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground bg-muted px-2 py-1 rounded-md">
+                      {item.time}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <div className="p-8 text-center text-zinc-400 bg-zinc-50/50 rounded-2xl border-2 border-dashed border-zinc-100 font-bold tracking-widest uppercase text-[10px]">
+                  No recent tracks
+                </div>
+              )}
             </div>
-            <Button variant="link" className="text-primary px-0 font-bold">
-              View Playlist History &rarr;
-            </Button>
+
           </div>
         </div>
 

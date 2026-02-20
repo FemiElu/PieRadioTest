@@ -63,7 +63,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         const supabase = createClient();
 
         const fetchInitial = async () => {
-            const { data } = await supabase.from('station_metadata').select('*').eq('id', 1 as any).single();
+            const { data } = await supabase.from('station_metadata').select('*').eq('id', 1).single();
             if (data) {
                 const metadata = data as any;
                 setCurrentTrack({
