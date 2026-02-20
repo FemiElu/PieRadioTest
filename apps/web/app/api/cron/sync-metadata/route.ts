@@ -5,9 +5,17 @@ import { NextResponse } from "next/server";
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
-    // 1. Authorization Check
     const authHeader = request.headers.get('authorization');
-    const isCronAction = process.env.CRON_SECRET && authHeader === `Bearer ${process.env.CRON_SECRET}`;
+    const cronSecret = process.env.CRON_SECRET;
+
+    // In development, we allow triggering sync without a secret for automation
+    const isDevelopment = process.env.NODE_ENV === 'development';
+
+    if (!isDevelopment && (!cronSecret || authHeader !== `Bearer ${cronSecret}`)) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const isCronAction = true; // Guaranteed by check above
 
     // 2. Initialize Supabase
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;

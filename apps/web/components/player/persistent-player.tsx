@@ -12,13 +12,22 @@ export function PersistentPlayer() {
     const { isPlaying, togglePlay, currentTrack, isLoading } = useAudio();
     const { currentShow } = useCurrentShow();
 
-    // If no track info (shouldn't happen with default), fallbacks
-    // If we have a current Show but no specific "Song" metadata (or it's just "Pie Radio"), prioritize Show info?
-    // Strategy: Always show Metadata if available, otherwise Show info.
+    const isGenericMetadata = !currentTrack ||
+        currentTrack.title === "Pie Radio Live" ||
+        currentTrack.title === "Pie Radio" ||
+        currentTrack.title === "Live Stream";
 
-    const title = currentTrack?.title || currentShow?.shows?.title || "Pie Radio";
-    const artist = currentTrack?.artist || (currentShow?.shows?.host_id ? `Hosted by ${currentShow.shows.host_id}` : "Live Stream");
-    const artwork = currentTrack?.artwork || currentShow?.shows?.cover_image_url || "";
+    const title = !isGenericMetadata
+        ? currentTrack.title
+        : (currentShow?.shows?.title || "Pie Radio");
+
+    const artist = !isGenericMetadata
+        ? currentTrack.artist
+        : (currentShow?.shows?.host_id || "Live Stream");
+
+    const artwork = (!isGenericMetadata && currentTrack.artwork && currentTrack.artwork !== "/placeholder-cover.jpg")
+        ? currentTrack.artwork
+        : (currentShow?.shows?.cover_image_url || "");
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-800 bg-black/95 backdrop-blur-xl supports-[backdrop-filter]:bg-black/80 px-4 py-3 md:px-8 shadow-[0_-10px_40px_rgba(0,0,0,0.4)] transition-all duration-300">

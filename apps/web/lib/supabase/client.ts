@@ -7,8 +7,7 @@ export function createClient() {
 
     if (!url || !key) {
         console.error('Supabase credentials missing. Check your Vercel environment variables.');
-        // Return a dummy client or throw a more descriptive error
-        return createBrowserClient<Database>('', '');
+        return createBrowserClient<Database>(url ?? '', key ?? '');
     }
 
     try {
@@ -16,7 +15,7 @@ export function createClient() {
         new URL(url);
     } catch (e) {
         console.error('Invalid NEXT_PUBLIC_SUPABASE_URL:', url);
-        return createBrowserClient<Database>('', '');
+        return createBrowserClient<Database>(url ?? '', key ?? '');
     }
 
     return createBrowserClient<Database>(url, key);
