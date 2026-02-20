@@ -10,6 +10,58 @@ export const metadata = {
     description: "Meet the Pie Radio team. Your favorite voices, bringing you the best in music and entertainment.",
 };
 
+// Executive Leadership Team Data
+const EXECUTIVES_DATA = [
+    {
+        id: "e1",
+        full_name: "Femi Elujoba",
+        username: "femi-elujoba",
+        slug: "femi-elujoba",
+        avatar_url: "https://eybfcekeksdcnimfkgkc.supabase.co/storage/v1/object/public/avatars/avatars/b2f1939d-4772-47a4-8392-a2f3f0551f9b/1768820837888-78ryjyh5txv.jpg",
+        bio: "Executive Director at Pie Radio.",
+        is_live: false,
+        presenter_meta: { category: "Executive Leadership", instagram_handle: "femielujoba", twitter_handle: null },
+        shows: [],
+    },
+    {
+        id: "e2",
+        full_name: "Mova Afemi",
+        username: "mova-afemi",
+        slug: "mova-afemi",
+        avatar_url: "https://eybfcekeksdcnimfkgkc.supabase.co/storage/v1/object/public/avatars/avatars/076d0a69-389a-4c61-b660-74a6069e282e/1770139387292-lsewwx9ycug.png",
+        bio: "Director of Operations.",
+        is_live: false,
+        presenter_meta: { category: "Executive Leadership", instagram_handle: null, twitter_handle: null },
+        shows: [],
+    },
+];
+
+// Senior Leadership Team Data
+const SENIOR_LEADERSHIP_DATA = [
+    {
+        id: "s1",
+        full_name: "Sarah Jenkins",
+        username: "sarah-jenkins",
+        slug: "sarah-jenkins",
+        avatar_url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80",
+        bio: "Head of Content.",
+        is_live: false,
+        presenter_meta: { category: "Senior Leadership", instagram_handle: "sarahj", twitter_handle: "sarahj_radio" },
+        shows: [],
+    },
+    {
+        id: "s2",
+        full_name: "Michael Chang",
+        username: "michael-chang",
+        slug: "michael-chang",
+        avatar_url: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&q=80",
+        bio: "Head of Music.",
+        is_live: false,
+        presenter_meta: { category: "Senior Leadership", instagram_handle: "mikechang", twitter_handle: null },
+        shows: [],
+    },
+];
+
 // Dummy data for initial display (will be replaced by real data)
 const DUMMY_PRESENTERS = [
     {
@@ -125,6 +177,10 @@ export default async function PresentersPage() {
         .eq("role", "presenter")
         .order("full_name");
 
+    if (error) {
+        console.error("Error fetching presenters:", error);
+    }
+
     // Use dummy data if no real presenters exist or there's an error
     const displayPresenters = (presenters && presenters.length > 0) ? presenters : DUMMY_PRESENTERS;
 
@@ -144,7 +200,11 @@ export default async function PresentersPage() {
 
             {/* Presenters Content */}
             <section className="container pb-20 px-4 md:px-8 max-w-screen-2xl mx-auto">
-                <PresentersClient initialPresenters={displayPresenters as any} />
+                <PresentersClient
+                    initialPresenters={displayPresenters as any}
+                    executives={EXECUTIVES_DATA as any}
+                    seniorLeadership={SENIOR_LEADERSHIP_DATA as any}
+                />
             </section>
         </div>
     );

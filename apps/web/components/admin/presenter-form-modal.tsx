@@ -199,9 +199,8 @@ export function PresenterFormModal({
 
                 if (profileError) throw profileError;
 
-                // Update or insert presenter_meta
-                const { error: metaError } = await supabase
-                    .from("presenter_meta")
+                // Update or insert presenter_meta - Use 'as any' as the types are out of sync with the DB
+                const { error: metaError } = await (supabase.from("presenter_meta" as any) as any)
                     .upsert({
                         user_id: presenter.id,
                         category: formData.category,

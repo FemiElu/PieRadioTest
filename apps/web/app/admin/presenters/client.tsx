@@ -76,7 +76,7 @@ export default function AdminPresentersClient() {
             ]);
 
             if (!presentersResponse.error && presentersResponse.data) {
-                setPresenters(presentersResponse.data as DisplayPresenter[]);
+                setPresenters(presentersResponse.data as any as DisplayPresenter[]);
             }
 
             if (messagesResponse.data) {
@@ -90,7 +90,7 @@ export default function AdminPresentersClient() {
             // Check for edit parameter after loading presenters
             const editId = searchParams.get("edit");
             if (editId && presentersResponse.data) {
-                const presenterToEdit = (presentersResponse.data as DisplayPresenter[]).find(p => p.id === editId);
+                const presenterToEdit = (presentersResponse.data as any as DisplayPresenter[]).find(p => p.id === editId);
                 if (presenterToEdit) {
                     handleEditPresenter(presenterToEdit);
                     // Clear the param without refreshing
