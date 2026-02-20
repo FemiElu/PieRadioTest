@@ -98,7 +98,7 @@ export async function submitRequest(
         const { data: station, error: stationError } = await supabase
             .from('station_metadata')
             .select('id')
-            .eq('id', String(station_id))
+            .eq('id', station_id)
             .single();
 
         if (stationError || !station) {

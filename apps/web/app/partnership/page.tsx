@@ -376,7 +376,7 @@ export default function PartnershipPage() {
                     {/* Brand lockup */}
                     <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
                         <Image
-                            src="/assets/partnership/pieradio-logo.svg"
+                            src="/assets/logo.png"
                             alt="Pie Radio logo"
                             width={140}
                             height={42}
@@ -385,9 +385,9 @@ export default function PartnershipPage() {
                         />
                         <span className="text-white/50 text-2xl sm:text-3xl font-thin">×</span>
                         <Image
-                            src="/assets/partnership/popeyes-logo.svg"
+                            src="/assets/popeyes-seeklogo.png"
                             alt="Popeyes Louisiana Kitchen logo"
-                            width={140}
+                            width={50}
                             height={42}
                             className="h-8 sm:h-10 lg:h-12 w-auto"
                             priority
