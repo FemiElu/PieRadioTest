@@ -128,44 +128,40 @@ async function sync() {
                     const dayOffset = DAYS_OF_WEEK.indexOf(dayName);
                     const showDate = addDays(startOfThisWeek, dayOffset + (weekOffset * 7));
 
-                    let start = setHours(setMinutes(showDate, 0), startHour);
-                    let end = setHours(setMinutes(showDate, 0), endHour);
+                    // Form a strict string in London timezone format
+                    const yyyyMmDd = format(showDate, 'yyyy-MM-dd');
+                    const startLocalString = `${yyyyMmDd} ${startHour.toString().padStart(2, '0')}:00:00`;
 
-                    // Handle overflow (e.g. 11PM - 12AM)
-                    if (endHour <= startHour) {
-                        end = addDays(end, 1);
-                    }
+                    // End date might be next day
+                    const endShowDate = endHour <= startHour ? addDays(showDate, 1) : showDate;
+                    const endYyyyMmDd = format(endShowDate, 'yyyy-MM-dd');
+                    const endLocalString = `${endYyyyMmDd} ${endHour.toString().padStart(2, '0')}:00:00`;
 
-                    // Convert to UTC for DB
-                    const startUtc = fromZonedTime(start, TIMEZONE);
-                    const endUtc = fromZonedTime(end, TIMEZONE);
+                    // Convert from London time to actual UTC Date for DB storage
+                    const startUtc = fromZonedTime(startLocalString, TIMEZONE);
+                    const endUtc = fromZonedTime(endLocalString, TIMEZONE);
 
-                    // Skip if already in the past
-                    if (isAfter(endUtc, now)) {
-                        scheduleEntries.push({
-                            title,
-                            description: presenterName ? `Hosted by ${presenterName}` : '',
-                            start_time: startUtc.toISOString(),
-                            end_time: endUtc.toISOString(),
-                            presenter_id: presenterId,
-                            is_live: false, // Computed by UI usually
-                        });
-                    }
+                    scheduleEntries.push({
+                        title,
+                        description: presenterName ? `Hosted by ${presenterName}` : '',
+                        start_time: startUtc.toISOString(),
+                        end_time: endUtc.toISOString(),
+                        presenter_id: presenterId,
+                        is_live: false, // Computed by UI usually
+                    });
                 }
             }
         }
 
         console.log(`Prepared ${scheduleEntries.length} entries for the next 4 weeks.`);
 
-        // 5. Cleanup and Insert
-        // For a simple sync, we delete entries from "now" to 4 weeks ahead and re-insert.
-        // This assumes only the Google Sheet manages this table for now.
+        const startOfThisWeek = startOfDay(addDays(new Date(), -new Date().getDay()));
         const fourWeeksAhead = addWeeks(new Date(), 4);
 
         const { error: delError } = await supabase
             .from('schedules')
             .delete()
-            .gte('start_time', new Date().toISOString())
+            .gte('start_time', startOfThisWeek.toISOString())
             .lte('start_time', fourWeeksAhead.toISOString());
 
         if (delError) throw delError;

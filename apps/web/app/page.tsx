@@ -199,26 +199,33 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             {/* Main Featured Card - Partnership */}
-            <Link href="/partnership" className="md:col-span-8 group relative aspect-video md:aspect-auto md:h-[450px] overflow-hidden rounded-2xl border border-border/50 bg-card hover:border-primary/50 transition-all cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1 block">
-              <Image
-                src="/assets/pie-x-popeyes-promo.png"
-                alt="Pie Radio x Popeyes Partnership"
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-              <div className="absolute bottom-0 p-8 space-y-3">
-                <div className="px-3 py-1 bg-[#F96D00] text-white text-xs font-bold rounded-full w-fit uppercase tracking-wider backdrop-blur-md">
-                  Partnership
+            <div className="md:col-span-8 relative group cursor-pointer block mt-4 md:mt-0">
+              {/* Glowing Ambient Background Core */}
+              <div className="absolute -inset-2 bg-gradient-to-r from-[#F96D00] via-primary to-[#F96D00] rounded-[2rem] blur-xl opacity-80 animate-pulse" />
+
+              {/* Infinite Radar Ping Ring Effect */}
+
+              <Link href="/partnership" className="relative h-full w-full aspect-video md:aspect-auto md:h-[450px] overflow-hidden rounded-2xl border border-[#F96D00] bg-card transition-all duration-500 hover:-translate-y-2 block shadow-[0_0_50px_rgba(249,109,0,0.4)] hover:shadow-[0_0_80px_rgba(249,109,0,0.6)]">
+                <Image
+                  src="/assets/pie-x-popeyes-promo.png"
+                  alt="Pie Radio x Popeyes Partnership"
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                <div className="absolute bottom-0 p-8 space-y-3 z-10">
+                  <div className="px-3 py-1 bg-[#F96D00] text-white text-xs font-bold rounded-full w-fit uppercase tracking-wider backdrop-blur-md shadow-[0_0_15px_rgba(249,109,0,0.5)]">
+                    Partnership
+                  </div>
+                  <h3 className="text-3xl font-bold text-white leading-tight max-w-xl transition-colors">
+                    Pie Radio Collabs with Popeyes
+                  </h3>
+                  <p className="text-zinc-300 text-sm max-w-md line-clamp-2">
+                    The ultimate combo: crispy chicken meets the freshest beats. Check out what we&apos;re cooking up with Louisiana&apos;s finest. 🍗🎶
+                  </p>
                 </div>
-                <h3 className="text-3xl font-bold text-white leading-tight max-w-xl group-hover:text-[#F96D00] transition-colors">
-                  Pie Radio Collabs with Popeyes
-                </h3>
-                <p className="text-zinc-300 text-sm max-w-md line-clamp-2">
-                  The ultimate combo: crispy chicken meets the freshest beats. Check out what we&apos;re cooking up with Louisiana&apos;s finest. 🍗🎶
-                </p>
-              </div>
-            </Link>
+              </Link>
+            </div>
 
             {/* Sidebar Cards */}
             <div className="md:col-span-4 flex flex-col gap-6">
