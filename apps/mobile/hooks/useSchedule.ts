@@ -11,9 +11,9 @@ export interface ScheduleItem {
     presenter_id: string | null;
     is_live: boolean;
     presenter?: {
-        full_name: string;
-        username: string;
-    };
+        full_name?: string | null;
+        username?: string | null;
+    } | null;
 }
 
 // In-memory cache to survive screen navigations and brief network drops

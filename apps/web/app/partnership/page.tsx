@@ -234,6 +234,7 @@ export default function PartnershipPage() {
 
     /* --- Form state --- */
     const [email, setEmail] = useState("");
+    const [fullName, setFullName] = useState("")
     const [city, setCity] = useState("");
     const [formError, setFormError] = useState("");
     const [formSuccess, setFormSuccess] = useState(false);
@@ -360,7 +361,7 @@ export default function PartnershipPage() {
                 {/* Background image */}
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80"
+                        src="/assets/popeyes_heroImg.webp"
                         alt="Restaurant interior with warm lighting"
                         fill
                         className="object-cover object-center"
@@ -428,7 +429,7 @@ export default function PartnershipPage() {
                                 title="Available on launch."
                             >
                                 <Music className="w-5 h-5" />
-                                Preview Playlist
+                                Preview Heaters Show
                             </Button>
                         </div>
                     </div>
@@ -508,7 +509,7 @@ export default function PartnershipPage() {
             {/* ============================================================
           FEATURES GRID
           ============================================================ */}
-            <section className="bg-warm-cream py-16 sm:py-20 lg:py-24">
+            {/* <section className="bg-warm-cream py-16 sm:py-20 lg:py-24">
                 <div className="container max-w-screen-2xl mx-auto px-4 md:px-8">
                     <div className="text-center mb-10 sm:mb-14 scroll-reveal">
                         <p className="text-popeyes-orange text-xs sm:text-sm font-bold uppercase tracking-[0.2em] mb-3">
@@ -544,7 +545,7 @@ export default function PartnershipPage() {
                         })}
                     </div>
                 </div>
-            </section>
+            </section> */}
 
             {/* ============================================================
           MEDIA CAROUSEL
@@ -623,7 +624,7 @@ export default function PartnershipPage() {
                             Join the Waitlist
                         </h2>
                         <p className="text-sm sm:text-base text-muted-foreground mb-8 leading-relaxed">
-                            Sign up to get exclusive early access, launch-day perks, and updates straight to your inbox.
+                            Sign up to get exclusive early access to the Popeyes Event coming soon!
                         </p>
 
                         {formSuccess ? (
@@ -648,6 +649,30 @@ export default function PartnershipPage() {
                                 noValidate
                             >
                                 <div className="space-y-4">
+
+                                    <div className="text-left">
+                                        <label
+                                            htmlFor="full-name"
+                                            className="text-sm font-medium text-deep-text mb-1.5 block"
+                                        >
+                                            Full name <span className="text-cajun-red">*</span>
+                                        </label>
+                                        <Input
+                                            id="full-name"
+                                            type="text"
+                                            placeholder="Joe Doe"
+                                            value={fullName}
+                                            onChange={(e) => {
+                                                setFullName(e.target.value);
+                                                if (formError) setFormError("");
+                                            }}
+                                            className="h-12 rounded-xl text-base"
+                                            required
+                                            autoComplete="name"
+                                        />
+                                    </div>
+
+
                                     <div className="text-left">
                                         <label
                                             htmlFor="waitlist-email"
@@ -670,29 +695,6 @@ export default function PartnershipPage() {
                                         />
                                     </div>
 
-                                    <div className="text-left">
-                                        <label
-                                            htmlFor="waitlist-city"
-                                            className="text-sm font-medium text-deep-text mb-1.5 block"
-                                        >
-                                            City <span className="text-muted-foreground">(optional)</span>
-                                        </label>
-                                        <Select value={city} onValueChange={setCity}>
-                                            <SelectTrigger
-                                                id="waitlist-city"
-                                                className="h-12 rounded-xl text-base"
-                                            >
-                                                <SelectValue placeholder="Select your city" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {CITIES.map((c) => (
-                                                    <SelectItem key={c} value={c}>
-                                                        {c}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
 
                                     {formError && (
                                         <p

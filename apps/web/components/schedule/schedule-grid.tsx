@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { ChevronDown, Play } from "lucide-react";
+import { ChevronDown, Play, Pause, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -12,6 +12,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSchedule } from "@/hooks/use-schedule";
+import { useAudio } from "@/context/audio-context";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // --- HELPERS ---
@@ -33,9 +34,13 @@ const formatDayFull = (date: Date) => {
 }
 
 
-// Helper to format time "HH:mm"
+// Helper to format time "HH:mm" in London Time
 const formatTime = (isoString: string) => {
-    return new Date(isoString).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    return new Date(isoString).toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'Europe/London'
+    });
 };
 
 // Blinking Live Indicator Component
@@ -71,6 +76,16 @@ export function ScheduleGrid() {
 
     // Fetch schedule for the selected day
     const { schedule, loading: isLoading, error } = useSchedule(activeDateObj);
+
+    // Audio context
+    const { isPlaying, togglePlay, isLoading: isAudioLoading } = useAudio();
+
+    // Dynamic current time for live indicator
+    const [currentTime, setCurrentTime] = useState(new Date());
+    useEffect(() => {
+        const interval = setInterval(() => setCurrentTime(new Date()), 60000);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <div className="space-y-8">
@@ -146,16 +161,18 @@ export function ScheduleGrid() {
                     </div>
                 ) : (
                     schedule.map((show) => {
-                        const isLive = show.is_live;
+                        const showStart = new Date(show.start_time);
+                        const showEnd = new Date(show.end_time);
+                        const isLive = currentTime >= showStart && currentTime < showEnd;
 
                         return (
                             <div
                                 key={show.id}
                                 className={cn(
-                                    "group relative flex flex-col md:flex-row items-center gap-6 p-6 rounded-3xl border-2 transition-all duration-300 hover:scale-[1.01]",
+                                    "group relative flex flex-col md:flex-row items-center gap-6 p-6 rounded-3xl border-2 transition-all duration-300",
                                     isLive
-                                        ? "bg-white border-primary/30 shadow-xl shadow-primary/10 ring-2 ring-primary/20"
-                                        : "bg-white border-border hover:border-zinc-300 hover:shadow-lg"
+                                        ? "bg-red-50/30 border-red-400/60 shadow-[0_0_25px_rgba(239,68,68,0.15)] ring-1 ring-red-400/50 scale-[1.02]"
+                                        : "bg-white border-border hover:border-zinc-300 hover:shadow-lg hover:scale-[1.01]"
                                 )}
                             >
                                 {/* Time Column */}
@@ -192,7 +209,7 @@ export function ScheduleGrid() {
                                                 {show.title}
                                             </h3>
                                             {isLive && (
-                                                <span className="px-2.5 py-1 rounded-md bg-red-500 text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
+                                                <span className="animate-pulse px-2.5 py-1 rounded-md bg-red-500 text-white text-[10px] font-black uppercase tracking-wider shadow-[0_0_10px_rgba(239,68,68,0.5)]">
                                                     Live Now
                                                 </span>
                                             )}
@@ -210,15 +227,26 @@ export function ScheduleGrid() {
                                         {isLive ? (
                                             <Button
                                                 size="lg"
-                                                className="rounded-full px-8 py-6 font-bold text-base shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    togglePlay();
+                                                }}
+                                                className="relative z-10 rounded-full px-8 py-6 font-bold text-base shadow-lg shadow-primary/20 hover:scale-105 transition-transform gap-2 bg-primary hover:bg-primary/90 text-white border-0"
                                             >
-                                                Listen Live
+                                                {isAudioLoading ? (
+                                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                                ) : isPlaying ? (
+                                                    <Pause className="w-5 h-5 fill-current" />
+                                                ) : (
+                                                    <Play className="w-5 h-5 fill-current" />
+                                                )}
+                                                {isPlaying ? "Pause Stream" : "Listen Live"}
                                             </Button>
                                         ) : (
                                             <Button
                                                 variant="outline"
                                                 size="icon"
-                                                className="w-12 h-12 rounded-full border-2 hover:border-primary hover:bg-primary/5 hover:text-primary transition-all"
+                                                className="w-12 h-12 rounded-full border-2 hover:border-primary hover:bg-primary/5 hover:text-primary transition-all pointer-events-none opacity-50"
                                             >
                                                 <Play className="w-5 h-5 ml-0.5" />
                                             </Button>

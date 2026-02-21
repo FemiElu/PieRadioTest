@@ -12,9 +12,13 @@ const formatDayName = (date: Date) => date.toLocaleDateString('en-US', { weekday
 const formatDayShort = (date: Date) => date.toLocaleDateString('en-US', { weekday: 'short' });
 const formatDatePart = (date: Date) => date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
 
-// Helper to format time "HH:mm"
+// Helper to format time "HH:mm" in London Time
 const formatTime = (isoString: string) => {
-    return new Date(isoString).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    return new Date(isoString).toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'Europe/London'
+    });
 };
 
 // Blinking Live Indicator Component
@@ -71,6 +75,13 @@ export default function ScheduleScreen() {
 
     const activeDateObj = days[activeDayIndex].dateObj;
     const { schedule, loading: isLoading, error } = useSchedule(activeDateObj);
+
+    // Dynamic current time for live indicator
+    const [currentTime, setCurrentTime] = useState(new Date());
+    useEffect(() => {
+        const interval = setInterval(() => setCurrentTime(new Date()), 60000);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <SafeAreaView className="flex-1 bg-background" edges={['top']}>
@@ -140,65 +151,72 @@ export default function ScheduleScreen() {
                             <Text className="text-zinc-500 mt-4 font-medium">No shows scheduled for this day.</Text>
                         </View>
                     ) : (
-                        schedule.map((item) => (
-                            <TouchableOpacity
-                                key={item.id}
-                                activeOpacity={0.7}
-                                className="flex-row items-center bg-card rounded-xl p-3 border border-white/5"
-                            >
-                                {/* Image / Play Button */}
-                                <View className="relative w-16 h-16 rounded-lg overflow-hidden bg-zinc-800 shrink-0">
-                                    <Image
-                                        source={{ uri: item.image_url || 'https://images.unsplash.com/photo-1478737270239-2f52b27fa34e?w=800&q=80' }} // Fallback image
-                                        className="w-full h-full"
-                                        resizeMode="cover"
-                                    />
-                                    {/* Blinking Red Dot for Live */}
-                                    {item.is_live && (
-                                        <View className="absolute top-1 left-1">
-                                            <BlinkingDot />
-                                        </View>
-                                    )}
-                                    {/* Centered Play Button */}
-                                    <View className="absolute inset-0 flex items-center justify-center">
-                                        <View className={`w-7 h-7 rounded-full items-center justify-center ${item.is_live ? 'bg-primary' : 'bg-black/40'
-                                            }`}>
-                                            <Ionicons name="play" size={12} color="white" style={{ marginLeft: 2 }} />
-                                        </View>
-                                    </View>
-                                </View>
+                        schedule.map((item) => {
+                            const showStart = new Date(item.start_time);
+                            const showEnd = new Date(item.end_time);
+                            const isLive = currentTime >= showStart && currentTime < showEnd;
 
-                                {/* Content */}
-                                <View className="flex-1 ml-3">
-                                    {/* Time & Live Badge */}
-                                    <View className="flex-row items-center mb-1">
-                                        <Text className="text-white font-semibold text-xs">
-                                            {formatTime(item.start_time)} - {formatTime(item.end_time)}
-                                        </Text>
-                                        {item.is_live && (
-                                            <View className="ml-2 bg-red-500 px-1.5 py-0.5 rounded">
-                                                <Text className="text-white text-[9px] font-bold uppercase">LIVE</Text>
+                            return (
+                                <TouchableOpacity
+                                    key={item.id}
+                                    activeOpacity={0.7}
+                                    className={`flex-row items-center rounded-xl p-3 border overflow-hidden ${isLive ? 'bg-red-500/10 border-red-500/50 shadow-md' : 'bg-card border-white/5'
+                                        }`}
+                                >
+                                    {/* Image / Play Button */}
+                                    <View className="relative w-16 h-16 rounded-lg overflow-hidden bg-zinc-800 shrink-0">
+                                        <Image
+                                            source={{ uri: item.image_url || 'https://images.unsplash.com/photo-1478737270239-2f52b27fa34e?w=800&q=80' }} // Fallback image
+                                            className="w-full h-full"
+                                            resizeMode="cover"
+                                        />
+                                        {/* Blinking Red Dot for Live */}
+                                        {isLive && (
+                                            <View className="absolute top-1 left-1">
+                                                <BlinkingDot />
                                             </View>
                                         )}
+                                        {/* Centered Play Button */}
+                                        <View className="absolute inset-0 flex items-center justify-center">
+                                            <View className={`w-7 h-7 rounded-full items-center justify-center ${isLive ? 'bg-primary' : 'bg-black/40'
+                                                }`}>
+                                                <Ionicons name="play" size={12} color="white" style={{ marginLeft: 2 }} />
+                                            </View>
+                                        </View>
                                     </View>
 
-                                    {/* Title */}
-                                    <Text className="text-white font-bold text-base leading-tight mb-0.5" numberOfLines={1}>
-                                        {item.title}
-                                    </Text>
+                                    {/* Content */}
+                                    <View className="flex-1 ml-3">
+                                        {/* Time & Live Badge */}
+                                        <View className="flex-row items-center mb-1">
+                                            <Text className="text-white font-semibold text-xs">
+                                                {formatTime(item.start_time)} - {formatTime(item.end_time)}
+                                            </Text>
+                                            {isLive && (
+                                                <View className="ml-2 bg-red-500 px-1.5 py-0.5 rounded">
+                                                    <Text className="text-white text-[9px] font-bold uppercase">LIVE</Text>
+                                                </View>
+                                            )}
+                                        </View>
 
-                                    {/* Host */}
-                                    <Text className="text-zinc-500 font-medium text-xs mb-1" numberOfLines={1}>
-                                        {item.presenter?.full_name || item.presenter?.username || "Pie Radio"}
-                                    </Text>
+                                        {/* Title */}
+                                        <Text className="text-white font-bold text-base leading-tight mb-0.5" numberOfLines={1}>
+                                            {item.title}
+                                        </Text>
 
-                                    {/* Description */}
-                                    <Text className="text-zinc-400 text-[11px] leading-snug" numberOfLines={2}>
-                                        {item.description || "Tune in for the best hits!"}
-                                    </Text>
-                                </View>
-                            </TouchableOpacity>
-                        ))
+                                        {/* Host */}
+                                        <Text className="text-zinc-500 font-medium text-xs mb-1" numberOfLines={1}>
+                                            {item.presenter?.full_name || item.presenter?.username || "Pie Radio"}
+                                        </Text>
+
+                                        {/* Description */}
+                                        <Text className="text-zinc-400 text-[11px] leading-snug" numberOfLines={2}>
+                                            {item.description || "Tune in for the best hits!"}
+                                        </Text>
+                                    </View>
+                                </TouchableOpacity>
+                            );
+                        })
                     )}
                 </View>
 

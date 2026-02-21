@@ -47,7 +47,7 @@ export function PersistentPlayer() {
                     </div>
                     <div className="flex flex-col overflow-hidden min-w-0">
                         <div className="flex items-center gap-2">
-                            <span className="truncate text-[13px] md:text-sm font-black font-display tracking-tight text-white uppercase italic">
+                            <span className="truncate text-[13px] md:text-sm font-black font-display tracking-tight text-white uppercase italic px-1">
                                 {title}
                             </span>
                             <div className="flex items-center gap-1.5 px-1.5 py-0.5 rounded-sm bg-primary/20 text-primary text-[8px] font-black uppercase tracking-[0.2em]">

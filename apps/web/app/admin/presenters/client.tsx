@@ -118,7 +118,7 @@ export default function AdminPresentersClient() {
             email: presenter.email || "",
             bio: presenter.bio || "",
             avatar_url: presenter.avatar_url || "",
-            category: presenter.presenter_meta?.category || "Main Station",
+            category: presenter.presenter_meta?.category || "afrobeats",
             instagram_handle: presenter.presenter_meta?.instagram_handle || "",
             twitter_handle: presenter.presenter_meta?.twitter_handle || "",
             website_url: presenter.presenter_meta?.website_url || "",
@@ -245,7 +245,7 @@ export default function AdminPresentersClient() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary">
-                                                {presenter.presenter_meta?.category || "Main Station"}
+                                                {presenter.presenter_meta?.category || "afrobeats"}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">

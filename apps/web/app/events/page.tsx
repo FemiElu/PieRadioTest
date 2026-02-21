@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { Calendar } from "lucide-react";
 import { EVENTS, EventStatus } from "@/lib/dummy-data/events";
 import { FeaturedCarousel } from "@/components/events/FeaturedCarousel";
 import { QuickActions } from "@/components/events/QuickActions";
 import { FilterBar } from "@/components/events/FilterBar";
 import { EventCard } from "@/components/events/EventCard";
-import { EventStatusBadge } from "@/components/events/EventStatusBadge";
+import { ComingSoon } from "@/components/shared/coming-soon";
+
+const SHOW_COMING_SOON = true;
 
 export default function EventsPage() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -52,6 +55,17 @@ export default function EventsPage() {
 
         return result;
     }, [activeCategory, searchQuery, activeSort]);
+
+    if (SHOW_COMING_SOON) {
+        return (
+            <ComingSoon
+                title="Our Events Page will be "
+                subtitle="Coming Soon"
+                icon={Calendar}
+                description="Discover and book tickets for live shows, festivals, and exclusive Pie Radio events. We're currently building a world-class booking experience for you."
+            />
+        );
+    }
 
     return (
         <div className="flex flex-col min-h-screen pb-20">

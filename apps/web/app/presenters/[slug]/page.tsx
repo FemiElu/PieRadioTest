@@ -24,7 +24,7 @@ const DUMMY_PRESENTERS: Record<string, any> = {
         bio: "Sarah Wilson is one of Pie Radio's most beloved voices, bringing energy, passion, and incredible music knowledge to every show. With years of experience in broadcasting and a deep love for music, Sarah creates an unforgettable listening experience for our audience.\n\nKnown for engaging interviews with top artists, exclusive music premieres, and a genuine connection with listeners, this show has become a must-listen for music fans across the country.\n\nWhen not on air, Sarah is passionate about discovering new talent, attending live music events, and connecting with the community through various charity initiatives.",
         is_live: true,
         presenter_meta: {
-            category: "Main Station",
+            category: "amapiano",
             instagram_handle: "sarahwilson",
             twitter_handle: "sarahwilson"
         },
@@ -37,7 +37,7 @@ const DUMMY_PRESENTERS: Record<string, any> = {
         avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80",
         bio: "Alex Thompson has been waking up the nation with his infectious energy for over a decade. His morning show is the perfect blend of great music, entertaining banter, and the latest news to start your day right.",
         is_live: false,
-        presenter_meta: { category: "Main Station", instagram_handle: "alexthompson", twitter_handle: "alexthompson" },
+        presenter_meta: { category: "afrobeats", instagram_handle: "alexthompson", twitter_handle: "alexthompson" },
     },
     "jamie-lee": {
         id: "3",
@@ -47,7 +47,7 @@ const DUMMY_PRESENTERS: Record<string, any> = {
         avatar_url: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&q=80",
         bio: "Jamie Lee is your afternoon companion, keeping you energized through the workday with the best music and entertaining stories.",
         is_live: false,
-        presenter_meta: { category: "Main Station", instagram_handle: "jamielee", twitter_handle: null },
+        presenter_meta: { category: "rap-hiphop", instagram_handle: "jamielee", twitter_handle: null },
     },
 };
 
@@ -267,10 +267,10 @@ export default async function PresenterPage({ params }: PresenterPageProps) {
             </section>
 
             {/* Related Presenters */}
-            <section className="container px-4 md:px-8 max-w-screen-2xl mx-auto pb-20">
+            {/* <section className="container px-4 md:px-8 max-w-screen-2xl mx-auto pb-20">
                 <h2 className="text-2xl font-bold font-display text-center mb-8">Related Presenters</h2>
                 <RelatedPresenters presenters={relatedPresenters} />
-            </section>
+            </section> */}
         </div>
     );
 }
