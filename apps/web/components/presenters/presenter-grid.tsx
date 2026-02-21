@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Presenter type matching database schema
@@ -108,10 +108,15 @@ export function PresenterGrid({ presenters, selectedCategory = "all", onCategory
                                         )}
                                     />
                                 ) : (
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <span className="text-white/20 font-display font-black text-8xl">
-                                            {(presenter.full_name || presenter.username || "P").charAt(0).toUpperCase()}
-                                        </span>
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-[1px]">
+                                        <div className="relative flex flex-col items-center justify-center">
+                                            <div className="w-24 h-24 rounded-full bg-white/10 flex items-center justify-center border border-white/20 shadow-xl mb-4 group-hover:scale-110 transition-transform duration-500">
+                                                <User className="w-12 h-12 text-white/40 stroke-[1.5]" />
+                                            </div>
+                                            <span className="text-white/20 font-display font-black text-6xl uppercase">
+                                                {(presenter.full_name || presenter.username || "P").charAt(0)}
+                                            </span>
+                                        </div>
                                     </div>
                                 )}
 

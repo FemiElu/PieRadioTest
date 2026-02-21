@@ -267,10 +267,10 @@ export default async function PresenterPage({ params }: PresenterPageProps) {
             </section>
 
             {/* Related Presenters */}
-            <section className="container px-4 md:px-8 max-w-screen-2xl mx-auto pb-20">
+            {/* <section className="container px-4 md:px-8 max-w-screen-2xl mx-auto pb-20">
                 <h2 className="text-2xl font-bold font-display text-center mb-8">Related Presenters</h2>
                 <RelatedPresenters presenters={relatedPresenters} />
-            </section>
+            </section> */}
         </div>
     );
 }
