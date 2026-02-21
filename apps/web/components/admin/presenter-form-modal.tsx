@@ -26,11 +26,12 @@ import Image from "next/image";
 
 // Category options
 const CATEGORIES = [
-    { value: "Main Station", label: "Main Station" },
-    { value: "80s Hits", label: "80s Hits" },
-    { value: "Afrobeats", label: "Afrobeats" },
-    { value: "Chill Vibes", label: "Chill Vibes" },
-    { value: "Rock Classics", label: "Rock Classics" },
+    { value: "afrobeats", label: "Afrobeats" },
+    { value: "amapiano", label: "Amapiano" },
+    { value: "rap-hiphop", label: "Rap & Hiphop" },
+    { value: "rnb", label: "R&B" },
+    { value: "house", label: "House" },
+    { value: "sports", label: "Sports" },
 ];
 
 export interface PresenterFormData {
@@ -59,7 +60,7 @@ const defaultFormData: PresenterFormData = {
     email: "",
     bio: "",
     avatar_url: "",
-    category: "Main Station",
+    category: "afrobeats",
     instagram_handle: "",
     twitter_handle: "",
     website_url: "",

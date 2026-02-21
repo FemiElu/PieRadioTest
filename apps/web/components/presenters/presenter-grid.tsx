@@ -27,11 +27,13 @@ export interface Presenter {
 
 // Category filter options (hardcoded as requested)
 export const PRESENTER_CATEGORIES = [
-    { id: "all", label: "Main Station" },
-    { id: "80s", label: "80s Hits" },
+    { id: "all", label: "All" },
     { id: "afrobeats", label: "Afrobeats" },
-    { id: "chill", label: "Chill Vibes" },
-    { id: "rock", label: "Rock Classics" },
+    { id: "amapiano", label: "Amapiano" },
+    { id: "rap-hiphop", label: "Rap & Hiphop" },
+    { id: "rnb", label: "R&B" },
+    { id: "house", label: "House" },
+    { id: "sports", label: "Sports" },
 ];
 
 interface PresenterGridProps {

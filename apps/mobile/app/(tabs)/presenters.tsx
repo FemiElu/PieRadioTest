@@ -7,9 +7,13 @@ import { supabase } from "@/lib/supabase";
 
 // Category filter options
 const CATEGORIES = [
-    { id: "all", label: "Main Station" },
-    { id: "guest", label: "Guests" },
-    // Add more if we have them in DB
+    { id: "all", label: "All" },
+    { id: "afrobeats", label: "Afrobeats" },
+    { id: "amapiano", label: "Amapiano" },
+    { id: "rap-hiphop", label: "Rap & Hiphop" },
+    { id: "rnb", label: "R&B" },
+    { id: "house", label: "House" },
+    { id: "sports", label: "Sports" },
 ];
 
 export default function PresentersScreen() {

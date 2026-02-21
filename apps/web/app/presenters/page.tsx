@@ -72,7 +72,7 @@ const DUMMY_PRESENTERS = [
         avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80",
         bio: "Morning show host with 10 years of radio experience.",
         is_live: false,
-        presenter_meta: { category: "Main Station", instagram_handle: "alexthompson", twitter_handle: "alexthompson" },
+        presenter_meta: { category: "afrobeats", instagram_handle: "alexthompson", twitter_handle: "alexthompson" },
         shows: [{ title: "Morning Rise", description: "Wake up with energy" }],
     },
     {
@@ -83,7 +83,7 @@ const DUMMY_PRESENTERS = [
         avatar_url: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&q=80",
         bio: "Bringing you the best midday hits.",
         is_live: true,
-        presenter_meta: { category: "Main Station", instagram_handle: "sarahwilson", twitter_handle: "sarahwilson" },
+        presenter_meta: { category: "amapiano", instagram_handle: "sarahwilson", twitter_handle: "sarahwilson" },
         shows: [{ title: "Midday Mix", description: "Weekdays 10am-2pm" }],
     },
     {
@@ -94,7 +94,7 @@ const DUMMY_PRESENTERS = [
         avatar_url: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&q=80",
         bio: "Drive time specialist keeping you company.",
         is_live: false,
-        presenter_meta: { category: "Main Station", instagram_handle: "jamielee", twitter_handle: null },
+        presenter_meta: { category: "rap-hiphop", instagram_handle: "jamielee", twitter_handle: null },
         shows: [{ title: "Drive Time", description: "Weekdays 4-7pm" }],
     },
     {
@@ -105,7 +105,7 @@ const DUMMY_PRESENTERS = [
         avatar_url: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&q=80",
         bio: "Evening vibes and smooth transitions.",
         is_live: false,
-        presenter_meta: { category: "Chill Vibes", instagram_handle: "rachelmartinez", twitter_handle: "rachelmartinez" },
+        presenter_meta: { category: "rnb", instagram_handle: "rachelmartinez", twitter_handle: "rachelmartinez" },
         shows: [{ title: "Evening Vibes", description: "Weekdays 7-10pm" }],
     },
     {
@@ -116,7 +116,7 @@ const DUMMY_PRESENTERS = [
         avatar_url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&q=80",
         bio: "80s hits specialist and music historian.",
         is_live: false,
-        presenter_meta: { category: "80s Hits", instagram_handle: null, twitter_handle: "marcuschen" },
+        presenter_meta: { category: "house", instagram_handle: null, twitter_handle: "marcuschen" },
         shows: [{ title: "80s Flashback", description: "Weekends" }],
     },
     {
@@ -127,7 +127,7 @@ const DUMMY_PRESENTERS = [
         avatar_url: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80",
         bio: "Afrobeats queen bringing you the hottest sounds.",
         is_live: false,
-        presenter_meta: { category: "Afrobeats", instagram_handle: "amaraokonkwo", twitter_handle: "amaraokonkwo" },
+        presenter_meta: { category: "afrobeats", instagram_handle: "amaraokonkwo", twitter_handle: "amaraokonkwo" },
         shows: [{ title: "Afro Fusion", description: "Fridays & Saturdays" }],
     },
     {
@@ -138,7 +138,7 @@ const DUMMY_PRESENTERS = [
         avatar_url: "https://images.unsplash.com/photo-1463453091185-61582044d556?w=800&q=80",
         bio: "Rock classics and guitar legends.",
         is_live: false,
-        presenter_meta: { category: "Rock Classics", instagram_handle: "davidstone", twitter_handle: null },
+        presenter_meta: { category: "sports", instagram_handle: "davidstone", twitter_handle: null },
         shows: [{ title: "Rock Hour", description: "Sundays" }],
     },
     {
@@ -149,7 +149,7 @@ const DUMMY_PRESENTERS = [
         avatar_url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80",
         bio: "Late night sessions and indie discoveries.",
         is_live: false,
-        presenter_meta: { category: "Chill Vibes", instagram_handle: "emmarichards", twitter_handle: "emmarichards" },
+        presenter_meta: { category: "rnb", instagram_handle: "emmarichards", twitter_handle: "emmarichards" },
         shows: [{ title: "Late Night Sessions", description: "Weeknights 10pm-12am" }],
     },
 ];

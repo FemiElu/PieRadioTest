@@ -132,7 +132,7 @@ export default function Home() {
               </div>
 
               <div className="flex flex-col md:flex-row md:items-baseline md:gap-1.5">
-                <h2 className="text-white text-xl md:text-2xl font-black font-display italic tracking-tight line-clamp-1">
+                <h2 className="text-white text-xl md:text-2xl font-black font-display italic tracking-tight line-clamp-1 px-1">
                   {formattedTitle}
                 </h2>
                 <div className="flex items-baseline gap-1.5">
