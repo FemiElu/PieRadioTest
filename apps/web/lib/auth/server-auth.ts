@@ -116,7 +116,7 @@ export async function requireServerRole(
 ): Promise<ServerAuthResult> {
     const { user, profile } = await requireServerAuth(redirectTo);
 
-    if (profile.role !== role) {
+    if ((profile.role as UserRole) !== role) {
         redirect('/unauthorized');
     }
 
@@ -146,7 +146,8 @@ export async function requireServerAnyRole(
 ): Promise<ServerAuthResult> {
     const { user, profile } = await requireServerAuth(redirectTo);
 
-    if (!profile.role || !roles.includes(profile.role)) {
+    const userRole = (profile.role as UserRole) ?? null;
+    if (!userRole || !roles.includes(userRole)) {
         redirect('/unauthorized');
     }
 
@@ -179,7 +180,7 @@ export async function requireServerPresenterOrAdmin(redirectTo?: string): Promis
  */
 export async function serverHasRole(role: UserRole): Promise<boolean> {
     const { profile } = await getServerAuth();
-    return profile?.role === role;
+    return (profile?.role as UserRole) === role;
 }
 
 /**
@@ -188,7 +189,8 @@ export async function serverHasRole(role: UserRole): Promise<boolean> {
  */
 export async function serverHasAnyRole(roles: UserRole[]): Promise<boolean> {
     const { profile } = await getServerAuth();
-    return profile?.role !== null && profile?.role !== undefined && roles.includes(profile.role);
+    const userRole = (profile?.role as UserRole) ?? null;
+    return userRole !== null && roles.includes(userRole);
 }
 
 /**

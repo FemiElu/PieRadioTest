@@ -129,11 +129,11 @@ export async function getAuth(): Promise<AuthResult | null> {
 export async function requireRole(role: UserRole): Promise<AuthResult> {
     const { user, profile } = await requireAuth();
 
-    if (profile.role !== role) {
+    if ((profile.role as UserRole) !== role) {
         throw new ForbiddenError(
             `Requires ${role} role`,
             role,
-            profile.role
+            (profile.role as UserRole) ?? null
         );
     }
 
@@ -156,11 +156,12 @@ export async function requireRole(role: UserRole): Promise<AuthResult> {
 export async function requireAnyRole(roles: UserRole[]): Promise<AuthResult> {
     const { user, profile } = await requireAuth();
 
-    if (!profile.role || !roles.includes(profile.role)) {
+    const userRole = (profile.role as UserRole) ?? null;
+    if (!userRole || !roles.includes(userRole)) {
         throw new ForbiddenError(
             `Requires one of: ${roles.join(', ')}`,
             roles,
-            profile.role
+            userRole
         );
     }
 
@@ -195,7 +196,7 @@ export async function requirePresenterOrAdmin(): Promise<AuthResult> {
 export async function hasRole(role: UserRole): Promise<boolean> {
     try {
         const { profile } = await requireAuth();
-        return profile.role === role;
+        return (profile.role as UserRole) === role;
     } catch {
         return false;
     }
@@ -209,7 +210,8 @@ export async function hasRole(role: UserRole): Promise<boolean> {
 export async function hasAnyRole(roles: UserRole[]): Promise<boolean> {
     try {
         const { profile } = await requireAuth();
-        return profile.role !== null && roles.includes(profile.role);
+        const userRole = (profile.role as UserRole) ?? null;
+        return userRole !== null && roles.includes(userRole);
     } catch {
         return false;
     }
