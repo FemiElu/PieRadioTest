@@ -25,6 +25,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { joinWaitlist } from "../actions/waitlist";
+import { useFormStatus } from "react-dom";
 
 /* ================================================================
    Constants
@@ -70,12 +72,12 @@ const FEATURES = [
 ] as const;
 
 const CAROUSEL_IMAGES = [
-    { id: 1, src: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80", alt: "Delicious food spread" },
-    { id: 2, src: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&q=80", alt: "Pizza close-up" },
-    { id: 3, src: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80", alt: "Live music concert" },
-    { id: 4, src: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&q=80", alt: "Concert crowd" },
-    { id: 5, src: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&q=80", alt: "Grilled chicken" },
-    { id: 6, src: "https://images.unsplash.com/photo-1478147427282-58a87a120781?w=600&q=80", alt: "Radio studio" },
+    { id: 1, src: "/assets/popeye-3.jpeg", alt: "Delicious food spread" },
+    { id: 2, src: "/assets/piesinger-1.webp", alt: "Pizza close-up" },
+    { id: 3, src: "/assets/popeye-2.webp", alt: "Live music concert" },
+    { id: 4, src: "/assets/popeye-1.webp", alt: "Concert crowd" },
+    { id: 5, src: "/assets/pieImg.webp", alt: "Grilled chicken" },
+    { id: 6, src: "/assets/popeyes_heroImg.webp", alt: "Radio studio" },
 ] as const;
 
 const CONFETTI_COLORS = [
@@ -88,8 +90,8 @@ const CONFETTI_COLORS = [
 ];
 
 const waitlistSchema = z.object({
+    fullName: z.string().min(2, "Full name is required."),
     email: z.string().email("Please enter a valid email address."),
-    city: z.string().optional(),
 });
 
 /* ================================================================
@@ -158,6 +160,32 @@ function Equalizer({ playing }: { playing: boolean }) {
                 <div key={i} className="equalizer-bar" />
             ))}
         </div>
+    );
+}
+
+/* ================================================================
+   Component: SubmitButton
+   ================================================================ */
+
+function SubmitButton() {
+    const { pending } = useFormStatus();
+
+    return (
+        <Button
+            id="waitlist-submit"
+            type="submit"
+            disabled={pending}
+            className="w-full h-12 rounded-xl text-base font-bold bg-popeyes-orange hover:bg-popeyes-orange/90 text-white shadow-lg shadow-popeyes-orange/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+        >
+            {pending ? (
+                <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                    Joining...
+                </div>
+            ) : (
+                "Join the Waitlist"
+            )}
+        </Button>
     );
 }
 
@@ -310,29 +338,38 @@ export default function PartnershipPage() {
     );
 
     /* --- Waitlist submit --- */
-    const handleSubmit = useCallback(
-        (e: React.FormEvent) => {
-            e.preventDefault();
-            setFormError("");
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setFormError("");
 
-            const result = waitlistSchema.safeParse({ email, city: city || undefined });
-            if (!result.success) {
-                const fieldErrors = result.error.flatten().fieldErrors;
-                const firstError = Object.values(fieldErrors).flat()[0];
-                setFormError(firstError || "Invalid input.");
-                return;
+        const formData = new FormData(e.currentTarget as HTMLFormElement);
+        const nameVal = formData.get("fullName")?.toString() || "";
+        const emailVal = formData.get("email")?.toString() || "";
+
+        const result = waitlistSchema.safeParse({ fullName: nameVal, email: emailVal });
+        if (!result.success) {
+            const fieldErrors = result.error.flatten().fieldErrors;
+            const firstError = Object.values(fieldErrors).flat()[0];
+            setFormError(firstError || "Invalid input.");
+            return;
+        }
+
+        try {
+            const response = await joinWaitlist(null, formData);
+
+            if (response.success) {
+                setFormSuccess(true);
+                setShowConfetti(true);
+                pushEvent("waitlist_signup", { email: result.data.email });
+                // Remove confetti after animation completes
+                setTimeout(() => setShowConfetti(false), 2000);
+            } else {
+                setFormError(response.message || "Something went wrong. Please try again.");
             }
-
-            // Simulate success (no real backend call — placeholder)
-            setFormSuccess(true);
-            setShowConfetti(true);
-            pushEvent("waitlist_signup", { email: result.data.email, city: result.data.city });
-
-            // Remove confetti after animation completes
-            setTimeout(() => setShowConfetti(false), 2000);
-        },
-        [email, city]
-    );
+        } catch (err) {
+            setFormError("An unexpected error occurred. Please try again.");
+        }
+    };
 
     /* --- Social click --- */
     const handleSocialClick = useCallback((platform: string) => {
@@ -439,10 +476,9 @@ export default function PartnershipPage() {
             {/* ============================================================
           AUDIO TEASER
           ============================================================ */}
-            <section className="bg-deep-text py-6 scroll-reveal" aria-label="Audio teaser preview">
+            {/* <section className="bg-deep-text py-6 scroll-reveal" aria-label="Audio teaser preview">
                 <div className="container max-w-screen-2xl mx-auto px-4 md:px-8">
                     <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 sm:p-6">
-                        {/* Play / Pause */}
                         <button
                             id="audio-play-btn"
                             onClick={toggleAudio}
@@ -456,7 +492,6 @@ export default function PartnershipPage() {
                             )}
                         </button>
 
-                        {/* Progress */}
                         <div className="flex-1 w-full flex flex-col gap-2">
                             <div className="flex items-center justify-between">
                                 <span className="text-white text-xs sm:text-sm font-semibold">
@@ -477,10 +512,8 @@ export default function PartnershipPage() {
                             />
                         </div>
 
-                        {/* Equalizer */}
                         <Equalizer playing={isAudioPlaying} />
 
-                        {/* Mute toggle */}
                         <button
                             id="audio-mute-btn"
                             onClick={toggleMute}
@@ -504,7 +537,7 @@ export default function PartnershipPage() {
                     onLoadedMetadata={handleTimeUpdate}
                     onEnded={() => setIsAudioPlaying(false)}
                 />
-            </section>
+            </section> */}
 
             {/* ============================================================
           FEATURES GRID
@@ -636,8 +669,8 @@ export default function PartnershipPage() {
                                     You&apos;re in!
                                 </h3>
                                 <p className="text-sm sm:text-base text-muted-foreground">
-                                    We&apos;ll send launch updates to{" "}
-                                    <span className="font-semibold text-deep-text">{email}</span>.
+                                    We&apos;ll send event updates to{" "}
+                                    <span className="font-semibold text-deep-text">{email || fullName}</span>.
                                     <br />
                                     Stay hungry. Stay vibing.
                                 </p>
@@ -649,7 +682,6 @@ export default function PartnershipPage() {
                                 noValidate
                             >
                                 <div className="space-y-4">
-
                                     <div className="text-left">
                                         <label
                                             htmlFor="full-name"
@@ -659,9 +691,10 @@ export default function PartnershipPage() {
                                         </label>
                                         <Input
                                             id="full-name"
+                                            name="fullName"
                                             type="text"
                                             placeholder="Joe Doe"
-                                            value={fullName}
+                                            defaultValue={fullName}
                                             onChange={(e) => {
                                                 setFullName(e.target.value);
                                                 if (formError) setFormError("");
@@ -672,7 +705,6 @@ export default function PartnershipPage() {
                                         />
                                     </div>
 
-
                                     <div className="text-left">
                                         <label
                                             htmlFor="waitlist-email"
@@ -682,9 +714,10 @@ export default function PartnershipPage() {
                                         </label>
                                         <Input
                                             id="waitlist-email"
+                                            name="email"
                                             type="email"
                                             placeholder="you@example.com"
-                                            value={email}
+                                            defaultValue={email}
                                             onChange={(e) => {
                                                 setEmail(e.target.value);
                                                 if (formError) setFormError("");
@@ -694,7 +727,6 @@ export default function PartnershipPage() {
                                             autoComplete="email"
                                         />
                                     </div>
-
 
                                     {formError && (
                                         <p
@@ -706,13 +738,7 @@ export default function PartnershipPage() {
                                         </p>
                                     )}
 
-                                    <Button
-                                        id="waitlist-submit"
-                                        type="submit"
-                                        className="w-full h-12 rounded-xl text-base font-bold bg-popeyes-orange hover:bg-popeyes-orange/90 text-white shadow-lg shadow-popeyes-orange/20"
-                                    >
-                                        Join the Waitlist
-                                    </Button>
+                                    <SubmitButton />
                                 </div>
                             </form>
                         )}
