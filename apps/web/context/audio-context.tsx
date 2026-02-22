@@ -120,22 +120,25 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
-    // Local Development Automation: Trigger Sync API Periodically
+    // Lazy Sync Strategy: Trigger Metadata Sync Periodically
+    // This ensures metadata stays fresh even on Vercel Hobby plan (no frequent crons)
+    // The API handles a 1-minute cooldown to prevent abuse.
     useEffect(() => {
         const triggerSync = async () => {
             try {
-                // Polling is now safe because the API has a 1-minute cooldown check
+                // Polling at 30s ensures we catch updates quickly after the 55s cooldown expires
                 await fetch('/api/cron/sync-metadata');
             } catch (error) {
-                console.error("Sync trigger failed:", error);
+                // Silently fail, it will retry on next interval
+                console.warn("Lazy sync trigger failed:", error);
             }
         };
 
         // Trigger immediately on mount
         triggerSync();
 
-        // Then every 60 seconds
-        const interval = setInterval(triggerSync, 60000);
+        // Then every 30 seconds
+        const interval = setInterval(triggerSync, 30000);
         return () => clearInterval(interval);
     }, []);
 
