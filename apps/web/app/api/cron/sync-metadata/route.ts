@@ -8,36 +8,46 @@ export async function GET(request: Request) {
     const authHeader = request.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET;
 
-    // In development, we allow triggering sync without a secret for automation
+    // Authorization check
+    // We allow public triggers (Lazy Sync) as long as they respect the cooldown.
+    // Full authorized cron runs (isCronAction) skip the cooldown if needed (though we usually keep it).
+    const isCronAction = cronSecret && authHeader === `Bearer ${cronSecret}`;
     const isDevelopment = process.env.NODE_ENV === 'development';
 
-    if (!isDevelopment && (!cronSecret || authHeader !== `Bearer ${cronSecret}`)) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const isCronAction = true; // Guaranteed by check above
+    console.log(`[SyncMetadata] Triggered. isCron: ${isCronAction}, isDev: ${isDevelopment}`);
 
     // 2. Initialize Supabase
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
     if (!supabaseUrl || !supabaseServiceKey) {
-        console.error("Missing Supabase configuration");
+        console.error("[SyncMetadata] Missing Supabase configuration");
         return NextResponse.json({ error: "Server Configuration Error" }, { status: 500 });
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     try {
-        // 3. Lazy Sync Check: Only fetch from AIIR if data is older than 55 seconds
-        // This makes client-side polling safe and free.
+        // 3. Cooldown Check (Lazy Sync Logic)
+        // We only fetch from AIIR if data is older than 55 seconds.
+        // This makes client-side polling safe and ensures we don't spam the AIIR API.
         const { data: current } = await supabase.from('station_metadata').select('updated_at').eq('id', 1).single();
         const lastUpdate = current?.updated_at ? new Date(current.updated_at).getTime() : 0;
         const now = Date.now();
+        const elapsedSinceLastSync = now - lastUpdate;
 
-        if (!isCronAction && (now - lastUpdate < 55000)) {
-            return NextResponse.json({ success: true, message: "Metadata is fresh", cached: true });
+        // If not a formal cron action and triggered too recently, skip update.
+        if (!isCronAction && elapsedSinceLastSync < 55000) {
+            console.log(`[SyncMetadata] Skipping - Data is fresh (${Math.round(elapsedSinceLastSync / 1000)}s old)`);
+            return NextResponse.json({
+                success: true,
+                message: "Metadata is fresh",
+                elapsed: elapsedSinceLastSync,
+                cached: true
+            });
         }
+
+        console.log("[SyncMetadata] Fetching fresh metadata from AIIR...");
 
         // 4. Fetch from AIIR
         const aiirResponse = await fetch("https://streaming-api.aiir.com/mounts/metadata/history/dnjp99nozxavv?limit=1", {

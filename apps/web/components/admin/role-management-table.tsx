@@ -145,7 +145,7 @@ export function RoleManagementTable({ users: initialUsers }: RoleManagementTable
                     <tbody>
                         {filteredUsers.map((user) => {
                             const isEditing = editingUserId === user.id;
-                            const currentRole = user.role || 'listener';
+                            const currentRole: UserRole = (user.role as UserRole) ?? 'listener';
                             const roleConfig = ROLE_CONFIG[currentRole];
 
                             return (
@@ -250,14 +250,14 @@ export function RoleManagementTable({ users: initialUsers }: RoleManagementTable
                                             <Button
                                                 size="sm"
                                                 variant="ghost"
-                                                onClick={() => startEditing(user.id, user.role)}
+                                                onClick={() => startEditing(user.id, (user.role as UserRole) ?? null)}
                                             >
                                                 <ChevronDown className="w-4 h-4 mr-1" />
                                                 Change
                                             </Button>
                                         )}
 
-                                        {user.role === 'presenter' && (
+                                        {(user.role as UserRole) === 'presenter' && (
                                             <Link href={`/admin/presenters?edit=${user.id}`}>
                                                 <Button
                                                     size="sm"

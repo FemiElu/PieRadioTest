@@ -37,8 +37,8 @@ export function Footer() {
                     <div className="space-y-4">
                         <h4 className="font-semibold text-sm tracking-wide uppercase text-foreground/80">Connect</h4>
                         <ul className="space-y-2 text-sm text-muted-foreground">
-                            <li><a href="#" className="hover:text-primary transition-colors">Instagram</a></li>
-                            <li><a href="#" className="hover:text-primary transition-colors">Twitter / X</a></li>
+                            <li><a href="https://www.instagram.com/pieradiouk?igsh=MW5xOGpuZHNtbjRudA==" target="_blank" className="hover:text-primary transition-colors">Instagram</a></li>
+                            <li><a href="https://www.facebook.com/share/1DXySGYU3Z/?mibextid=wwXIfr" target="_blank" className="hover:text-primary transition-colors">Facebook</a></li>
                             <li><a href="#" className="hover:text-primary transition-colors">TikTok</a></li>
                             <li><a href="#" className="hover:text-primary transition-colors">YouTube</a></li>
                         </ul>

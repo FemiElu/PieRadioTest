@@ -65,21 +65,27 @@ export type Database = {
             chat_messages: {
                 Row: {
                     content: string
-                    created_at: string
+                    created_at: string | null
                     id: string
-                    user_id: string
+                    is_hidden: boolean | null
+                    room_id: string | null
+                    user_id: string | null
                 }
                 Insert: {
                     content: string
-                    created_at?: string
+                    created_at?: string | null
                     id?: string
-                    user_id?: string
+                    is_hidden?: boolean | null
+                    room_id?: string | null
+                    user_id?: string | null
                 }
                 Update: {
                     content?: string
-                    created_at?: string
+                    created_at?: string | null
                     id?: string
-                    user_id?: string
+                    is_hidden?: boolean | null
+                    room_id?: string | null
+                    user_id?: string | null
                 }
                 Relationships: [
                     {
@@ -91,87 +97,178 @@ export type Database = {
                     },
                 ]
             }
-            feature_flags: {
+            episodes: {
                 Row: {
                     created_at: string | null
                     description: string | null
+                    duration_seconds: number | null
+                    file_key: string | null
                     id: string
-                    name: string
-                    value: boolean
+                    published_at: string | null
+                    show_id: string | null
+                    title: string
+                    updated_at: string | null
+                    vod_hls_url: string | null
                 }
                 Insert: {
                     created_at?: string | null
                     description?: string | null
+                    duration_seconds?: number | null
+                    file_key?: string | null
                     id?: string
-                    name: string
-                    value?: boolean
+                    published_at?: string | null
+                    show_id?: string | null
+                    title: string
+                    updated_at?: string | null
+                    vod_hls_url?: string | null
                 }
                 Update: {
                     created_at?: string | null
                     description?: string | null
+                    duration_seconds?: number | null
+                    file_key?: string | null
                     id?: string
-                    name?: string
-                    value?: boolean
+                    published_at?: string | null
+                    show_id?: string | null
+                    title?: string
+                    updated_at?: string | null
+                    vod_hls_url?: string | null
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "episodes_show_id_fkey"
+                        columns: ["show_id"]
+                        isOneToOne: false
+                        referencedRelation: "shows"
+                        referencedColumns: ["id"]
+                    },
+                ]
+            }
+            events: {
+                Row: {
+                    capacity: number | null
+                    cover_image_url: string | null
+                    created_at: string | null
+                    currency: string | null
+                    description: string | null
+                    end_time: string | null
+                    id: string
+                    location: string | null
+                    price_amount: number | null
+                    start_time: string
+                    title: string
+                }
+                Insert: {
+                    capacity?: number | null
+                    cover_image_url?: string | null
+                    created_at?: string | null
+                    currency?: string | null
+                    description?: string | null
+                    end_time?: string | null
+                    id?: string
+                    location?: string | null
+                    price_amount?: number | null
+                    start_time: string
+                    title: string
+                }
+                Update: {
+                    capacity?: number | null
+                    cover_image_url?: string | null
+                    created_at?: string | null
+                    currency?: string | null
+                    description?: string | null
+                    end_time?: string | null
+                    id?: string
+                    location?: string | null
+                    price_amount?: number | null
+                    start_time?: string
+                    title?: string
                 }
                 Relationships: []
             }
-            music_requests: {
+            favorites: {
                 Row: {
+                    created_at: string | null
                     id: string
                     user_id: string | null
-                    artist_name: string
-                    song_title: string
-                    preferred_play_date: string | null
-                    status: Database["public"]["Enums"]["request_status"] | null
-                    dedicated_to: string | null
-                    created_at: string | null
-                    requested_by_user_id: string | null
-                    station_id: number | null
-                    show_id: string | null
-                    listener_note: string | null
-                    device_id: string | null
-                    rejection_reason: string | null
-                    approved_at: string | null
-                    played_at: string | null
-                    updated_at: string | null
                 }
                 Insert: {
+                    created_at?: string | null
                     id?: string
                     user_id?: string | null
-                    artist_name: string
-                    song_title: string
-                    preferred_play_date?: string | null
-                    status?: Database["public"]["Enums"]["request_status"] | null
-                    dedicated_to?: string | null
-                    created_at?: string | null
-                    requested_by_user_id?: string | null
-                    station_id?: number | null
-                    show_id?: string | null
-                    listener_note?: string | null
-                    device_id?: string | null
-                    rejection_reason?: string | null
-                    approved_at?: string | null
-                    played_at?: string | null
-                    updated_at?: string | null
                 }
                 Update: {
+                    created_at?: string | null
                     id?: string
                     user_id?: string | null
-                    artist_name?: string
-                    song_title?: string
-                    preferred_play_date?: string | null
-                    status?: Database["public"]["Enums"]["request_status"] | null
-                    dedicated_to?: string | null
-                    created_at?: string | null
-                    requested_by_user_id?: string | null
-                    station_id?: number | null
-                    show_id?: string | null
-                    listener_note?: string | null
-                    device_id?: string | null
-                    rejection_reason?: string | null
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "favorites_user_id_fkey"
+                        columns: ["user_id"]
+                        isOneToOne: false
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                ]
+            }
+            music_requests: {
+                Row: {
+                    approved_at: string | null
+                    artist_name: string
+                    created_at: string | null
+                    dedicated_to: string | null
+                    device_id: string | null
+                    id: string
+                    listener_note: string | null
+                    played_at: string | null
+                    preferred_play_date: string | null
+                    rejection_reason: string | null
+                    requested_by_user_id: string | null
+                    show_id: string | null
+                    song_title: string
+                    station_id: number | null
+                    status: Database["public"]["Enums"]["request_status"] | null
+                    updated_at: string | null
+                    user_id: string | null
+                }
+                Insert: {
                     approved_at?: string | null
+                    artist_name: string
+                    created_at?: string | null
+                    dedicated_to?: string | null
+                    device_id?: string | null
+                    id?: string
+                    listener_note?: string | null
                     played_at?: string | null
+                    preferred_play_date?: string | null
+                    rejection_reason?: string | null
+                    requested_by_user_id?: string | null
+                    show_id?: string | null
+                    song_title: string
+                    station_id?: number | null
+                    status?: Database["public"]["Enums"]["request_status"] | null
                     updated_at?: string | null
+                    user_id?: string | null
+                }
+                Update: {
+                    approved_at?: string | null
+                    artist_name?: string
+                    created_at?: string | null
+                    dedicated_to?: string | null
+                    device_id?: string | null
+                    id?: string
+                    listener_note?: string | null
+                    played_at?: string | null
+                    preferred_play_date?: string | null
+                    rejection_reason?: string | null
+                    requested_by_user_id?: string | null
+                    show_id?: string | null
+                    song_title?: string
+                    station_id?: number | null
+                    status?: Database["public"]["Enums"]["request_status"] | null
+                    updated_at?: string | null
+                    user_id?: string | null
                 }
                 Relationships: [
                     {
@@ -186,6 +283,98 @@ export type Database = {
                         columns: ["show_id"]
                         isOneToOne: false
                         referencedRelation: "shows"
+                        referencedColumns: ["id"]
+                    },
+                    {
+                        foreignKeyName: "music_requests_user_id_fkey"
+                        columns: ["user_id"]
+                        isOneToOne: false
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                ]
+            }
+            news_articles: {
+                Row: {
+                    author_id: string | null
+                    content: string
+                    cover_image_url: string | null
+                    created_at: string | null
+                    id: string
+                    published_at: string | null
+                    slug: string
+                    title: string
+                }
+                Insert: {
+                    author_id?: string | null
+                    content: string
+                    cover_image_url?: string | null
+                    created_at?: string | null
+                    id?: string
+                    published_at?: string | null
+                    slug: string
+                    title: string
+                }
+                Update: {
+                    author_id?: string | null
+                    content?: string
+                    cover_image_url?: string | null
+                    created_at?: string | null
+                    id?: string
+                    published_at?: string | null
+                    slug?: string
+                    title?: string
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "news_articles_author_id_fkey"
+                        columns: ["author_id"]
+                        isOneToOne: false
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                ]
+            }
+            playback_events: {
+                Row: {
+                    client: string | null
+                    created_at: string | null
+                    duration_seconds: number | null
+                    episode_id: string | null
+                    event_type: string
+                    id: string
+                    position_seconds: number | null
+                    station_id: string | null
+                    user_id: string | null
+                }
+                Insert: {
+                    client?: string | null
+                    created_at?: string | null
+                    duration_seconds?: number | null
+                    episode_id?: string | null
+                    event_type: string
+                    id?: string
+                    position_seconds?: number | null
+                    station_id?: string | null
+                    user_id?: string | null
+                }
+                Update: {
+                    client?: string | null
+                    created_at?: string | null
+                    duration_seconds?: number | null
+                    episode_id?: string | null
+                    event_type?: string
+                    id?: string
+                    position_seconds?: number | null
+                    station_id?: string | null
+                    user_id?: string | null
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "playback_events_station_id_fkey"
+                        columns: ["station_id"]
+                        isOneToOne: false
+                        referencedRelation: "station"
                         referencedColumns: ["id"]
                     },
                 ]
@@ -234,26 +423,32 @@ export type Database = {
             presenter_meta: {
                 Row: {
                     category: string | null
-                    id: string
                     instagram_handle: string | null
+                    joined_date: string | null
                     twitter_handle: string | null
+                    user_id: string
+                    website_url: string | null
                 }
                 Insert: {
                     category?: string | null
-                    id: string
                     instagram_handle?: string | null
+                    joined_date?: string | null
                     twitter_handle?: string | null
+                    user_id: string
+                    website_url?: string | null
                 }
                 Update: {
                     category?: string | null
-                    id?: string
                     instagram_handle?: string | null
+                    joined_date?: string | null
                     twitter_handle?: string | null
+                    user_id?: string
+                    website_url?: string | null
                 }
                 Relationships: [
                     {
-                        foreignKeyName: "presenter_meta_id_fkey"
-                        columns: ["id"]
+                        foreignKeyName: "presenter_meta_user_id_fkey"
+                        columns: ["user_id"]
                         isOneToOne: true
                         referencedRelation: "profiles"
                         referencedColumns: ["id"]
@@ -269,7 +464,7 @@ export type Database = {
                     full_name: string | null
                     id: string
                     is_live: boolean | null
-                    role: Database["public"]["Enums"]["user_role"]
+                    role: string
                     slug: string | null
                     updated_at: string | null
                     username: string | null
@@ -282,7 +477,7 @@ export type Database = {
                     full_name?: string | null
                     id: string
                     is_live?: boolean | null
-                    role?: Database["public"]["Enums"]["user_role"]
+                    role?: string
                     slug?: string | null
                     updated_at?: string | null
                     username?: string | null
@@ -295,101 +490,46 @@ export type Database = {
                     full_name?: string | null
                     id?: string
                     is_live?: boolean | null
-                    role?: Database["public"]["Enums"]["user_role"]
+                    role?: string
                     slug?: string | null
                     updated_at?: string | null
                     username?: string | null
                 }
                 Relationships: []
             }
-            requests: {
-                Row: {
-                    artist: string
-                    created_at: string
-                    id: string
-                    presenter_id: string | null
-                    show_id: string | null
-                    song_title: string
-                    status: Database["public"]["Enums"]["request_status"] | null
-                    user_id: string | null
-                }
-                Insert: {
-                    artist: string
-                    created_at?: string
-                    id?: string
-                    presenter_id?: string | null
-                    show_id?: string | null
-                    song_title: string
-                    status?: Database["public"]["Enums"]["request_status"] | null
-                    user_id?: string | null
-                }
-                Update: {
-                    artist?: string
-                    created_at?: string
-                    id?: string
-                    presenter_id?: string | null
-                    show_id?: string | null
-                    song_title?: string
-                    status?: Database["public"]["Enums"]["request_status"] | null
-                    user_id?: string | null
-                }
-                Relationships: [
-                    {
-                        foreignKeyName: "requests_presenter_id_fkey"
-                        columns: ["presenter_id"]
-                        isOneToOne: false
-                        referencedRelation: "profiles"
-                        referencedColumns: ["id"]
-                    },
-                    {
-                        foreignKeyName: "requests_show_id_fkey"
-                        columns: ["show_id"]
-                        isOneToOne: false
-                        referencedRelation: "shows"
-                        referencedColumns: ["id"]
-                    },
-                    {
-                        foreignKeyName: "requests_user_id_fkey"
-                        columns: ["user_id"]
-                        isOneToOne: false
-                        referencedRelation: "profiles"
-                        referencedColumns: ["id"]
-                    },
-                ]
-            }
             role_change_audit: {
                 Row: {
                     changed_at: string
                     changed_by: string | null
                     id: string
-                    ip_address: string | null
+                    ip_address: unknown
                     new_role: string
-                    old_role: string
+                    old_role: string | null
                     reason: string | null
                     user_agent: string | null
-                    user_id: string | null
+                    user_id: string
                 }
                 Insert: {
                     changed_at?: string
                     changed_by?: string | null
                     id?: string
-                    ip_address?: string | null
+                    ip_address?: unknown
                     new_role: string
-                    old_role: string
+                    old_role?: string | null
                     reason?: string | null
                     user_agent?: string | null
-                    user_id?: string | null
+                    user_id: string
                 }
                 Update: {
                     changed_at?: string
                     changed_by?: string | null
                     id?: string
-                    ip_address?: string | null
+                    ip_address?: unknown
                     new_role?: string
-                    old_role?: string
+                    old_role?: string | null
                     reason?: string | null
                     user_agent?: string | null
-                    user_id?: string | null
+                    user_id?: string
                 }
                 Relationships: [
                     {
@@ -408,49 +548,40 @@ export type Database = {
                     },
                 ]
             }
-            schedules: {
+            schedule_entries: {
                 Row: {
-                    created_at: string
+                    created_at: string | null
                     description: string | null
-                    end_time: string
+                    end_time: string | null
                     id: string
-                    image_url: string | null
-                    is_live: boolean
-                    presenter_id: string | null
+                    show_id: string | null
                     start_time: string
-                    title: string
-                    updated_at: string
+                    title: string | null
                 }
                 Insert: {
-                    created_at?: string
+                    created_at?: string | null
                     description?: string | null
-                    end_time: string
+                    end_time?: string | null
                     id?: string
-                    image_url?: string | null
-                    is_live?: boolean
-                    presenter_id?: string | null
+                    show_id?: string | null
                     start_time: string
-                    title: string
-                    updated_at?: string
+                    title?: string | null
                 }
                 Update: {
-                    created_at?: string
+                    created_at?: string | null
                     description?: string | null
-                    end_time?: string
+                    end_time?: string | null
                     id?: string
-                    image_url?: string | null
-                    is_live?: boolean
-                    presenter_id?: string | null
+                    show_id?: string | null
                     start_time?: string
-                    title?: string
-                    updated_at?: string
+                    title?: string | null
                 }
                 Relationships: [
                     {
-                        foreignKeyName: "schedules_presenter_id_fkey"
-                        columns: ["presenter_id"]
+                        foreignKeyName: "schedule_entries_show_id_fkey"
+                        columns: ["show_id"]
                         isOneToOne: false
-                        referencedRelation: "profiles"
+                        referencedRelation: "shows"
                         referencedColumns: ["id"]
                     },
                 ]
@@ -458,26 +589,32 @@ export type Database = {
             schedule_slots: {
                 Row: {
                     created_at: string | null
-                    day_of_week: number
+                    day_of_week: number | null
                     end_time: string
                     id: string
-                    show_id: string
+                    is_recurring: boolean | null
+                    override_date: string | null
+                    show_id: string | null
                     start_time: string
                 }
                 Insert: {
                     created_at?: string | null
-                    day_of_week: number
+                    day_of_week?: number | null
                     end_time: string
                     id?: string
-                    show_id: string
+                    is_recurring?: boolean | null
+                    override_date?: string | null
+                    show_id?: string | null
                     start_time: string
                 }
                 Update: {
                     created_at?: string | null
-                    day_of_week?: number
+                    day_of_week?: number | null
                     end_time?: string
                     id?: string
-                    show_id?: string
+                    is_recurring?: boolean | null
+                    override_date?: string | null
+                    show_id?: string | null
                     start_time?: string
                 }
                 Relationships: [
@@ -490,36 +627,86 @@ export type Database = {
                     },
                 ]
             }
+            schedules: {
+                Row: {
+                    created_at: string | null
+                    description: string | null
+                    end_time: string
+                    id: string
+                    image_url: string | null
+                    is_live: boolean | null
+                    presenter_id: string | null
+                    start_time: string
+                    title: string
+                    updated_at: string | null
+                }
+                Insert: {
+                    created_at?: string | null
+                    description?: string | null
+                    end_time: string
+                    id?: string
+                    image_url?: string | null
+                    is_live?: boolean | null
+                    presenter_id?: string | null
+                    start_time: string
+                    title: string
+                    updated_at?: string | null
+                }
+                Update: {
+                    created_at?: string | null
+                    description?: string | null
+                    end_time?: string
+                    id?: string
+                    image_url?: string | null
+                    is_live?: boolean | null
+                    presenter_id?: string | null
+                    start_time?: string
+                    title?: string
+                    updated_at?: string | null
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "schedules_presenter_id_fkey"
+                        columns: ["presenter_id"]
+                        isOneToOne: false
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                ]
+            }
             shows: {
                 Row: {
-                    cover_image_url: string | null
-                    created_at: string
+                    artwork_url: string | null
+                    created_at: string | null
                     description: string | null
+                    genre: string | null
                     host_id: string | null
                     id: string
                     is_featured: boolean | null
                     title: string
-                    updated_at: string
+                    updated_at: string | null
                 }
                 Insert: {
-                    cover_image_url?: string | null
-                    created_at?: string
+                    artwork_url?: string | null
+                    created_at?: string | null
                     description?: string | null
+                    genre?: string | null
                     host_id?: string | null
                     id?: string
                     is_featured?: boolean | null
                     title: string
-                    updated_at?: string
+                    updated_at?: string | null
                 }
                 Update: {
-                    cover_image_url?: string | null
-                    created_at?: string
+                    artwork_url?: string | null
+                    created_at?: string | null
                     description?: string | null
+                    genre?: string | null
                     host_id?: string | null
                     id?: string
                     is_featured?: boolean | null
                     title?: string
-                    updated_at?: string
+                    updated_at?: string | null
                 }
                 Relationships: [
                     {
@@ -531,62 +718,140 @@ export type Database = {
                     },
                 ]
             }
-            station_metadata: {
+            station: {
                 Row: {
-                    id: number
-                    title: string | null
-                    artist: string | null
-                    cover_url: string | null
+                    created_at: string | null
+                    description: string | null
+                    id: string
+                    logo_url: string | null
+                    name: string
+                    slug: string
+                    stream_hls_url: string | null
+                    stream_icy_url: string | null
+                    timezone: string | null
                     updated_at: string | null
                 }
                 Insert: {
-                    id?: number
-                    title?: string | null
-                    artist?: string | null
-                    cover_url?: string | null
+                    created_at?: string | null
+                    description?: string | null
+                    id?: string
+                    logo_url?: string | null
+                    name: string
+                    slug: string
+                    stream_hls_url?: string | null
+                    stream_icy_url?: string | null
+                    timezone?: string | null
                     updated_at?: string | null
                 }
                 Update: {
-                    id?: number
-                    title?: string | null
-                    artist?: string | null
-                    cover_url?: string | null
+                    created_at?: string | null
+                    description?: string | null
+                    id?: string
+                    logo_url?: string | null
+                    name?: string
+                    slug?: string
+                    stream_hls_url?: string | null
+                    stream_icy_url?: string | null
+                    timezone?: string | null
                     updated_at?: string | null
                 }
                 Relationships: []
             }
+            station_metadata: {
+                Row: {
+                    artist: string | null
+                    cover_url: string | null
+                    id: number
+                    title: string | null
+                    updated_at: string | null
+                }
+                Insert: {
+                    artist?: string | null
+                    cover_url?: string | null
+                    id?: never
+                    title?: string | null
+                    updated_at?: string | null
+                }
+                Update: {
+                    artist?: string | null
+                    cover_url?: string | null
+                    id?: never
+                    title?: string | null
+                    updated_at?: string | null
+                }
+                Relationships: []
+            }
+            station_metadata_history: {
+                Row: {
+                    artist: string | null
+                    cover_url: string | null
+                    id: string
+                    metadata_id: number | null
+                    played_at: string | null
+                    title: string | null
+                }
+                Insert: {
+                    artist?: string | null
+                    cover_url?: string | null
+                    id?: string
+                    metadata_id?: number | null
+                    played_at?: string | null
+                    title?: string | null
+                }
+                Update: {
+                    artist?: string | null
+                    cover_url?: string | null
+                    id?: string
+                    metadata_id?: number | null
+                    played_at?: string | null
+                    title?: string | null
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "station_metadata_history_metadata_id_fkey"
+                        columns: ["metadata_id"]
+                        isOneToOne: false
+                        referencedRelation: "station_metadata"
+                        referencedColumns: ["id"]
+                    },
+                ]
+            }
             tickets: {
                 Row: {
-                    created_at: string
-                    description: string
+                    event_id: string | null
                     id: string
-                    priority: string
-                    status: string
-                    title: string
-                    updated_at: string
+                    purchased_at: string | null
+                    qr_code: string | null
+                    status: string | null
+                    stripe_session_id: string | null
                     user_id: string | null
                 }
                 Insert: {
-                    created_at?: string
-                    description: string
+                    event_id?: string | null
                     id?: string
-                    priority?: string
-                    status?: string
-                    title: string
-                    updated_at?: string
+                    purchased_at?: string | null
+                    qr_code?: string | null
+                    status?: string | null
+                    stripe_session_id?: string | null
                     user_id?: string | null
                 }
                 Update: {
-                    created_at?: string
-                    description?: string
+                    event_id?: string | null
                     id?: string
-                    priority?: string
-                    status?: string
-                    title?: string
-                    updated_at?: string
+                    purchased_at?: string | null
+                    qr_code?: string | null
+                    status?: string | null
+                    stripe_session_id?: string | null
                     user_id?: string | null
                 }
                 Relationships: [
+                    {
+                        foreignKeyName: "tickets_event_id_fkey"
+                        columns: ["event_id"]
+                        isOneToOne: false
+                        referencedRelation: "events"
+                        referencedColumns: ["id"]
+                    },
                     {
                         foreignKeyName: "tickets_user_id_fkey"
                         columns: ["user_id"]
@@ -598,30 +863,36 @@ export type Database = {
             }
             uploads: {
                 Row: {
-                    filename: string
+                    created_at: string | null
+                    error: string | null
+                    file_key: string | null
                     id: string
-                    path: string
-                    size: number
-                    type: string
-                    uploaded_at: string
+                    original_filename: string | null
+                    purpose: string | null
+                    status: string | null
+                    updated_at: string | null
                     uploaded_by: string | null
                 }
                 Insert: {
-                    filename: string
+                    created_at?: string | null
+                    error?: string | null
+                    file_key?: string | null
                     id?: string
-                    path: string
-                    size: number
-                    type: string
-                    uploaded_at?: string
+                    original_filename?: string | null
+                    purpose?: string | null
+                    status?: string | null
+                    updated_at?: string | null
                     uploaded_by?: string | null
                 }
                 Update: {
-                    filename?: string
+                    created_at?: string | null
+                    error?: string | null
+                    file_key?: string | null
                     id?: string
-                    path?: string
-                    size?: number
-                    type?: string
-                    uploaded_at?: string
+                    original_filename?: string | null
+                    purpose?: string | null
+                    status?: string | null
+                    updated_at?: string | null
                     uploaded_by?: string | null
                 }
                 Relationships: [
@@ -636,25 +907,25 @@ export type Database = {
             }
             user_favorites: {
                 Row: {
-                    created_at: string
+                    created_at: string | null
                     id: string
                     item_id: string
-                    item_type: string
-                    user_id: string
+                    item_type: string | null
+                    user_id: string | null
                 }
                 Insert: {
-                    created_at?: string
+                    created_at?: string | null
                     id?: string
                     item_id: string
-                    item_type: string
-                    user_id: string
+                    item_type?: string | null
+                    user_id?: string | null
                 }
                 Update: {
-                    created_at?: string
+                    created_at?: string | null
                     id?: string
                     item_id?: string
-                    item_type?: string
-                    user_id?: string
+                    item_type?: string | null
+                    user_id?: string | null
                 }
                 Relationships: [
                     {
@@ -666,15 +937,71 @@ export type Database = {
                     },
                 ]
             }
+            waitlist: {
+                Row: {
+                    created_at: string | null
+                    email: string
+                    full_name: string
+                    id: string
+                    source: string | null
+                }
+                Insert: {
+                    created_at?: string | null
+                    email: string
+                    full_name: string
+                    id?: string
+                    source?: string | null
+                }
+                Update: {
+                    created_at?: string | null
+                    email?: string
+                    full_name?: string
+                    id?: string
+                    source?: string | null
+                }
+                Relationships: []
+            }
         }
         Views: {
-            [_ in never]: never
+            role_change_audit_view: {
+                Row: {
+                    changed_at: string | null
+                    changed_by: string | null
+                    changed_by_name: string | null
+                    id: string | null
+                    new_role: string | null
+                    old_role: string | null
+                    reason: string | null
+                    user_email: string | null
+                    user_full_name: string | null
+                    user_id: string | null
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "role_change_audit_changed_by_fkey"
+                        columns: ["changed_by"]
+                        isOneToOne: false
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                    {
+                        foreignKeyName: "role_change_audit_user_id_fkey"
+                        columns: ["user_id"]
+                        isOneToOne: false
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                ]
+            }
         }
         Functions: {
-            is_admin_or_presenter: {
-                Args: Record<PropertyKey, never>
-                Returns: boolean
-            }
+            current_user_role: { Args: never; Returns: string }
+            get_user_role: { Args: never; Returns: string }
+            has_any_role: { Args: { required_roles: string[] }; Returns: boolean }
+            has_role: { Args: { required_role: string }; Returns: boolean }
+            is_admin: { Args: never; Returns: boolean }
+            is_presenter: { Args: never; Returns: boolean }
+            is_presenter_or_admin: { Args: never; Returns: boolean }
         }
         Enums: {
             request_status:
@@ -692,28 +1019,33 @@ export type Database = {
     }
 }
 
-type PublicSchemaName = Extract<keyof Database, "public">
-type PublicSchema = Database[PublicSchemaName]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
-    PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
-    | { schema: PublicSchemaName },
-    TableName extends PublicTableNameOrOptions extends { schema: PublicSchemaName }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+    DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+    TableName extends DefaultSchemaTableNameOrOptions extends {
+        schema: keyof DatabaseWithoutInternals
+    }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = PublicTableNameOrOptions extends { schema: PublicSchemaName }
-    ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+}
+    ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
             Row: infer R
         }
     ? R
     : never
-    : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+    : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
             Row: infer R
         }
     ? R
@@ -721,20 +1053,24 @@ export type Tables<
     : never
 
 export type TablesInsert<
-    PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: PublicSchemaName },
-    TableName extends PublicTableNameOrOptions extends { schema: PublicSchemaName }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+    TableName extends DefaultSchemaTableNameOrOptions extends {
+        schema: keyof DatabaseWithoutInternals
+    }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: PublicSchemaName }
-    ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+}
+    ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
         Insert: infer I
     }
     ? I
     : never
-    : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+    : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
     }
     ? I
@@ -742,20 +1078,24 @@ export type TablesInsert<
     : never
 
 export type TablesUpdate<
-    PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: PublicSchemaName },
-    TableName extends PublicTableNameOrOptions extends { schema: PublicSchemaName }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+    TableName extends DefaultSchemaTableNameOrOptions extends {
+        schema: keyof DatabaseWithoutInternals
+    }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: PublicSchemaName }
-    ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+}
+    ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
         Update: infer U
     }
     ? U
     : never
-    : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+    : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
     }
     ? U
@@ -763,29 +1103,51 @@ export type TablesUpdate<
     : never
 
 export type Enums<
-    PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
-    | { schema: PublicSchemaName },
-    EnumName extends PublicEnumNameOrOptions extends { schema: PublicSchemaName }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+    DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+    EnumName extends DefaultSchemaEnumNameOrOptions extends {
+        schema: keyof DatabaseWithoutInternals
+    }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = PublicEnumNameOrOptions extends { schema: PublicSchemaName }
-    ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-    : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+> = DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+}
+    ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+    : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
     PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
-    | { schema: PublicSchemaName },
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
     CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-        schema: PublicSchemaName
+        schema: keyof DatabaseWithoutInternals
     }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: PublicSchemaName }
-    ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-    : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+> = PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+}
+    ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+    : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
+export const Constants = {
+    public: {
+        Enums: {
+            request_status: [
+                "pending",
+                "approved",
+                "declined",
+                "played",
+                "rejected",
+                "expired",
+            ],
+            user_role: ["listener", "presenter", "admin"],
+        },
+    },
+} as const
