@@ -54,10 +54,17 @@ const DUMMY_PRESENTERS: Record<string, any> = {
 const DUMMY_SHOWS = [
     {
         id: "1",
-        title: "Midday Mix",
+        title: "The Early Bird ",
         description: "The perfect soundtrack to your day with chart hits, classic throwbacks, and exclusive artist interviews.",
-        cover_image_url: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&q=80",
-        schedule: "Monday - Friday • 10:00 - 14:00",
+        cover_image_url: "/assets/Jason2.webp",
+        schedule: "Sundays • 8:00AM - 10:00AM",
+    },
+    {
+        id: "2",
+        title: "The Deep Vibe Show ",
+        description: "welcome to deep vibe show with DJ Kane this is the show where we explore deep progressive and tech house music, tune in 3pm till 5pm every Monday for the best of the best of house music ",
+        cover_image_url: "/assets/kane2.webp",
+        schedule: "Mondays • 3:00PM - 5:00PM",
     },
 ];
 
