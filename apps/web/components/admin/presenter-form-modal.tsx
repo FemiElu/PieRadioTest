@@ -701,7 +701,7 @@ export function PresenterFormModal({
                                         className="mt-1"
                                     />
                                     <p className="text-xs text-muted-foreground mt-1">
-                                        Free text — write whatever is clearest: "Weekdays • 10AM–2PM", "Sundays • 8AM"
+                                        Free text — write whatever is clearest: &quot;Weekdays • 10AM–2PM&quot;, &quot;Sundays • 8AM&quot;
                                     </p>
                                 </div>
 
