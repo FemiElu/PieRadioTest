@@ -109,6 +109,7 @@ export default function Home() {
             src="/assets/hero-main.jpg"
             alt="Pie Radio Hero"
             fill
+            sizes="100vw"
             className="object-cover object-center scale-105"
             priority
           />
@@ -207,9 +208,10 @@ export default function Home() {
 
               <Link href="/partnership" className="relative h-full w-full aspect-video md:aspect-auto md:h-[450px] overflow-hidden rounded-2xl border border-[#F96D00] bg-card transition-all duration-500 hover:-translate-y-2 block shadow-[0_0_50px_rgba(249,109,0,0.4)] hover:shadow-[0_0_80px_rgba(249,109,0,0.6)]">
                 <Image
-                  src="/assets/pie-x-popeyes-promo.png"
+                  src="/assets/popeye-3.jpeg"
                   alt="Pie Radio x Popeyes Partnership"
                   fill
+                  sizes="(max-width: 768px) 100vw, 66vw"
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
@@ -234,6 +236,7 @@ export default function Home() {
                   src="/assets/abstract-avatar.png"
                   alt="Artist Spotlight Placeholder"
                   fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-80" />
@@ -249,7 +252,7 @@ export default function Home() {
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 rounded-xl bg-zinc-100 flex items-center justify-center text-primary relative overflow-hidden">
                       {artwork && artwork !== "/placeholder-cover.jpg" ? (
-                        <Image src={artwork} alt={title} fill className="object-cover" />
+                        <Image src={artwork} alt={title} fill sizes="64px" className="object-cover" />
                       ) : (
                         <Mic2 className="w-8 h-8" />
                       )}
