@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint .",
-    "build:api": "next build"
+    "build:api": "next build",
+    "test": "vitest"
   },
   "dependencies": {
     "@packages/types": "*",
@@ -37,16 +38,24 @@
     "zod": "^4.3.5"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/howler": "^2.2.11",
     "@types/node": "^20",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^4.7.0",
+    "@vitest/ui": "^4.0.18",
     "autoprefixer": "^10.4.22",
     "eslint": "^9.17.0",
     "eslint-config-next": "15.5.9",
+    "jsdom": "^28.1.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.18"
   }
 }
