@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { PresenterGrid, Presenter, PRESENTER_CATEGORIES } from "@/components/presenters/presenter-grid";
+import { useState, useTransition } from "react";
+import { PresenterGrid, Presenter } from "@/components/presenters/presenter-grid";
 
 interface PresentersClientProps {
     initialPresenters: Presenter[];
@@ -11,6 +11,13 @@ interface PresentersClientProps {
 
 export function PresentersClient({ initialPresenters, executives = [], seniorLeadership = [] }: PresentersClientProps) {
     const [selectedCategory, setSelectedCategory] = useState("all");
+    const [, startTransition] = useTransition();
+
+    const handleCategoryChange = (category: string) => {
+        startTransition(() => {
+            setSelectedCategory(category);
+        });
+    };
 
     return (
         <div className="space-y-20">
@@ -22,7 +29,7 @@ export function PresentersClient({ initialPresenters, executives = [], seniorLea
                 <PresenterGrid
                     presenters={initialPresenters}
                     selectedCategory={selectedCategory}
-                    onCategoryChange={setSelectedCategory}
+                    onCategoryChange={handleCategoryChange}
                 />
             </section>
 
