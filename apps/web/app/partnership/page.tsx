@@ -88,11 +88,6 @@ const CAROUSEL_IMAGES = [
     alt: "Popeyes exterior",
   },
   { id: 4, src: "/assets/popeye-3.jpeg", alt: "Delicious food" },
-
-  { id: 5, src: "/assets/pieImg.webp", alt: "Pie Radio Studio" },
-  { id: 6, src: "/assets/popeyes_heroImg.webp", alt: "popeye Grilled chicken" },
-  { id: 7, src: "/assets/piesinger-1.webp", alt: "Pizza close-up" },
-  { id: 8, src: "/assets/popeyelogo.webp", alt: "Popeyes logo" },
 ] as const;
 
 const CONFETTI_COLORS = [

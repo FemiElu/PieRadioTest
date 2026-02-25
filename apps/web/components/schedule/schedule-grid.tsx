@@ -100,6 +100,39 @@ export function ScheduleGrid() {
   // Audio context
   const { isPlaying, togglePlay, isLoading: isAudioLoading } = useAudio();
 
+  // Merge consecutive shows with the same title, presenter, and image
+  const mergedSchedule = useMemo(() => {
+    if (!schedule.length) return [];
+
+    const merged: ((typeof schedule)[0] & { originalIds: string[] })[] = [];
+
+    schedule.forEach((show) => {
+      const last = merged[merged.length - 1];
+
+      // Check if this show is consecutive and identical to the last one
+      const isConsecutive = last && last.end_time === show.start_time;
+      const isIdentical =
+        last &&
+        last.title === show.title &&
+        last.presenter_id === show.presenter_id &&
+        last.image_url === show.image_url;
+
+      if (isConsecutive && isIdentical) {
+        // Extend the end time of the last merged show
+        last.end_time = show.end_time;
+        last.originalIds.push(show.id);
+      } else {
+        // Add as a new entry
+        merged.push({
+          ...show,
+          originalIds: [show.id],
+        });
+      }
+    });
+
+    return merged;
+  }, [schedule]);
+
   return (
     <div className="space-y-8">
       {/* --- Date Selection Controls --- */}
@@ -182,7 +215,7 @@ export function ScheduleGrid() {
             No shows scheduled for this day.
           </div>
         ) : (
-          schedule.map((show) => {
+          mergedSchedule.map((show) => {
             const showStart = new Date(show.start_time);
             const showEnd = new Date(show.end_time);
 
@@ -191,7 +224,7 @@ export function ScheduleGrid() {
 
             return (
               <div
-                key={show.id}
+                key={show.originalIds.join("-")}
                 className={cn(
                   "group relative flex flex-col md:flex-row items-center gap-6 p-6 rounded-3xl border-2 transition-all duration-300",
                   isLive
