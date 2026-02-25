@@ -227,9 +227,7 @@ export function ScheduleGrid() {
                       )}
                     </div>
                     <p className="font-semibold text-muted-foreground text-sm">
-                      {show.presenter?.full_name ||
-                        show.presenter?.username ||
-                        "Pie Radio"}
+                      {show.presenter?.full_name || show.presenter?.username}
                     </p>
                     <p className="text-sm text-zinc-600 leading-relaxed max-w-2xl line-clamp-2">
                       {show.description}

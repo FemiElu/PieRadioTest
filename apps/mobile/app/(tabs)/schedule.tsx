@@ -206,7 +206,7 @@ export default function ScheduleScreen() {
 
                                         {/* Host */}
                                         <Text className="text-zinc-500 font-medium text-xs mb-1" numberOfLines={1}>
-                                            {item.presenter?.full_name || item.presenter?.username || "Pie Radio"}
+                                            {item.presenter?.full_name || item.presenter?.username}
                                         </Text>
 
                                         {/* Description */}
