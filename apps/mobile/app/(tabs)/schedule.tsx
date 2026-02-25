@@ -87,6 +87,39 @@ export default function ScheduleScreen() {
     const activeDateObj = days[activeDayIndex].dateObj;
     const { schedule, loading: isLoading, error } = useSchedule(activeDateObj);
 
+    // Merge consecutive shows with the same title, presenter, and image
+    const mergedSchedule = useMemo(() => {
+        if (!schedule.length) return [];
+
+        const merged: (any)[] = [];
+
+        schedule.forEach((show) => {
+            const last = merged[merged.length - 1];
+
+            // Check if this show is consecutive and identical to the last one
+            const isConsecutive = last && last.end_time === show.start_time;
+            const isIdentical =
+                last &&
+                last.title === show.title &&
+                last.presenter_id === show.presenter_id &&
+                last.image_url === show.image_url;
+
+            if (isConsecutive && isIdentical) {
+                // Extend the end time of the last merged show
+                last.end_time = show.end_time;
+                last.originalIds.push(show.id);
+            } else {
+                // Add as a new entry
+                merged.push({
+                    ...show,
+                    originalIds: [show.id],
+                });
+            }
+        });
+
+        return merged;
+    }, [schedule]);
+
     return (
         <SafeAreaView className="flex-1 bg-background" edges={['top']}>
             <ScrollView
@@ -155,14 +188,14 @@ export default function ScheduleScreen() {
                             <Text className="text-zinc-500 mt-4 font-medium">No shows scheduled for this day.</Text>
                         </View>
                     ) : (
-                        schedule.map((item) => {
+                        mergedSchedule.map((item) => {
                             const showStart = new Date(item.start_time);
                             const showEnd = new Date(item.end_time);
                             const isLive = currentTime >= showStart && currentTime < showEnd;
 
                             return (
                                 <TouchableOpacity
-                                    key={item.id}
+                                    key={item.originalIds.join("-")}
                                     activeOpacity={0.7}
                                     className={`flex-row items-center rounded-xl p-3 border overflow-hidden ${isLive ? 'bg-red-500/10 border-red-500/50 shadow-md' : 'bg-card border-white/5'
                                         }`}
