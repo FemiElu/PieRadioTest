@@ -82,16 +82,16 @@ const CAROUSEL_IMAGES = [
     src: "/assets/popeyes_18102023_social-26.webp",
     alt: "burger close-up",
   },
-  { id: 3, src: "/assets/piesinger-1.webp", alt: "Pizza close-up" },
   {
-    id: 4,
+    id: 3,
     src: "/assets/popeyes_manchester_0001.webp",
     alt: "Popeyes exterior",
   },
-  { id: 5, src: "/assets/popeye-3.jpeg", alt: "Delicious food" },
+  { id: 4, src: "/assets/popeye-3.jpeg", alt: "Delicious food" },
 
-  { id: 6, src: "/assets/pieImg.webp", alt: "Pie Radio Studio" },
-  { id: 7, src: "/assets/popeyes_heroImg.webp", alt: "popeye Grilled chicken" },
+  { id: 5, src: "/assets/pieImg.webp", alt: "Pie Radio Studio" },
+  { id: 6, src: "/assets/popeyes_heroImg.webp", alt: "popeye Grilled chicken" },
+  { id: 7, src: "/assets/piesinger-1.webp", alt: "Pizza close-up" },
   { id: 8, src: "/assets/popeyelogo.webp", alt: "Popeyes logo" },
 ] as const;
 
