@@ -9,7 +9,7 @@ import { FilterBar } from "@/components/events/FilterBar";
 import { EventCard } from "@/components/events/EventCard";
 import { ComingSoon } from "@/components/shared/coming-soon";
 
-const SHOW_COMING_SOON = true;
+const SHOW_COMING_SOON = false;
 
 export default function EventsPage() {
   const [searchQuery, setSearchQuery] = useState("");
