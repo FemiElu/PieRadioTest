@@ -57,11 +57,28 @@ function BlinkingDot() {
 }
 
 export function ScheduleGrid() {
-  // Generate next 7 days
+  // Dynamic current time for live indicator
+  // Initialize to null and set in useEffect to avoid hydration mismatches
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
+
+  useEffect(() => {
+    // Initial set on mount
+    setCurrentTime(new Date());
+
+    // Update every 30 seconds for better responsiveness
+    const interval = setInterval(() => setCurrentTime(new Date()), 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Determine current date key (YYYY-MM-DD) to trigger re-calculation at midnight
+  const dateKey = currentTime?.toLocaleDateString("en-CA"); // e.g., "2024-05-20"
+
+  // Generate next 7 days, refreshing if the date changes
   const days = useMemo(() => {
     const result = [];
+    const baseDate = new Date();
     for (let i = 0; i < 7; i++) {
-      const d = new Date();
+      const d = new Date(baseDate);
       d.setDate(d.getDate() + i);
       result.push({
         dateObj: d,
@@ -72,7 +89,7 @@ export function ScheduleGrid() {
       });
     }
     return result;
-  }, []);
+  }, [dateKey]);
 
   const [activeDayIndex, setActiveDayIndex] = useState(0);
   const activeDateObj = days[activeDayIndex].dateObj;
@@ -82,13 +99,6 @@ export function ScheduleGrid() {
 
   // Audio context
   const { isPlaying, togglePlay, isLoading: isAudioLoading } = useAudio();
-
-  // Dynamic current time for live indicator
-  const [currentTime, setCurrentTime] = useState(new Date());
-  useEffect(() => {
-    const interval = setInterval(() => setCurrentTime(new Date()), 60000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div className="space-y-8">
@@ -175,7 +185,9 @@ export function ScheduleGrid() {
           schedule.map((show) => {
             const showStart = new Date(show.start_time);
             const showEnd = new Date(show.end_time);
-            const isLive = currentTime >= showStart && currentTime < showEnd;
+
+            // isLive depends on currentTime being set (only happens on client)
+            const isLive = currentTime && currentTime >= showStart && currentTime < showEnd;
 
             return (
               <div
