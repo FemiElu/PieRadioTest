@@ -55,8 +55,8 @@ export function useSchedule(date: Date) {
                             username
                         )
                     `)
-                    .gte('start_time', startOfDay.toISOString())
-                    .lte('start_time', endOfDay.toISOString())
+                    .lt('start_time', endOfDay.toISOString())
+                    .gt('end_time', startOfDay.toISOString())
                     .order('start_time', { ascending: true });
 
                 if (error) throw error;

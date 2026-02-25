@@ -14,7 +14,14 @@ import { format } from "date-fns";
 export default function Home() {
   const { isPlaying, togglePlay, isLoading, currentTrack } = useAudio();
   const { currentShow } = useCurrentShow();
-  const { schedule: todaySchedule, loading: scheduleLoading } = useSchedule(new Date());
+  // Memoize tomorrow's cleanup: use the start of the day as the schedule key
+  const todayDate = React.useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, [new Date().toLocaleDateString()]); // Only changes when the date actual rolls over
+
+  const { schedule: todaySchedule, loading: scheduleLoading } = useSchedule(todayDate);
 
   // State for recently played tracks
   type PlayedTrack = { title: string; artist: string; time: string };

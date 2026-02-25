@@ -4,13 +4,10 @@ import Image from "next/image";
 import { useEffect, useRef, useState, useCallback } from "react";
 import {
   Play,
-  Pause,
   Radio,
   Gift,
   Music,
   Zap,
-  Volume2,
-  VolumeX,
   ChevronLeft,
   ChevronRight,
   Calendar,
@@ -75,12 +72,27 @@ const FEATURES = [
 ] as const;
 
 const CAROUSEL_IMAGES = [
-  { id: 1, src: "/assets/popeye-3.jpeg", alt: "Delicious food spread" },
-  { id: 2, src: "/assets/piesinger-1.webp", alt: "Pizza close-up" },
-  { id: 3, src: "/assets/popeye-2.webp", alt: "Live music concert" },
-  { id: 4, src: "/assets/popeye-1.webp", alt: "Concert crowd" },
-  { id: 5, src: "/assets/pieImg.webp", alt: "Grilled chicken" },
-  { id: 6, src: "/assets/popeyes_heroImg.webp", alt: "Radio studio" },
+  {
+    id: 1,
+    src: "/assets/PopeyesBirminghamNewSt_mediumres_38.webp",
+    alt: "man eating burger",
+  },
+  {
+    id: 2,
+    src: "/assets/popeyes_18102023_social-26.webp",
+    alt: "burger close-up",
+  },
+  {
+    id: 3,
+    src: "/assets/popeyes_manchester_0001.webp",
+    alt: "Popeyes exterior",
+  },
+  { id: 4, src: "/assets/popeye-3.jpeg", alt: "Delicious food" },
+
+  { id: 5, src: "/assets/pieImg.webp", alt: "Pie Radio Studio" },
+  { id: 6, src: "/assets/popeyes_heroImg.webp", alt: "popeye Grilled chicken" },
+  { id: 7, src: "/assets/piesinger-1.webp", alt: "Pizza close-up" },
+  { id: 8, src: "/assets/popeyelogo.webp", alt: "Popeyes logo" },
 ] as const;
 
 const CONFETTI_COLORS = [
@@ -91,6 +103,16 @@ const CONFETTI_COLORS = [
   "#FFC300",
   "#334AFF",
 ];
+
+const CONFETTI_PIECES = Array.from({ length: 40 }, (_, i) => ({
+  id: i,
+  left: `${Math.random() * 100}%`,
+  top: `${Math.random() * 40}%`,
+  color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+  delay: `${Math.random() * 0.6}s`,
+  rotation: `${Math.random() * 360}deg`,
+  size: `${6 + Math.random() * 8}px`,
+}));
 
 const waitlistSchema = z.object({
   fullName: z.string().min(2, "Full name is required."),
@@ -118,19 +140,9 @@ function pushEvent(event: string, data?: Record<string, unknown>) {
 function Confetti({ show }: { show: boolean }) {
   if (!show) return null;
 
-  const pieces = Array.from({ length: 40 }, (_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    top: `${Math.random() * 40}%`,
-    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-    delay: `${Math.random() * 0.6}s`,
-    rotation: `${Math.random() * 360}deg`,
-    size: `${6 + Math.random() * 8}px`,
-  }));
-
   return (
     <div className="confetti-container" aria-hidden="true">
-      {pieces.map((p) => (
+      {CONFETTI_PIECES.map((p) => (
         <div
           key={p.id}
           className="confetti-piece"
@@ -144,23 +156,6 @@ function Confetti({ show }: { show: boolean }) {
             transform: `rotate(${p.rotation})`,
           }}
         />
-      ))}
-    </div>
-  );
-}
-
-/* ================================================================
-   Component: Equalizer
-   ================================================================ */
-
-function Equalizer({ playing }: { playing: boolean }) {
-  return (
-    <div
-      className={cn("equalizer", !playing && "equalizer-paused")}
-      aria-hidden="true"
-    >
-      {[...Array(5)].map((_, i) => (
-        <div key={i} className="equalizer-bar" />
       ))}
     </div>
   );
@@ -271,13 +266,6 @@ function FacebookIcon({ className }: { className?: string }) {
    ================================================================ */
 
 export default function PartnershipPage() {
-  /* --- Audio state --- */
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [audioProgress, setAudioProgress] = useState(0);
-  const [audioDuration, setAudioDuration] = useState(0);
-  const [audioMuted, setAudioMuted] = useState(false);
-
   /* --- Form state --- */
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
@@ -299,43 +287,6 @@ export default function PartnershipPage() {
   useEffect(() => {
     pushEvent("partnership_page_view");
   }, []);
-
-  /* --- Audio handlers --- */
-  const toggleAudio = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    if (isAudioPlaying) {
-      audio.pause();
-      pushEvent("audio_teaser_pause");
-    } else {
-      audio.play();
-      pushEvent("audio_teaser_play");
-    }
-    setIsAudioPlaying(!isAudioPlaying);
-  }, [isAudioPlaying]);
-
-  const handleTimeUpdate = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    setAudioProgress(audio.currentTime);
-    setAudioDuration(audio.duration || 0);
-  }, []);
-
-  const handleSeek = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    const newTime = parseFloat(e.target.value);
-    audio.currentTime = newTime;
-    setAudioProgress(newTime);
-  }, []);
-
-  const toggleMute = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.muted = !audio.muted;
-    setAudioMuted(!audioMuted);
-  }, [audioMuted]);
 
   /* --- Carousel scroll --- */
   const scrollCarousel = useCallback((direction: "left" | "right") => {
@@ -396,13 +347,6 @@ export default function PartnershipPage() {
   const scrollToWaitlist = useCallback(() => {
     waitlistRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
-
-  /* --- Format time --- */
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return `${m}:${s.toString().padStart(2, "0")}`;
-  };
 
   return (
     <div ref={revealContainerRef} className="flex flex-col w-full">

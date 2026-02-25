@@ -53,11 +53,22 @@ function BlinkingDot() {
 }
 
 export default function ScheduleScreen() {
-    // Generate next 7 days
+    // Dynamic current time for live indicator
+    const [currentTime, setCurrentTime] = useState(new Date());
+    useEffect(() => {
+        const interval = setInterval(() => setCurrentTime(new Date()), 30000);
+        return () => clearInterval(interval);
+    }, []);
+
+    // Determine current date key (YYYY-MM-DD) to trigger re-calculation at midnight
+    const dateKey = currentTime.toLocaleDateString('en-CA');
+
+    // Generate next 7 days, refreshing if the date changes
     const days = useMemo(() => {
         const result = [];
+        const baseDate = new Date();
         for (let i = 0; i < 7; i++) {
-            const d = new Date();
+            const d = new Date(baseDate);
             d.setDate(d.getDate() + i);
             result.push({
                 dateObj: d,
@@ -68,20 +79,13 @@ export default function ScheduleScreen() {
             });
         }
         return result;
-    }, []);
+    }, [dateKey]);
 
     const [activeDayIndex, setActiveDayIndex] = useState(0);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     const activeDateObj = days[activeDayIndex].dateObj;
     const { schedule, loading: isLoading, error } = useSchedule(activeDateObj);
-
-    // Dynamic current time for live indicator
-    const [currentTime, setCurrentTime] = useState(new Date());
-    useEffect(() => {
-        const interval = setInterval(() => setCurrentTime(new Date()), 60000);
-        return () => clearInterval(interval);
-    }, []);
 
     return (
         <SafeAreaView className="flex-1 bg-background" edges={['top']}>
@@ -206,7 +210,7 @@ export default function ScheduleScreen() {
 
                                         {/* Host */}
                                         <Text className="text-zinc-500 font-medium text-xs mb-1" numberOfLines={1}>
-                                            {item.presenter?.full_name || item.presenter?.username || "Pie Radio"}
+                                            {item.presenter?.full_name || item.presenter?.username}
                                         </Text>
 
                                         {/* Description */}

@@ -52,14 +52,14 @@ export function useSchedule(date: Date) {
 
                 const { data, error } = await (supabase.from('schedules' as any) as any)
                     .select(`
-    *,
-    presenter: presenter_id(
-        full_name,
-        username
-    )
-        `)
-                    .gte('start_time', startOfDay.toISOString())
-                    .lte('start_time', endOfDay.toISOString())
+                        *,
+                        presenter: presenter_id(
+                            full_name,
+                            username
+                        )
+                    `)
+                    .lt('start_time', endOfDay.toISOString())
+                    .gt('end_time', startOfDay.toISOString())
                     .order('start_time', { ascending: true });
 
                 if (error) throw error;
