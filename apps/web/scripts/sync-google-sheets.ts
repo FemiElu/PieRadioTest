@@ -73,6 +73,7 @@ async function sync() {
         };
 
         const scheduleEntries: any[] = [];
+        const lastSeenContent: Record<string, string> = {};
 
         // 4. Process each row and day
         for (const row of dataRows) {
@@ -99,12 +100,24 @@ async function sync() {
             if (startHour === null || endHour === null) continue;
 
             for (const dayName of DAYS_OF_WEEK) {
-                const content = row[colMap[dayName]];
-                if (!content || content.toLowerCase() === 'non stop music') {
+                let content = row[colMap[dayName]]?.trim();
+
+                // CARRY FORWARD LOGIC:
+                // If this cell is empty, it's likely a merged cell in Google Sheets.
+                // We carry forward the content from the "last seen" row for this day.
+                if (!content) {
+                    content = lastSeenContent[dayName];
+                } else {
+                    // Update "last seen" for future empty cells (merged cells)
+                    lastSeenContent[dayName] = content;
+                }
+
+                if (!content) continue;
+
+                if (content.toLowerCase() === 'non stop music') {
                     // We can still create "Non Stop Music" entries if we want, 
                     // or just skip and have the UI handle gaps.
                     // For now, let's create them so the list is continuous.
-                    if (!content) continue;
                 }
 
                 // Extract Title and Presenter
