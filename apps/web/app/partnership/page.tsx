@@ -13,7 +13,9 @@ import {
   Calendar,
   MapPin,
   Clock,
+  Newspaper,
 } from "lucide-react";
+import Link from "next/link";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -415,7 +417,19 @@ export default function PartnershipPage() {
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
 
-            <div className="coming-soon-tooltip inline-flex">
+            <Link href="/news" className="inline-flex">
+              <Button
+                id="hero-cta-press-release"
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto h-12 sm:h-14 px-8 rounded-full text-base sm:text-lg border-2 gap-3 bg-white/5 backdrop-blur-sm text-white border-white/20 hover:bg-white/10 hover:border-white/40 transition-all font-bold"
+              >
+                <Newspaper className="w-5 h-5 text-popeyes-orange" />
+                See Press Release
+              </Button>
+            </Link>
+
+            <div className="coming-soon-tooltip hidden lg:inline-flex">
               <Button
                 id="hero-cta-preview"
                 variant="outline"
