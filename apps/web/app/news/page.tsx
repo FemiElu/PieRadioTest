@@ -192,9 +192,6 @@ export default function NewsPage() {
 
         {/* Footer / Notes */}
         <div className="mt-16 pt-8 border-t border-border/50">
-          <p className="text-xs text-muted-foreground italic mb-8">
-            *Full terms and conditions apply. See website for details.
-          </p>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 bg-white p-8 rounded-3xl border border-border/50 shadow-sm">
             <div>
               <p className="text-sm text-muted-foreground">
