@@ -637,12 +637,6 @@ export default function PartnershipPage() {
               </p>
               <div className="flex flex-wrap items-center justify-center gap-6 mt-3 text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-popeyes-orange" />
-                  <span className="text-sm sm:text-base">
-                    Cupra Garage, Manchester
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-popeyes-orange" />
                   <span className="text-sm sm:text-base">23rd May</span>
                 </div>
@@ -767,7 +761,7 @@ export default function PartnershipPage() {
             ].map(({ Icon, label, platform }) => (
               <a
                 key={platform}
-                href="#"
+                href="https://www.instagram.com/popeyesuk/"
                 onClick={(e) => {
                   e.preventDefault();
                   handleSocialClick(platform);
