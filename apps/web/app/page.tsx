@@ -106,8 +106,8 @@ export default function Home() {
 
   const artwork =
     !isGenericMetadata &&
-    currentTrack.artwork &&
-    currentTrack.artwork !== "/placeholder-cover.jpg"
+      currentTrack.artwork &&
+      currentTrack.artwork !== "/placeholder-cover.jpg"
       ? currentTrack.artwork
       : currentShow?.shows?.cover_image_url || "/placeholder-cover.jpg";
 
@@ -146,7 +146,7 @@ export default function Home() {
         <div className="container relative h-full max-w-screen-2xl mx-auto px-4 md:px-8 flex items-center z-10">
           <div className="w-full max-w-2xl space-y-6">
             <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 mt-4 md:mt-0">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-white text-xs font-bold uppercase tracking-wider backdrop-blur-md border border-white/10 animate-pulse">
                   <div className="w-2 h-2 rounded-full bg-primary" />
                   Live Now
