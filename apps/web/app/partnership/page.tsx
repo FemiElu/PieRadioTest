@@ -635,16 +635,7 @@ export default function PartnershipPage() {
                 </span>
                 .
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-6 mt-3 text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-popeyes-orange" />
-                  <span className="text-sm sm:text-base">23rd May</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-popeyes-orange" />
-                  <span className="text-sm sm:text-base">7PM – 11:30PM</span>
-                </div>
-              </div>
+
             </div>
 
             {formSuccess ? (
