@@ -5,79 +5,92 @@
 @layer base {
   :root {
     /* Pieradio Light Mode Palette */
-    --background: 0 0% 97%;
-    /* #f7f6f6 */
-    --foreground: 227 32% 12%;
+    --background: 220 16% 97%;
+    /* #f4f5f8 - Slightly cool white */
+    --foreground: 228 30% 12%;
     /* #141827 - Dark Blue/Black */
 
     --card: 0 0% 100%;
-    /* White cards on light grey bg */
-    --card-foreground: 227 32% 12%;
+    /* White cards */
+    --card-foreground: 228 30% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 227 32% 12%;
+    --popover-foreground: 228 30% 12%;
 
-    --primary: 232 100% 60%;
+    --primary: 233 100% 60%;
     /* #334aff - Brand Blue */
     --primary-foreground: 0 0% 100%;
     /* White text on primary */
 
-    --secondary: 0 0% 90%;
-    /* Light grey for secondary actions */
-    --secondary-foreground: 227 32% 12%;
+    --secondary: 220 14% 93%;
+    /* Light cool grey for secondary actions */
+    --secondary-foreground: 228 30% 12%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 36%;
-    /* #5d5d5d - Secondary Text */
+    --muted: 220 14% 93%;
+    --muted-foreground: 220 9% 46%;
+    /* #5d6476 - Secondary Text */
 
-    --accent: 232 100% 96%;
+    --accent: 233 100% 96%;
     /* Very light blue tint for accents */
-    --accent-foreground: 232 100% 60%;
+    --accent-foreground: 233 100% 40%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 84%;
-    /* #d5d5d5 */
-    --input: 0 0% 84%;
-    --ring: 232 100% 60%;
-    /* Primary Blue Ring */
+    --border: 220 13% 88%;
+    /* #d5d8e0 */
+    --input: 220 13% 88%;
+    --ring: 233 100% 60%;
+    /* Brand Blue Ring */
 
-    --radius: 0.5rem;
+    --radius: 0.625rem;
+
+    --chart-1: 233 100% 60%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
   }
 
   .dark {
-    /* Complimentary Dark Mode (Dark Blue Base) */
-    --background: 227 32% 12%;
-    /* #141827 - Using the dark header color as bg */
-    --foreground: 0 0% 100%;
+    /* Pie Radio Dark Mode (Dark Blue Base) */
+    --background: 228 30% 8%;
+    /* #0d1120 - Deep dark blue */
+    --foreground: 220 20% 95%;
+    /* Off-white */
 
-    --card: 227 32% 15%;
-    /* Slightly lighter than bg */
-    --card-foreground: 0 0% 100%;
+    --card: 228 25% 12%;
+    /* #141827 - Slightly lighter than bg */
+    --card-foreground: 220 20% 95%;
 
-    --popover: 227 32% 12%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 228 25% 12%;
+    --popover-foreground: 220 20% 95%;
 
-    --primary: 232 100% 60%;
-    /* #334aff - Keep Brand Blue */
+    --primary: 233 100% 65%;
+    /* #4d63ff - Slightly lighter Brand Blue for dark bg */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 227 32% 20%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 228 20% 18%;
+    --secondary-foreground: 220 20% 95%;
 
-    --muted: 227 32% 20%;
-    --muted-foreground: 227 10% 65%;
+    --muted: 228 20% 18%;
+    --muted-foreground: 220 10% 60%;
 
-    --accent: 227 32% 20%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 233 60% 20%;
+    /* Subtle blue accent on dark */
+    --accent-foreground: 233 100% 70%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 227 32% 25%;
-    --input: 227 32% 25%;
-    --ring: 232 100% 60%;
+    --border: 228 20% 20%;
+    --input: 228 20% 20%;
+    --ring: 233 100% 65%;
+    --chart-1: 233 100% 65%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
   }
 }
 
