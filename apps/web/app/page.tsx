@@ -28,7 +28,7 @@ export default function Home() {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
     return d;
-  }, [new Date().toLocaleDateString()]); // Only changes when the date actual rolls over
+  }, []); // Only calculate once on mount
 
   const { schedule: todaySchedule, loading: scheduleLoading } =
     useSchedule(todayDate);

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 interface FileUploaderProps {
-    bucket: "music" | "images";
+    bucket: "music" | "images" | "track-submissions";
     acceptedFileTypes?: string[]; // e.g. ['image/*', 'audio/mpeg']
     maxSizeMB?: number;
     onUploadComplete: (path: string) => void;
@@ -121,7 +121,7 @@ export function FileUploader({
                 <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center space-x-3 overflow-hidden">
-                            {bucket === 'music' ? (
+                            {bucket === 'music' || bucket === 'track-submissions' ? (
                                 <FileAudio className="w-8 h-8 text-primary shrink-0" />
                             ) : (
                                 <FileImage className="w-8 h-8 text-blue-500 shrink-0" />

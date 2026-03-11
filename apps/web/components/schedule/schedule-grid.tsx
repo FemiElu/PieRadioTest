@@ -14,6 +14,8 @@ import {
 import { useSchedule } from "@/hooks/use-schedule";
 import { useAudio } from "@/context/audio-context";
 import { Skeleton } from "@/components/ui/skeleton";
+import { LikeButton } from "../shared/like-button";
+import { toggleLikedShow } from "@/app/actions/favourites";
 
 // --- HELPERS ---
 const formatDayName = (date: Date) =>
@@ -56,7 +58,7 @@ function BlinkingDot() {
   );
 }
 
-export function ScheduleGrid() {
+export function ScheduleGrid({ likedShowIds = [] }: { likedShowIds?: string[] }) {
   // Dynamic current time for live indicator
   // Initialize to null and set in useEffect to avoid hydration mismatches
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
@@ -73,7 +75,7 @@ export function ScheduleGrid() {
   // Determine current date key (YYYY-MM-DD) to trigger re-calculation at midnight
   const dateKey = currentTime?.toLocaleDateString("en-CA"); // e.g., "2024-05-20"
 
-  // Generate next 7 days, refreshing if the date changes
+  // Generate next 7 days on mount
   const days = useMemo(() => {
     const result = [];
     const baseDate = new Date();
@@ -89,7 +91,7 @@ export function ScheduleGrid() {
       });
     }
     return result;
-  }, [dateKey]);
+  }, []); // Only calculate once on mount
 
   const [activeDayIndex, setActiveDayIndex] = useState(0);
   const activeDateObj = days[activeDayIndex].dateObj;
@@ -265,6 +267,14 @@ export function ScheduleGrid() {
                       <h3 className="text-xl md:text-2xl font-bold text-foreground leading-tight">
                         {show.title}
                       </h3>
+                      <LikeButton
+                        isLiked={likedShowIds.includes(show.id)}
+                        onToggle={() => toggleLikedShow(show.id, {
+                          title: show.title,
+                          image: show.image_url || undefined
+                        })}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      />
                       {isLive && (
                         <span className="animate-pulse px-2.5 py-1 rounded-md bg-red-500 text-white text-[10px] font-black uppercase tracking-wider shadow-[0_0_10px_rgba(239,68,68,0.5)]">
                           Live Now
