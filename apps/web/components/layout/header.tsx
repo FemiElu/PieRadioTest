@@ -122,9 +122,11 @@ export function Header() {
                                                     </Link>
                                                 </DropdownMenuItem>
                                             )}
-                                            <DropdownMenuItem>
-                                                <Settings className="mr-2 h-4 w-4" />
-                                                Settings
+                                            <DropdownMenuItem asChild>
+                                                <Link href="/profile" className="cursor-pointer">
+                                                    <Settings className="mr-2 h-4 w-4" />
+                                                    Settings & Profile
+                                                </Link>
                                             </DropdownMenuItem>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer text-red-600 focus:text-red-600">
@@ -211,6 +213,15 @@ export function Header() {
                                             Dashboard
                                         </Link>
                                     )}
+
+                                    <Link
+                                        href="/profile"
+                                        className="flex items-center gap-2 p-2 hover:bg-accent rounded-md mb-2"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        <Settings className="h-4 w-4" />
+                                        Settings & Profile
+                                    </Link>
 
                                     <Button
                                         variant="ghost"

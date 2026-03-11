@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, Music, ShieldAlert, Mic2, ListMusic } from "lucide-react";
+import { LayoutDashboard, Users, Music, ShieldAlert, Mic2, ListMusic, UploadCloud } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/context/auth-context";
 
@@ -37,6 +37,11 @@ const sidebarItems = [
     title: "Schedule / Shows",
     href: "/admin/schedule", // Future proofing
     icon: Music,
+  },
+  {
+    title: "Artist Uploads",
+    href: "/admin/artist-uploads",
+    icon: UploadCloud,
   },
 ];
 

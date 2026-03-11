@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { PresentersClient } from "@/components/presenters/presenters-client";
+import { getUserLikedIds } from "@/app/actions/favourites";
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -179,6 +180,15 @@ export default async function PresentersPage() {
         console.error("Error fetching presenters:", error);
     }
 
+    // Fetch liked IDs for the current user
+    let likedPresenterIds: string[] = [];
+    try {
+        const likedData = await getUserLikedIds();
+        likedPresenterIds = likedData.presenterIds;
+    } catch (e) {
+        // Fallback for unauthenticated or other errors
+    }
+
     // Use dummy data if no real presenters exist or there's an error
     const displayPresenters = (presenters && presenters.length > 0) ? presenters : DUMMY_PRESENTERS;
 
@@ -202,6 +212,7 @@ export default async function PresentersPage() {
                     initialPresenters={displayPresenters as any}
                     executives={EXECUTIVES_DATA as any}
                     seniorLeadership={SENIOR_LEADERSHIP_DATA as any}
+                    likedPresenterIds={likedPresenterIds}
                 />
             </section>
         </div>
