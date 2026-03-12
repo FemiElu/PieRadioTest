@@ -230,7 +230,7 @@ export default function Home() {
               </p>
             </div>
             <Link
-              href="/news"
+              href="/press"
               className="text-primary font-semibold flex items-center gap-1 hover:underline group"
             >
               See All{" "}
