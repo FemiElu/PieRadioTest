@@ -3,15 +3,33 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/context/auth-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function ProfileScreen() {
     const { user, profile, signOut, isAuthenticated } = useAuth();
     const [refreshing, setRefreshing] = useState(false);
+    const [artistProfile, setArtistProfile] = useState<any>(null);
+
+    const fetchArtistProfile = async () => {
+        if (!user) return;
+        const { data } = await supabase
+            .from('artist_profiles')
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
+        setArtistProfile(data);
+    };
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchArtistProfile();
+        }
+    }, [isAuthenticated]);
 
     const onRefresh = async () => {
         setRefreshing(true);
-        // Maybe refresh profile here?
+        await fetchArtistProfile();
         setTimeout(() => setRefreshing(false), 1000);
     };
 
@@ -54,7 +72,7 @@ export default function ProfileScreen() {
                 <View className="p-6">
                     {/* Header */}
                     <View className="flex-row items-center justify-between mb-8">
-                        <Text className="text-white text-3xl font-bold font-display">Profile</Text>
+                        <Text className="text-white text-3xl font-bold ">Profile</Text>
                         <TouchableOpacity onPress={() => signOut()} className="bg-red-500/10 px-4 py-2 rounded-full">
                             <Text className="text-red-500 font-bold">Sign Out</Text>
                         </TouchableOpacity>
@@ -81,10 +99,33 @@ export default function ProfileScreen() {
                         </View>
                     </View>
 
+                    {/* Artist Features */}
+                    {artistProfile && (
+                        <View className="mb-6">
+                            <Text className="text-zinc-400 text-sm font-bold uppercase mb-4 ">Artist Services</Text>
+
+                            <TouchableOpacity
+                                onPress={() => router.push("/profile/upload")}
+                                className="bg-card border border-primary/20 rounded-xl p-4 flex-row items-center justify-between mb-3 shadow-md"
+                            >
+                                <View className="flex-row items-center gap-3">
+                                    <View className="w-10 h-10 bg-primary/20 rounded-full items-center justify-center">
+                                        <Ionicons name="cloud-upload" size={20} color="#E11D48" />
+                                    </View>
+                                    <View>
+                                        <Text className="text-white font-bold text-lg">Upload Track</Text>
+                                        <Text className="text-zinc-500 text-xs">Submit music for airplay</Text>
+                                    </View>
+                                </View>
+                                <Ionicons name="chevron-forward" size={20} color="#52525b" />
+                            </TouchableOpacity>
+                        </View>
+                    )}
+
                     {/* Presenter Features */}
                     {(profile?.role === 'presenter' || profile?.role === 'admin') && (
                         <View className="mb-6">
-                            <Text className="text-zinc-400 text-sm font-bold uppercase mb-4 tracking-wider">Presenter Tools</Text>
+                            <Text className="text-zinc-400 text-sm font-bold uppercase mb-4 ">Presenter Tools</Text>
 
                             <TouchableOpacity
                                 onPress={() => router.push("/dashboard/messages")}
@@ -105,7 +146,7 @@ export default function ProfileScreen() {
 
                     {/* General Settings */}
                     {/* <View>
-                         <Text className="text-zinc-400 text-sm font-bold uppercase mb-4 tracking-wider">Settings</Text>
+                         <Text className="text-zinc-400 text-sm font-bold uppercase mb-4 ">Settings</Text>
                          // ...
                     </View> */}
                 </View>

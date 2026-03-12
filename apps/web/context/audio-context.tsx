@@ -1,16 +1,19 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
-import { Howl } from "howler";
 import { createClient } from "@/lib/supabase/client";
 
 interface AudioContextType {
     isPlaying: boolean;
     volume: number;
-    currentTrack: { title: string; artist: string; artwork?: string } | null;
+    currentTrack: { title: string; artist: string; artwork?: string; url?: string } | null;
     togglePlay: () => void;
     setVolume: (val: number) => void;
     isLoading: boolean;
+    playClip: (url: string, title: string, artist: string, artwork?: string) => void;
+    seekTo: (seconds: number) => void;
+    currentTime: number;
+    duration: number;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -21,129 +24,188 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [volume, setVolumeState] = useState(1.0);
     const [isLoading, setIsLoading] = useState(false);
-    const [currentTrack, setCurrentTrack] = useState({
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [currentTrack, setCurrentTrack] = useState<{ title: string; artist: string; artwork?: string; url?: string } | null>({
         title: "Pie Radio Live",
         artist: "The Number One Station",
-        artwork: "/placeholder-cover.jpg" // We will replace this later
+        artwork: "/placeholder-cover.jpg",
+        url: STREAM_URL
     });
 
-    const soundRef = useRef<Howl | null>(null);
+    const playerRef = useRef<any>(null);
+    const clipRef = useRef<HTMLAudioElement | null>(null);
 
-    useEffect(() => {
-        // Initialize Howl
-        soundRef.current = new Howl({
-            src: [STREAM_URL],
-            html5: true, // Force HTML5 Audio for streaming
-            format: ["mp3"],
-            volume: volume,
-            onload: () => setIsLoading(false),
-            onplay: () => {
-                setIsPlaying(true);
-                setIsLoading(false);
-            },
-            onpause: () => setIsPlaying(false),
-            onstop: () => setIsPlaying(false),
-            onloaderror: (_id, err) => {
-                console.error("Stream Load Error", err);
-                setIsLoading(false);
-            },
-            onplayerror: (_id, err) => {
-                console.error("Stream Play Error", err);
-                setIsLoading(false);
-            }
-        });
-
-        return () => {
-            soundRef.current?.unload();
-        };
-    }, []); // Run once on mount
-
-    // Realtime Metadata
-    useEffect(() => {
-        const supabase = createClient();
-
-        const fetchInitial = async () => {
-            const { data } = await supabase.from('station_metadata').select('*').eq('id', 1).single();
-            if (data) {
-                const metadata = data as any;
-                setCurrentTrack({
-                    title: metadata.title || "Pie Radio Live",
-                    artist: metadata.artist || "The Number One Station",
-                    artwork: metadata.cover_url || "/placeholder-cover.jpg"
-                });
-            }
-        };
-
-        fetchInitial();
-
-        const channel = supabase
-            .channel('station_metadata_updates')
-            .on(
-                'postgres_changes',
-                {
-                    event: 'UPDATE',
-                    schema: 'public',
-                    table: 'station_metadata',
-                    filter: 'id=eq.1'
-                },
-                (payload) => {
-                    const newData = payload.new as any; // Type assertion since payload.new is generic
-                    setCurrentTrack({
-                        title: newData.title || "Pie Radio Live",
-                        artist: newData.artist || "The Number One Station",
-                        artwork: newData.cover_url || "/placeholder-cover.jpg"
-                    });
+    // ... fetchArtwork remains same ...
+    const fetchArtwork = async (artist: string, title: string) => {
+        if (artist === "Pie Radio" || title === "Live Stream") return "/placeholder-cover.jpg";
+        try {
+            const query = encodeURIComponent(`${artist} ${title}`);
+            const res = await fetch(`https://itunes.apple.com/search?term=${query}&entity=song&limit=1`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.results && data.results.length > 0) {
+                    return data.results[0].artworkUrl100.replace("100x100bb", "600x600bb");
                 }
-            )
-            .subscribe();
+            }
+        } catch (error) {
+            console.warn("iTunes lookup failed:", error);
+        }
+        return "/placeholder-cover.jpg";
+    };
 
-        return () => {
-            supabase.removeChannel(channel);
+    const stopStream = () => {
+        if (playerRef.current) {
+            playerRef.current.stop();
+        }
+    };
+
+    const stopClip = () => {
+        if (clipRef.current) {
+            clipRef.current.pause();
+            clipRef.current.src = "";
+        }
+    };
+
+    const playStream = () => {
+        stopClip();
+        if (playerRef.current) {
+            setIsLoading(true);
+            playerRef.current.play();
+            setCurrentTrack({
+                title: "Pie Radio Live",
+                artist: "The Number One Station",
+                artwork: "/placeholder-cover.jpg",
+                url: STREAM_URL
+            });
+        }
+    };
+
+    const playClip = (url: string, title: string, artist: string, artwork?: string) => {
+        stopStream();
+        stopClip();
+
+        setIsLoading(true);
+        const audio = new Audio(url);
+        audio.volume = volume;
+        clipRef.current = audio;
+
+        audio.oncanplay = () => {
+            setIsLoading(false);
+            setDuration(audio.duration);
+            audio.play();
+            setIsPlaying(true);
         };
+
+        audio.ontimeupdate = () => {
+            setCurrentTime(audio.currentTime);
+        };
+
+        audio.onended = () => {
+            setIsPlaying(false);
+        };
+
+        setCurrentTrack({ title, artist, artwork, url });
+    };
+
+    const seekTo = (seconds: number) => {
+        if (clipRef.current) {
+            clipRef.current.currentTime = seconds;
+            setCurrentTime(seconds);
+        }
+    };
+
+    useEffect(() => {
+        const initPlayer = async () => {
+            const { default: IcecastMetadataPlayer } = await import("icecast-metadata-player");
+            playerRef.current = new IcecastMetadataPlayer(STREAM_URL, {
+                onMetadata: async (metadata: any) => {
+                    if (currentTrack?.url !== STREAM_URL) return;
+
+                    const streamTitle = metadata.StreamTitle || "";
+                    let artist = "Pie Radio";
+                    let title = "Live Stream";
+                    const separators = [" - ", " - ", " | "];
+                    let matched = false;
+                    for (const sep of separators) {
+                        if (streamTitle.includes(sep)) {
+                            const parts = streamTitle.split(sep);
+                            artist = parts[0].trim();
+                            title = parts.slice(1).join(sep).trim();
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if (!matched && streamTitle) title = streamTitle;
+
+                    setCurrentTrack(prev => {
+                        if (prev?.title === title && prev?.artist === artist) return prev;
+                        fetchArtwork(artist, title).then(artwork => {
+                            setCurrentTrack(current => current ? { ...current, artwork } : null);
+                        });
+                        return { title, artist, artwork: prev?.artwork, url: STREAM_URL };
+                    });
+                },
+                onPlay: () => { setIsPlaying(true); setIsLoading(false); },
+                onStop: () => { setIsPlaying(false); setIsLoading(false); },
+                onLoad: () => setIsLoading(false),
+                onError: () => { setIsLoading(false); setIsPlaying(false); },
+                metadataTypes: ["icy"]
+            });
+        };
+        if (typeof window !== "undefined") initPlayer();
+        return () => { stopStream(); stopClip(); };
     }, []);
 
     const togglePlay = () => {
-        if (!soundRef.current) return;
-
-        if (isPlaying) {
-            soundRef.current.pause();
-        } else {
-            setIsLoading(true);
-            soundRef.current.play();
+        if (currentTrack?.url === STREAM_URL) {
+            if (isPlaying) stopStream();
+            else playStream();
+        } else if (clipRef.current) {
+            if (isPlaying) {
+                clipRef.current.pause();
+                setIsPlaying(false);
+            } else {
+                clipRef.current.play();
+                setIsPlaying(true);
+            }
         }
     };
 
     const setVolume = (val: number) => {
         setVolumeState(val);
-        if (soundRef.current) {
-            soundRef.current.volume(val);
+        if (playerRef.current) {
+            if (playerRef.current.audioElement) {
+                playerRef.current.audioElement.volume = val;
+            } else if (playerRef.current.audio) {
+                playerRef.current.audio.volume = val;
+            }
         }
+        if (clipRef.current) clipRef.current.volume = val;
     };
 
-    // Lazy Sync Strategy: Trigger Metadata Sync Periodically
-    // This ensures metadata stays fresh even on Vercel Hobby plan (no frequent crons)
-    // The API handles a 1-minute cooldown to prevent abuse.
+    // Keep volume in sync when track changes or starts
     useEffect(() => {
-        const triggerSync = async () => {
-            try {
-                // Polling at 30s ensures we catch updates quickly after the 55s cooldown expires
-                await fetch('/api/cron/sync-metadata');
-            } catch (error) {
-                // Silently fail, it will retry on next interval
-                console.warn("Lazy sync trigger failed:", error);
-            }
-        };
-
-        // Trigger immediately on mount
-        triggerSync();
-
-        // Then every 30 seconds
-        const interval = setInterval(triggerSync, 30000);
-        return () => clearInterval(interval);
-    }, []);
+        if (isPlaying && playerRef.current) {
+            const player = playerRef.current;
+            const audio = player.audioElement || player.audio;
+            if (audio) audio.volume = volume;
+        }
+    }, [isPlaying, volume]);
 
     return (
-        <AudioContext.Provider value={{ isPlaying, volume, currentTrack, togglePlay, setVolume, isLoading }}>
+        <AudioContext.Provider value={{
+            isPlaying,
+            volume,
+            currentTrack,
+            togglePlay,
+            setVolume,
+            isLoading,
+            playClip,
+            seekTo,
+            currentTime,
+            duration
+        }}>
             {children}
         </AudioContext.Provider>
     );

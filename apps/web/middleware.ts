@@ -10,6 +10,7 @@ import { createServerClient } from "@supabase/ssr";
  * 3. Role-based route protection
  */
 export async function middleware(request: NextRequest) {
+    console.log(`[Middleware] ${request.method} ${request.nextUrl.pathname}`);
     let response = NextResponse.next({
         request: {
             headers: request.headers,
@@ -160,12 +161,13 @@ export async function middleware(request: NextRequest) {
 
     const cspHeader = `
         default-src 'self';
-        script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com;
+        script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com blob:;
+        worker-src 'self' blob:;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
         img-src 'self' blob: data: https://*.supabase.co https://*.unsplash.com https://*.googleusercontent.com https://i.scdn.co https://cdn.discordapp.com;
         font-src 'self' https://fonts.gstatic.com;
-        connect-src 'self' ${supabaseUrl} https://*.supabase.co wss://*.supabase.co https://*.aiir.com https://api.stripe.com;
-        media-src 'self' https://*.aiir.com blob:;
+        connect-src 'self' ${supabaseUrl} https://*.supabase.co wss://*.supabase.co https://*.aiir.com https://api.stripe.com https://itunes.apple.com;
+        media-src 'self' https://*.aiir.com ${supabaseUrl} https://*.supabase.co blob: data:;
         frame-src 'self' https://js.stripe.com;
     `.replace(/\s{2,}/g, " ").trim();
 

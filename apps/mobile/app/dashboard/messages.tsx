@@ -88,7 +88,7 @@ export default function PresenterMessagesScreen() {
                     </View>
 
                     <Text
-                        className={`text-zinc-300 leading-relaxed ${isExpanded ? '' : 'line-clamp-2'}`}
+                        className="text-zinc-300 leading-relaxed"
                         numberOfLines={isExpanded ? undefined : 2}
                     >
                         {item.message}

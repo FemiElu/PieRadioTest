@@ -61,6 +61,7 @@ export default function ArtistUploadPage() {
                     title: formData.title,
                     genre: formData.genre,
                     audio_url: audioPath,
+                    cover_art_url: imagePath,
                     status: 'pending' as Database["public"]["Enums"]["request_status"],
                     reviewed_by: null
                 } as any);
@@ -128,7 +129,7 @@ export default function ArtistUploadPage() {
                         <div className="space-y-4">
                             <label className="text-sm font-bold text-zinc-900 uppercase tracking-widest">Audio Track (MP3/WAV)</label>
                             <FileUploader
-                                bucket="music"
+                                bucket="track-submissions"
                                 acceptedFileTypes={['audio/mpeg', 'audio/wav', 'audio/x-m4a']}
                                 maxSizeMB={200}
                                 onUploadComplete={(path) => setAudioPath(path)}

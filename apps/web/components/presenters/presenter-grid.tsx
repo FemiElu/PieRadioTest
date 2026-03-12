@@ -5,6 +5,8 @@ import Link from "next/link";
 import { ArrowRight, User } from "lucide-react";
 import { memo, useMemo } from "react";
 import { cn } from "@/lib/utils";
+import { LikeButton } from "@/components/shared/like-button";
+import { toggleLikedPresenter } from "@/app/actions/favourites";
 
 // Presenter type matching database schema
 export interface Presenter {
@@ -42,14 +44,19 @@ interface PresenterGridProps {
     selectedCategory?: string;
     onCategoryChange?: (category: string) => void;
     clickable?: boolean;
+    likedPresenterIds?: string[];
 }
 
 const PresenterCard = memo(function PresenterCard({
     presenter,
     clickable,
+    priority = false,
+    isLiked = false,
 }: {
     presenter: Presenter;
     clickable: boolean;
+    priority?: boolean;
+    isLiked?: boolean;
 }) {
     const CardContent = (
         <>
@@ -64,7 +71,8 @@ const PresenterCard = memo(function PresenterCard({
                         src={presenter.avatar_url}
                         alt={presenter.full_name || presenter.username || "Presenter"}
                         fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        priority={priority}
                         className={cn(
                             "object-cover object-top transition-transform duration-700",
                             clickable && "group-hover:scale-105",
@@ -116,13 +124,21 @@ const PresenterCard = memo(function PresenterCard({
                     {presenter.shows?.[0] && " • Weekdays"}
                 </p>
 
-                {/* More Link - Only if clickable */}
-                {clickable && (
-                    <div className="mt-3 flex items-center gap-2 text-primary text-sm font-bold group-hover:gap-3 transition-all">
-                        More
-                        <ArrowRight className="w-4 h-4" />
-                    </div>
-                )}
+                {/* More Link / Like Row */}
+                <div className="mt-3 flex items-center justify-between">
+                    {clickable && (
+                        <div className="flex items-center gap-2 text-primary text-sm font-bold group-hover:gap-3 transition-all">
+                            More
+                            <ArrowRight className="w-4 h-4" />
+                        </div>
+                    )}
+                    <LikeButton
+                        isLiked={isLiked}
+                        onToggle={() => toggleLikedPresenter(presenter.id)}
+                        size="sm"
+                        className="ml-auto text-muted-foreground"
+                    />
+                </div>
             </div>
         </>
     );
@@ -145,15 +161,15 @@ const PresenterCard = memo(function PresenterCard({
     );
 });
 
-export function PresenterGrid({ presenters, selectedCategory = "all", onCategoryChange, clickable = true }: PresenterGridProps) {
+export function PresenterGrid({ presenters, selectedCategory = "all", onCategoryChange, clickable = true, likedPresenterIds = [] }: PresenterGridProps) {
     const filteredPresenters = useMemo(
         () =>
             selectedCategory === "all"
                 ? presenters
                 : presenters.filter((p) => {
-                      const meta = Array.isArray(p.presenter_meta) ? p.presenter_meta[0] : p.presenter_meta;
-                      return meta?.category?.toLowerCase() === selectedCategory;
-                  }),
+                    const meta = Array.isArray(p.presenter_meta) ? p.presenter_meta[0] : p.presenter_meta;
+                    return meta?.category?.toLowerCase() === selectedCategory;
+                }),
         [presenters, selectedCategory],
     );
 
@@ -195,8 +211,14 @@ export function PresenterGrid({ presenters, selectedCategory = "all", onCategory
 
             {/* Presenter Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredPresenters.map((presenter) => (
-                    <PresenterCard key={presenter.id} presenter={presenter} clickable={clickable} />
+                {filteredPresenters.map((presenter, index) => (
+                    <PresenterCard
+                        key={presenter.id}
+                        presenter={presenter}
+                        clickable={clickable}
+                        priority={index < 4}
+                        isLiked={likedPresenterIds.includes(presenter.id)}
+                    />
                 ))}
             </div>
 

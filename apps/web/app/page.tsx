@@ -28,7 +28,7 @@ export default function Home() {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
     return d;
-  }, [new Date().toLocaleDateString()]); // Only changes when the date actual rolls over
+  }, []); // Only calculate once on mount
 
   const { schedule: todaySchedule, loading: scheduleLoading } =
     useSchedule(todayDate);
@@ -106,8 +106,8 @@ export default function Home() {
 
   const artwork =
     !isGenericMetadata &&
-      currentTrack.artwork &&
-      currentTrack.artwork !== "/placeholder-cover.jpg"
+    currentTrack.artwork &&
+    currentTrack.artwork !== "/placeholder-cover.jpg"
       ? currentTrack.artwork
       : currentShow?.shows?.cover_image_url || "/placeholder-cover.jpg";
 
@@ -247,7 +247,7 @@ export default function Home() {
               {/* Infinite Radar Ping Ring Effect */}
 
               <Link
-                href="/partnership"
+                href="/popeyesuk"
                 className="relative h-full w-full aspect-video md:aspect-auto md:h-[450px] overflow-hidden rounded-2xl border border-[#F96D00] bg-card transition-all duration-500 hover:-translate-y-2 block shadow-[0_0_50px_rgba(249,109,0,0.4)] hover:shadow-[0_0_80px_rgba(249,109,0,0.6)]"
               >
                 <Image

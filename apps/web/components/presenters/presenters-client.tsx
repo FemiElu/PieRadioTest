@@ -7,9 +7,10 @@ interface PresentersClientProps {
     initialPresenters: Presenter[];
     executives?: Presenter[];
     seniorLeadership?: Presenter[];
+    likedPresenterIds?: string[];
 }
 
-export function PresentersClient({ initialPresenters, executives = [], seniorLeadership = [] }: PresentersClientProps) {
+export function PresentersClient({ initialPresenters, executives = [], seniorLeadership = [], likedPresenterIds = [] }: PresentersClientProps) {
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [, startTransition] = useTransition();
 
@@ -30,6 +31,7 @@ export function PresentersClient({ initialPresenters, executives = [], seniorLea
                     presenters={initialPresenters}
                     selectedCategory={selectedCategory}
                     onCategoryChange={handleCategoryChange}
+                    likedPresenterIds={likedPresenterIds}
                 />
             </section>
 
