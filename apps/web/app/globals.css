@@ -111,3 +111,11 @@
 .font-display {
   font-family: var(--font-outfit);
 }
+
+/* Shared utility for gradient text across pages */
+.gradient-text {
+  background: linear-gradient(135deg, #FF6A00, #A31919);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

@@ -21,7 +21,7 @@ const navigation = [
     { name: "Schedule", href: "/schedule" },
     { name: "Presenters", href: "/presenters" },
     { name: "Events", href: "/events" },
-    { name: "News", href: "/news" },
+    { name: "News", href: "/press" },
 ];
 
 export function Header() {
