@@ -292,6 +292,7 @@ export default function PopeyesUkPage() {
               className="h-[73px] sm:h-[55px] lg:h-[73px] w-auto"
               quality={100}
               priority
+              unoptimized
             />
           </div>
 
@@ -312,8 +313,8 @@ export default function PopeyesUkPage() {
               <p>
                 Our DJs, presenters, and special guests will be supplying the
                 vibes at upcoming Popeyes® UK openings including the
-                anticipated launch on Wilmslow Road featuring Saoirse Marie.
-                (Line-ups subject to change with more information to be
+                anticipated launch on Wilmslow Road featuring Saoirse Marie & DJ
+                G2. (Line-ups subject to change with more information to be
                 announced soon). Expect high energy, live broadcasts, and the
                 unmistakable Pie Radio atmosphere, right in the heart of
                 Popeyes® iconic launch day.
@@ -321,7 +322,7 @@ export default function PopeyesUkPage() {
 
               <div className="space-y-2 pt-2">
                 <p className="text-popeyes-orange text-xs sm:text-sm font-bold uppercase tracking-[0.2em]">
-                  The Source Radio Show - Powered by Popeyes
+                  The Source Radio Show - Powered by Popeyes® UK{" "}
                 </p>
                 <p>
                   Launching Tuesday, 14th April and running until Tuesday 26th
