@@ -281,7 +281,14 @@ export default function PopeyesUkPage() {
               className="h-8 sm:h-10 lg:h-12 w-auto"
               priority
             />
-            <span className="text-white/50 text-2xl sm:text-3xl font-bold">
+            <span
+              className="flex items-center justify-center text-white/50 text-2xl sm:text-3xl font-bold ml-2"
+              style={{
+                height: "max(3rem, 100%)",
+                minHeight: "2.5rem",
+                lineHeight: 1,
+              }}
+            >
               ×
             </span>
             <Image
