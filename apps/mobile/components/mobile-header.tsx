@@ -35,26 +35,23 @@ export function MobileHeader({ title = "PIE RADIO" }: MobileHeaderProps) {
     };
 
     return (
-        <View className="flex-row items-center justify-between px-4 py-3 bg-background border-b border-zinc-900">
+        <View className="flex-row items-center justify-between px-4 py-3 bg-white border-b border-zinc-100">
             <View className="flex-row items-center gap-2">
-                {/* Logo or Title */}
-                {/* If needed we can add a small logo here */}
-                <Text className="text-white font-black text-xl italic tracking-tighter">{title}</Text>
+                <Text className="text-zinc-900 font-black text-xl italic ">{title}</Text>
             </View>
 
             <TouchableOpacity
                 onPress={handleUserPress}
-                className="w-10 h-10 rounded-full bg-zinc-800 items-center justify-center border border-zinc-700"
+                className="w-10 h-10 rounded-full bg-zinc-50 items-center justify-center border border-zinc-100"
             >
                 {isAuthenticated ? (
                     <View className="items-center justify-center">
-                        {/* Use profile initial or icon */}
                         <Text className="text-primary font-bold text-lg">
                             {profile?.full_name?.charAt(0).toUpperCase() || "U"}
                         </Text>
                     </View>
                 ) : (
-                    <Ionicons name="person-outline" size={20} color="#a1a1aa" />
+                    <Ionicons name="person-outline" size={20} color="#71717a" />
                 )}
             </TouchableOpacity>
         </View>

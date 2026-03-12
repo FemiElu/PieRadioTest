@@ -88,7 +88,7 @@ export default function PresentersScreen() {
                     {item.full_name || item.username}
                 </Text>
                 {/* Show bio or generic text */}
-                <Text className="text-zinc-400 text-xs mt-0.5 line-clamp-1" numberOfLines={1}>
+                <Text className="text-zinc-400 text-xs mt-0.5" numberOfLines={1}>
                     {item.bio || "Presenter"}
                 </Text>
 

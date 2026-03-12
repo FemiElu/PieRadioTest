@@ -128,7 +128,7 @@ export default function ScheduleScreen() {
             >
                 {/* Compact Header */}
                 <View className="px-5 pt-3 pb-4">
-                    <Text className="text-white font-bold text-2xl font-display tracking-tight text-center mb-0.5">
+                    <Text className="text-white font-bold text-2xl   text-center mb-0.5">
                         Schedule
                     </Text>
                     <Text className="text-zinc-400 text-sm font-medium text-center">
