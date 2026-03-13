@@ -14,15 +14,29 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: false,
   },
   images: {
+    loader: 'custom',
+    loaderFile: './supabase-image-loader.js',
     remotePatterns: [
       {
         protocol: 'https',
         hostname: '**.aiir.com'
       },
+      // Supabase Image Transformation (Rendering)
+      {
+        protocol: 'https',
+        hostname: 'eybfcekeksdcnimfkgkc.supabase.co',
+        pathname: '/storage/v1/render/image/public/**',
+      },
+      // Standard Supabase Storage
       {
         protocol: 'https',
         hostname: 'eybfcekeksdcnimfkgkc.supabase.co',
         pathname: '/storage/v1/object/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/storage/v1/render/image/public/**',
       },
       {
         protocol: 'https',
