@@ -323,9 +323,9 @@ export default function PopeyesUkPage() {
             <div className="space-y-4 text-sm sm:text-base lg:text-lg text-zinc-300 leading-relaxed">
               <p>
                 Pie Radio has teamed up with Popeyes® UK, the global home of
-                bold New Orleans flavour. Together, we&apos;re bringing the energy of
-                music, culture and community to a series of upcoming store
-                openings.
+                bold New Orleans flavour. Together, we&apos;re bringing the
+                energy of music, culture and community to a series of upcoming
+                store openings.
               </p>
 
               <p>
@@ -337,7 +337,7 @@ export default function PopeyesUkPage() {
               </p>
 
               <div className="space-y-2 pt-2">
-                <p className="text-popeyes-orange text-xs sm:text-sm font-bold uppercase tracking-[0.2em]">
+                <p className="text-popeyes-orange md:text-lg sm:text-sm font-bold uppercase tracking-[0.2em]">
                   The Source Radio Show - Powered by Popeyes® UK{" "}
                 </p>
                 <p>
@@ -375,22 +375,6 @@ export default function PopeyesUkPage() {
                 </p>
               </div>
               <p>Capacity is limited - sign up now 🎶🍗</p>
-
-              <label className="flex justify-center items-center items-start gap-2 text-xs md:text-sm text-white/80">
-                <input
-                  type="checkbox"
-                  checked={agreeToMarketing}
-                  onChange={(e) => {
-                    setAgreeToMarketing(e.target.checked);
-                    if (formError) setFormError("");
-                  }}
-                  className="mt-1 h-4 w-4 accent-popeyes-orange rounded border-white/20 bg-white/10 text-popeyes-orange focus:ring-popeyes-orange"
-                />
-                <span className="leading-tight">
-                  I agree to receive marketing emails, updates, and special
-                  offers from Popeyes® UK.
-                </span>
-              </label>
             </div>
           </div>
 
@@ -584,6 +568,21 @@ export default function PopeyesUkPage() {
                       autoComplete="email"
                     />
                   </div>
+                  <label className="flex justify-center items-center items-start gap-2 text-xs md:text-sm text-white/80">
+                    <input
+                      type="checkbox"
+                      checked={agreeToMarketing}
+                      onChange={(e) => {
+                        setAgreeToMarketing(e.target.checked);
+                        if (formError) setFormError("");
+                      }}
+                      className="mt-1 h-4 w-4 accent-popeyes-orange rounded border-white/20 bg-white/10 text-popeyes-orange focus:ring-popeyes-orange"
+                    />
+                    <span className="leading-tight text-popeyes-orange font-xs text-start">
+                      I agree to receive marketing emails, updates, and special
+                      offers from Popeyes® UK.
+                    </span>
+                  </label>
 
                   {formError && (
                     <p
