@@ -323,7 +323,7 @@ export default function PopeyesUkPage() {
             <div className="space-y-4 text-sm sm:text-base lg:text-lg text-zinc-300 leading-relaxed">
               <p>
                 Pie Radio has teamed up with Popeyes® UK, the global home of
-                bold New Orleans flavour. Together, we're bringing the energy of
+                bold New Orleans flavour. Together, we&apos;re bringing the energy of
                 music, culture and community to a series of upcoming store
                 openings.
               </p>
