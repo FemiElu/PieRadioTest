@@ -185,6 +185,7 @@ export default function PopeyesUkPage() {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [city, setCity] = useState("");
+  const [agreeToMarketing, setAgreeToMarketing] = useState(false);
   const [formError, setFormError] = useState("");
   const [formSuccess, setFormSuccess] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -212,6 +213,13 @@ export default function PopeyesUkPage() {
     e.preventDefault();
     setFormError("");
 
+    if (!agreeToMarketing) {
+      setFormError(
+        "Please agree to receive marketing emails, updates, and special offers to join the waitlist.",
+      );
+      return;
+    }
+
     const formData = new FormData(e.currentTarget as HTMLFormElement);
     const nameVal = formData.get("fullName")?.toString() || "";
     const emailVal = formData.get("email")?.toString() || "";
@@ -233,6 +241,9 @@ export default function PopeyesUkPage() {
       if (response.success) {
         setFormSuccess(true);
         setShowConfetti(true);
+        setAgreeToMarketing(false);
+        setEmail("");
+        setFullName("");
         pushEvent("waitlist_signup", { email: result.data.email });
         setTimeout(() => setShowConfetti(false), 2000);
       } else {
@@ -311,20 +322,18 @@ export default function PopeyesUkPage() {
           <div className="max-w-2xl mb-6 sm:mb-8">
             <div className="space-y-4 text-sm sm:text-base lg:text-lg text-zinc-300 leading-relaxed">
               <p>
-                Pie Radio is proud to announce our new partnership with
-                Popeyes® UK, the global home of bold New Orleans flavours. This
-                collaboration brings together two cultures built on energy,
-                community, creativity, flavourful food and great sound.
+                Pie Radio has teamed up with Popeyes® UK, the global home of
+                bold New Orleans flavour. Together, we're bringing the energy of
+                music, culture and community to a series of upcoming store
+                openings.
               </p>
 
               <p>
-                Our DJs, presenters, and special guests will be supplying the
-                vibes at upcoming Popeyes® UK openings including the
-                anticipated launch on Wilmslow Road featuring Saoirse Marie & DJ
-                G2. (Line-ups subject to change with more information to be
-                announced soon). Expect high energy, live broadcasts, and the
-                unmistakable Pie Radio atmosphere, right in the heart of
-                Popeyes® iconic launch day.
+                Our DJs, presenters and special guests will be supplying the
+                soundtrack - including the highly anticipated Wilmslow Road
+                launch featuring Saoirse Marie and DJ G2. (Line-ups subject to
+                change. More details coming soon.) Expect live broadcasts and
+                big energy as Popeyes® brings its bold flavour to launch day.
               </p>
 
               <div className="space-y-2 pt-2">
@@ -332,37 +341,56 @@ export default function PopeyesUkPage() {
                   The Source Radio Show - Powered by Popeyes® UK{" "}
                 </p>
                 <p>
-                  Launching Tuesday, 14th April and running until Tuesday 26th
-                  May, we&apos;re bringing you a brand-new weekly show: The
-                  Source Radio Show, Powered by Popeyes® UK, Every Tuesday, 5pm
-                  - 6pm PM with DJ G.A.S.K.I.N and ELISHA.
+                  Launching{" "}
+                  <span className="font-bold">
+                    Tuesday 14 April - Tuesday 26 May
+                  </span>
                 </p>
                 <p>
-                  Across five weeks, we&apos;ll explore the spirit of New
-                  Orleans, from music and culture to food and its influence on
-                  Manchester&apos;s sound and identity.
+                  A brand-new weekly show exploring the sounds, culture and
+                  influence of New Orleans - and its connection to Manchester.
                 </p>
-                <ul className="list-disc pl-5 space-y-1 marker:text-popeyes-orange/90">
-                  <li>Cultural deep dives</li>
-                  <li>Guest DJs and presenters</li>
-                  <li>Weekly giveaways and competitions</li>
-                </ul>
+                <p>
+                  Every <span className="font-bold">Tuesday | 5 - 6PM</span>{" "}
+                  with{" "}
+                  <span className="font-bold">DJ G.A.S.K.I.N & ELISHA</span>
+                </p>
+
+                <div className="pt-2">
+                  <p>Expect:</p>
+                  <ul className="list-disc pl-5 space-y-1 marker:text-popeyes-orange/90">
+                    <li>Guest DJs & presenters</li>
+                    <li>Cultural deep dives</li>
+                    <li>Weekly giveaways</li>
+                  </ul>
+                </div>
               </div>
 
               <div className="space-y-2 pt-2">
-                <p className="text-popeyes-orange text-xs sm:text-sm font-bold uppercase tracking-[0.2em]">
-                  Live Party in Manchester
-                </p>
                 <p>
                   We&apos;re closing the series in style with a live celebration
-                  in Manchester (location and date to be announced). Featuring a
-                  curated lineup of Manchester artists, DJs, and special guests
-                  alongside limited-edition Popeyes® UK merch and food from
-                  their signature Louisiana menu. This will be a high-energy
-                  fusion of sound, culture, and community. Capacity is limited.
-                  Sign up now to secure your tickets.
+                  in Manchester (date and location TBA) featuring Manchester
+                  artists, DJs, special guests, limited-edition Popeyes® UK
+                  merch, and food from their Louisiana menu.
                 </p>
               </div>
+              <p>Capacity is limited - sign up now 🎶🍗</p>
+
+              <label className="flex justify-center items-center items-start gap-2 text-xs md:text-sm text-white/80">
+                <input
+                  type="checkbox"
+                  checked={agreeToMarketing}
+                  onChange={(e) => {
+                    setAgreeToMarketing(e.target.checked);
+                    if (formError) setFormError("");
+                  }}
+                  className="mt-1 h-4 w-4 accent-popeyes-orange rounded border-white/20 bg-white/10 text-popeyes-orange focus:ring-popeyes-orange"
+                />
+                <span className="leading-tight">
+                  I agree to receive marketing emails, updates, and special
+                  offers from Popeyes® UK.
+                </span>
+              </label>
             </div>
           </div>
 
