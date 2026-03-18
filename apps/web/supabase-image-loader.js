@@ -22,8 +22,19 @@ export default function supabaseLoader({ src, width, quality }) {
     }
 
     // 2. Handle External Images (Unsplash, Apple Music, etc.)
-    // If after cleaning it still starts with http, it's a truly external image
-    if (path.startsWith('http')) {
+    // Detect if this is a truly external image
+    const isExternal = path.startsWith('http') || 
+                       path.includes('mzstatic.com') || 
+                       path.includes('unsplash.com') ||
+                       path.includes('googleusercontent.com');
+
+    if (isExternal) {
+        // Ensure it has a protocol if it's protocol-relative
+        if (path.startsWith('//')) {
+            path = `https:${path}`;
+        } else if (!path.startsWith('http')) {
+            path = `https://${path}`;
+        }
         // Handle Unsplash optimization
         if (path.includes('images.unsplash.com')) {
             try {
