@@ -5,11 +5,11 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight, PlayCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { NewsArticle } from "@/lib/mock-news";
+import type { NewsArticleCard } from "@/lib/news/types";
 import Link from "next/link";
 
 interface NewsHeroProps {
-    articles: NewsArticle[];
+    articles: NewsArticleCard[];
 }
 
 export function NewsHero({ articles }: NewsHeroProps) {
@@ -33,45 +33,45 @@ export function NewsHero({ articles }: NewsHeroProps) {
     const currentArticle = articles[currentIndex];
 
     return (
-        <div className="relative group aspect-[16/9] md:aspect-[21/9] w-full overflow-hidden rounded-2xl md:rounded-3xl bg-zinc-100">
+        <div className="relative group aspect-[4/5] sm:aspect-[16/9] md:aspect-[21/9] w-full overflow-hidden rounded-2xl md:rounded-3xl bg-zinc-100">
             {/* Article Image */}
             <div className="absolute inset-0 transition-transform duration-700 ease-in-out">
                 <Image
-                    src={currentArticle.imageUrl || "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&q=80&w=1200"}
+                    src={currentArticle.cover_image_url || "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&q=80&w=1200"}
                     alt={currentArticle.title}
                     fill
                     className="object-cover"
                     priority
                 />
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                {/* Overlay - Taller gradient on mobile to ensure text readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent sm:via-black/20" />
             </div>
 
             {/* Content */}
-            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 text-white">
-                <div className="flex flex-col gap-3 md:gap-4 max-w-3xl">
+            <div className="absolute bottom-0 left-0 right-0 p-5 md:p-10 text-white">
+                <div className="flex flex-col gap-2 md:gap-4 max-w-3xl">
                     <div className="flex items-center gap-2">
-                        <span className="px-3 py-1 bg-red-600 text-white text-[10px] md:text-xs uppercase font-bold tracking-widest rounded-full animate-pulse">
+                        <span className="px-2 py-0.5 md:px-3 md:py-1 bg-red-600 text-white text-[9px] md:text-xs uppercase font-bold tracking-widest rounded-full animate-pulse">
                             ● BREAKING
                         </span>
-                        <span className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-[10px] md:text-xs uppercase font-bold tracking-widest rounded-full">
+                        <span className="px-2 py-0.5 md:px-3 md:py-1 bg-white/20 backdrop-blur-sm text-white text-[9px] md:text-xs uppercase font-bold tracking-widest rounded-full">
                             {currentArticle.category}
                         </span>
                     </div>
 
-                    <h2 className="text-2xl md:text-5xl font-bold font-display leading-tight">
+                    <h2 className="text-xl md:text-3xl font-bold font-display leading-tight">
                         {currentArticle.title}
                     </h2>
 
-                    <p className="text-zinc-200 text-sm md:text-lg line-clamp-2 md:line-clamp-none max-w-2xl">
+                    <p className="text-zinc-200 text-xs md:text-lg line-clamp-3 md:line-clamp-none max-w-2xl opacity-90">
                         {currentArticle.summary}
                     </p>
 
-                    <div className="flex items-center gap-4 pt-2">
-                        <Link href={`/news/${currentArticle.id}`}>
-                            <Button className="bg-primary hover:bg-primary/90 text-white font-bold rounded-full px-6 md:px-8 py-6 flex items-center gap-2 text-sm md:text-base transition-all hover:scale-105 active:scale-95">
+                    <div className="flex items-center gap-4 pt-1 md:pt-2">
+                        <Link href={`/news/${currentArticle.slug}`}>
+                            <Button className="bg-primary hover:bg-primary/90 text-white font-bold rounded-full px-5 py-5 md:px-8 md:py-6 flex items-center gap-2 text-xs md:text-base transition-all hover:scale-105 active:scale-95 shadow-lg">
                                 Read & Listen
-                                <PlayCircle className="w-5 h-5" />
+                                <PlayCircle className="w-4 h-4 md:w-5 md:h-5" />
                             </Button>
                         </Link>
                     </div>

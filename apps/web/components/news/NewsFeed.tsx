@@ -1,6 +1,6 @@
 "use client";
 
-import { NewsArticle, MOCK_ARTICLES } from "@/lib/mock-news";
+import type { NewsArticleCard } from "@/lib/news/types";
 import {
     BreakingCard,
     TrendingCard,
@@ -12,10 +12,11 @@ import { PollCard } from "./PollCard";
 import { Button } from "@/components/ui/button";
 
 interface NewsFeedProps {
-    articles: NewsArticle[];
+    articles: NewsArticleCard[];
+    totalArticles: number;
 }
 
-export function NewsFeed({ articles }: NewsFeedProps) {
+export function NewsFeed({ articles, totalArticles }: NewsFeedProps) {
     // Cadence Pattern:
     // - 4 small cards (UpdateCard)
     // - 1 medium card (TrendingCard)
@@ -95,15 +96,25 @@ export function NewsFeed({ articles }: NewsFeedProps) {
         return feedElements;
     };
 
+    const hasMore = articles.length < totalArticles;
+
     return (
         <div className="flex flex-col gap-6">
             {renderFeed()}
 
-            {/* Infinite Scroll Mock */}
-            <div className="flex justify-center pt-8">
-                <Button variant="outline" className="rounded-full px-8">
-                    Load More
-                </Button>
+            <div className="flex justify-center pt-12 pb-8">
+                {hasMore ? (
+                    <Button variant="outline" className="rounded-full px-10 h-12 font-bold hover:bg-zinc-50 transition-all">
+                        Load More Articles
+                    </Button>
+                ) : (
+                    <div className="flex flex-col items-center gap-3 text-zinc-400 animate-fade-in">
+                        <div className="h-px w-12 bg-zinc-100" />
+                        <p className="text-sm font-medium italic">
+                            You&apos;re all caught up for now
+                        </p>
+                    </div>
+                )}
             </div>
         </div>
     );
