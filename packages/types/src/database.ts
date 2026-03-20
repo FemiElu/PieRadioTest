@@ -6,6 +6,13 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+/** Shape of each entry in the news_articles.audio_moments JSONB column. */
+export type AudioMomentJson = {
+  id?: string;
+  label: string;
+  time_seconds: number;
+};
+
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
@@ -456,34 +463,70 @@ export type Database = {
       };
       news_articles: {
         Row: {
-          author_id: string | null;
-          content: string;
-          cover_image_url: string | null;
-          created_at: string | null;
           id: string;
-          published_at: string | null;
           slug: string;
           title: string;
+          content: string;
+          summary: string | null;
+          cover_image_url: string | null;
+          author_id: string | null;
+          author_name: string | null;
+          tier: 'breaking' | 'trending' | 'update' | 'archive' | 'audio' | 'poll' | 'sponsor';
+          category: string | null;
+          status: 'draft' | 'published' | 'archived';
+          is_breaking: boolean;
+          audio_preview_url: string | null;
+          audio_moments: AudioMomentJson[] | null;
+          likes_count: number;
+          comments_count: number;
+          shares_count: number;
+          published_at: string | null;
+          created_at: string | null;
+          updated_at: string | null;
         };
         Insert: {
-          author_id?: string | null;
-          content: string;
-          cover_image_url?: string | null;
-          created_at?: string | null;
           id?: string;
-          published_at?: string | null;
           slug: string;
           title: string;
+          content: string;
+          summary?: string | null;
+          cover_image_url?: string | null;
+          author_id?: string | null;
+          author_name?: string | null;
+          tier?: 'breaking' | 'trending' | 'update' | 'archive' | 'audio' | 'poll' | 'sponsor';
+          category?: string | null;
+          status?: 'draft' | 'published' | 'archived';
+          is_breaking?: boolean;
+          audio_preview_url?: string | null;
+          audio_moments?: AudioMomentJson[] | null;
+          likes_count?: number;
+          comments_count?: number;
+          shares_count?: number;
+          published_at?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
         };
         Update: {
-          author_id?: string | null;
-          content?: string;
-          cover_image_url?: string | null;
-          created_at?: string | null;
           id?: string;
-          published_at?: string | null;
           slug?: string;
           title?: string;
+          content?: string;
+          summary?: string | null;
+          cover_image_url?: string | null;
+          author_id?: string | null;
+          author_name?: string | null;
+          tier?: 'breaking' | 'trending' | 'update' | 'archive' | 'audio' | 'poll' | 'sponsor';
+          category?: string | null;
+          status?: 'draft' | 'published' | 'archived';
+          is_breaking?: boolean;
+          audio_preview_url?: string | null;
+          audio_moments?: AudioMomentJson[] | null;
+          likes_count?: number;
+          comments_count?: number;
+          shares_count?: number;
+          published_at?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
         };
         Relationships: [
           {

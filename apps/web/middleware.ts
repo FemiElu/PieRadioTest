@@ -164,12 +164,12 @@ export async function middleware(request: NextRequest) {
         script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com blob:;
         worker-src 'self' blob:;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-        img-src 'self' blob: data: https://*.supabase.co https://*.unsplash.com https://*.googleusercontent.com https://i.scdn.co https://cdn.discordapp.com https://*.mzstatic.com https://is*.mzstatic.com https://itunes.apple.com https://*.apple.com;
+        img-src 'self' blob: data: https://*.supabase.co https://*.unsplash.com https://*.googleusercontent.com https://i.scdn.co https://cdn.discordapp.com https://*.mzstatic.com https://itunes.apple.com;
         font-src 'self' https://fonts.gstatic.com;
-        connect-src 'self' ${supabaseUrl} https://*.supabase.co wss://*.supabase.co https://*.aiir.com https://api.stripe.com https://itunes.apple.com https://*.apple.com;
+        connect-src 'self' ${supabaseUrl} https://*.supabase.co wss://*.supabase.co https://*.aiir.com https://api.stripe.com https://itunes.apple.com;
         media-src 'self' https://*.aiir.com ${supabaseUrl} https://*.supabase.co blob: data:;
         frame-src 'self' https://js.stripe.com;
-    `.replace(/\s+/g, " ").trim();
+    `.replace(/\s{2,}/g, " ").trim();
 
     response.headers.set("Content-Security-Policy", cspHeader);
     response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
