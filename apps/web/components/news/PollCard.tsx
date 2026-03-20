@@ -4,10 +4,10 @@ import { useState } from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { NewsArticle } from "@/lib/mock-news";
+import type { NewsArticleCard } from "@/lib/news/types";
 
 interface PollCardProps {
-    article: NewsArticle;
+    article: NewsArticleCard;
     className?: string;
 }
 

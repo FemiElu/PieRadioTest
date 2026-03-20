@@ -2,26 +2,39 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { MessageSquare, Share2, Heart, Play, Clock } from "lucide-react";
+import { MessageSquare, Share2, Heart, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { NewsArticle } from "@/lib/mock-news";
+import type { NewsArticleCard } from "@/lib/news/types";
 import { useAudio } from "@/context/audio-context";
 import { Button } from "../ui/button";
 
 interface CardProps {
-    article: NewsArticle;
+    article: NewsArticleCard;
     className?: string;
+}
+
+function formatDisplayTime(ts: string | null): string {
+    if (!ts) return "";
+    try {
+        return new Intl.DateTimeFormat("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric"
+        }).format(new Date(ts));
+    } catch {
+        return ts;
+    }
 }
 
 // Tier 1: Breaking (Already covered by Hero, but maybe a smaller version for feed)
 export function BreakingCard({ article, className }: CardProps) {
     return (
         <Link
-            href={`/news/${article.id}`}
+            href={`/news/${article.slug}`}
             className={cn("group relative block overflow-hidden rounded-3xl bg-zinc-900 aspect-[16/10]", className)}
         >
             <Image
-                src={article.imageUrl || ""}
+                src={article.cover_image_url || ""}
                 alt={article.title}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105 opacity-80"
@@ -44,12 +57,12 @@ export function BreakingCard({ article, className }: CardProps) {
 export function TrendingCard({ article, className }: CardProps) {
     return (
         <Link
-            href={`/news/${article.id}`}
+            href={`/news/${article.slug}`}
             className={cn("group flex flex-col gap-4 p-4 rounded-3xl bg-white border border-zinc-100 hover:border-primary/20 hover:shadow-xl transition-all duration-300", className)}
         >
             <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl">
                 <Image
-                    src={article.imageUrl || ""}
+                    src={article.cover_image_url || ""}
                     alt={article.title}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -68,13 +81,13 @@ export function TrendingCard({ article, className }: CardProps) {
                 <div className="flex items-center justify-between mt-2 pt-4 border-t border-zinc-50">
                     <div className="flex items-center gap-3 text-zinc-400">
                         <span className="flex items-center gap-1 text-xs">
-                            <Heart className="w-3.5 h-3.5" /> {article.likes || 0}
+                            <Heart className="w-3.5 h-3.5" /> {article.likes_count}
                         </span>
                         <span className="flex items-center gap-1 text-xs">
-                            <MessageSquare className="w-3.5 h-3.5" /> {article.comments || 0}
+                            <MessageSquare className="w-3.5 h-3.5" /> {article.comments_count}
                         </span>
                     </div>
-                    <span className="text-[10px] text-zinc-400 font-medium uppercase">{article.time}</span>
+                    <span className="text-[10px] text-zinc-400 font-medium uppercase">{formatDisplayTime(article.published_at ?? article.created_at)}</span>
                 </div>
             </div>
         </Link>
@@ -85,12 +98,12 @@ export function TrendingCard({ article, className }: CardProps) {
 export function UpdateCard({ article, className }: CardProps) {
     return (
         <Link
-            href={`/news/${article.id}`}
+            href={`/news/${article.slug}`}
             className={cn("group flex gap-4 p-3 rounded-2xl hover:bg-zinc-50 transition-colors", className)}
         >
             <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-zinc-100">
                 <Image
-                    src={article.imageUrl || "/assets/placeholder.png"}
+                    src={article.cover_image_url || "/assets/placeholder.png"}
                     alt={article.title}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -101,7 +114,7 @@ export function UpdateCard({ article, className }: CardProps) {
                 <h3 className="text-sm font-bold leading-snug group-hover:text-primary transition-colors line-clamp-2">
                     {article.title}
                 </h3>
-                <span className="text-[10px] text-zinc-400">{article.time}</span>
+                <span className="text-[10px] text-zinc-400">{formatDisplayTime(article.published_at ?? article.created_at)}</span>
             </div>
         </Link>
     );
@@ -111,7 +124,7 @@ export function UpdateCard({ article, className }: CardProps) {
 export function ArchiveCard({ article, className }: CardProps) {
     return (
         <Link
-            href={`/news/${article.id}`}
+            href={`/news/${article.slug}`}
             className={cn("group flex items-center justify-between py-4 border-b border-zinc-100 hover:px-2 transition-all", className)}
         >
             <div className="flex flex-col gap-1">
@@ -120,7 +133,7 @@ export function ArchiveCard({ article, className }: CardProps) {
                 </h3>
                 <div className="flex items-center gap-2">
                     <span className="text-[10px] px-1.5 py-0.5 bg-zinc-100 text-zinc-500 rounded uppercase font-bold">{article.category}</span>
-                    <span className="text-[10px] text-zinc-400">{article.time}</span>
+                    <span className="text-[10px] text-zinc-400">{formatDisplayTime(article.published_at ?? article.created_at)}</span>
                 </div>
             </div>
             <Share2 className="w-4 h-4 text-zinc-300 group-hover:text-primary transition-colors" />
@@ -148,10 +161,10 @@ export function AudioCard({ article, className }: CardProps) {
                 <div className="flex items-center gap-4 mt-2">
                     <Button
                         onClick={() => playClip(
-                            article.audio_preview || "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+                            article.audio_preview_url || "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
                             article.title,
-                            article.author,
-                            article.imageUrl
+                            article.author_name ?? "Pie Radio",
+                            article.cover_image_url ?? undefined
                         )}
                         className="bg-white text-black hover:bg-zinc-200 rounded-full font-bold flex items-center gap-2"
                     >

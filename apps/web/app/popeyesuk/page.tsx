@@ -69,6 +69,8 @@ function pushEvent(event: string, data?: Record<string, unknown>) {
   }
 }
 
+
+
 function Confetti({ show }: { show: boolean }) {
   if (!show) return null;
 
@@ -117,6 +119,9 @@ function SubmitButton() {
 
 function useScrollReveal() {
   const ref = useRef<HTMLDivElement>(null);
+
+
+
 
   useEffect(() => {
     const el = ref.current;
@@ -310,7 +315,6 @@ export default function PopeyesUkPage() {
               className="h-[73px] sm:h-[55px] lg:h-[73px] w-auto"
               quality={100}
               priority
-              unoptimized
             />
           </div>
 

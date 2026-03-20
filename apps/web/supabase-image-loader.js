@@ -22,19 +22,8 @@ export default function supabaseLoader({ src, width, quality }) {
     }
 
     // 2. Handle External Images (Unsplash, Apple Music, etc.)
-    // Detect if this is a truly external image
-    const isExternal = path.startsWith('http') || 
-                       path.includes('mzstatic.com') || 
-                       path.includes('unsplash.com') ||
-                       path.includes('googleusercontent.com');
-
-    if (isExternal) {
-        // Ensure it has a protocol if it's protocol-relative
-        if (path.startsWith('//')) {
-            path = `https:${path}`;
-        } else if (!path.startsWith('http')) {
-            path = `https://${path}`;
-        }
+    // If after cleaning it still starts with http, it's a truly external image
+    if (path.startsWith('http')) {
         // Handle Unsplash optimization
         if (path.includes('images.unsplash.com')) {
             try {
@@ -79,7 +68,5 @@ export default function supabaseLoader({ src, width, quality }) {
 
     // 4. Construct the Final Transformation URL for Supabase Storage
     // The path at this point MUST be "bucket-name/image-name.jpg"
-    // Use resize=contain to ensure the entire image is returned (no server-side cropping)
-    // and let CSS handle the fit (maintaining the previous behavior).
     return `${supabaseUrl}/storage/v1/render/image/public/${path}?width=${width}&quality=${quality || 75}&resize=contain`;
 }
