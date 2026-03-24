@@ -74,16 +74,74 @@ export async function GET(request: Request) {
         });
 
         // 4. Fetch all profiles for presenter matching
-        const { data: profiles, error: profileErr } = await supabase.from('profiles').select('id, full_name, username');
+        // Fetch all profiles to link presenters by name/alias.
+        // We include the new presenter_alias column which is the primary bridge to the Google Sheet.
+        const { data: profiles, error: profileErr } = await supabase.from('profiles').select('id, full_name, username, presenter_alias');
         if (profileErr) throw new Error(`Profiles fetch failed: ${profileErr.message}`);
 
-        const profileLookup = (name: string) => {
+        // Normalise a name string for fuzzy matching: lowercase, strip non-alphanumeric
+        // characters (except spaces), then collapse multiple spaces. This lets us match
+        // "Joe Shamz" in the sheet to "joe shamz" in the DB, and handles cases like
+        // trailing punctuation or unicode apostrophes.
+        const normaliseName = (name: string) =>
+            name.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+
+        // Mapping of spreadsheet names (aliases) to DB profile names or usernames.
+        // This handles cases like "MARION" in the sheet matching "Marion Taba-Goma" in the DB.
+        const PRESENTER_MAPPING: Record<string, string> = {
+            'MARION': 'Marion Taba-Goma',
+            'KEMOY B': 'Kemoy Walker',
+            'JASON': 'Jason Da Costa',
+            'KANE': 'kane williams',
+            'KANE WILLIAM': 'kane williams',
+            'DJ WATTEH': 'Callum Watteh',
+            'DJ MALIBU': 'DJ Malibu',
+            'NANA': 'Nana Mwene',
+            'APHRODITE': 'Aphrodite', // Placeholder if exists
+            'LADY YOLA': 'Lady Yola', // Placeholder if exists
+            'PELUMI JOY': 'Pelumi Joy', // Placeholder if exists
+            'QUAN': 'Quantel', // Placeholder if exists
+        };
+
+        const profileLookup = (name: string): string | null => {
             if (!name) return null;
-            const normalized = name.toLowerCase().trim();
-            return profiles?.find(p =>
-                p.username?.toLowerCase() === normalized ||
-                p.full_name?.toLowerCase() === normalized
-            )?.id || null;
+            
+            const rawName = name.trim();
+            const upperName = rawName.toUpperCase();
+            
+            // 1. Try exact match on the new presenter_alias column (Highest priority)
+            const aliasMatch = profiles?.find(p => 
+                p.presenter_alias?.toUpperCase().trim() === upperName ||
+                (p.presenter_alias && normaliseName(p.presenter_alias) === normaliseName(rawName))
+            );
+            if (aliasMatch) return aliasMatch.id;
+
+            // 2. Try hard coded mapping table (Transition support)
+            const mappedName = PRESENTER_MAPPING[upperName];
+            const lookupName = mappedName || rawName;
+            
+            const normalised = normaliseName(lookupName);
+            const match = profiles?.find(p => {
+                const byUsername = p.username ? normaliseName(p.username) : null;
+                const byFullName = p.full_name ? normaliseName(p.full_name) : null;
+                return byUsername === normalised || byFullName === normalised;
+            });
+            
+            if (!match) {
+                // 3. Try partial match as fallback
+                const partialMatch = profiles?.find(p => {
+                    const fullName = (p.full_name || '').toLowerCase();
+                    const username = (p.username || '').toLowerCase();
+                    const n = normalised.toLowerCase();
+                    return fullName.includes(n) || username.includes(n);
+                });
+                
+                if (partialMatch) return partialMatch.id;
+                
+                console.warn(`[Cron Sync] No DB presenter matched for name: "${name}"`);
+                return null;
+            }
+            return match.id;
         };
 
         const scheduleEntries: any[] = [];

@@ -52,6 +52,7 @@ export interface PresenterFormData {
     instagram_handle: string;
     twitter_handle: string;
     website_url: string;
+    presenter_alias?: string;
 }
 
 interface PresenterShow {
@@ -88,6 +89,7 @@ const defaultFormData: PresenterFormData = {
     instagram_handle: "",
     twitter_handle: "",
     website_url: "",
+    presenter_alias: "",
 };
 
 // ---------------------------------------------------------------------------
@@ -234,6 +236,7 @@ export function PresenterFormModal({
                         email: formData.email,
                         bio: formData.bio,
                         avatar_url: formData.avatar_url,
+                        presenter_alias: formData.presenter_alias?.trim() || null,
                         slug,
                         updated_at: new Date().toISOString(),
                     } as any)
@@ -508,6 +511,22 @@ export function PresenterFormModal({
                                 <Label htmlFor="username">Username *</Label>
                                 <Input id="username" name="username" value={formData.username} onChange={handleInputChange} placeholder="sarah-wilson" required className="mt-1" />
                             </div>
+                        </div>
+
+                        {/* Schedule Alias */}
+                        <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10">
+                            <Label htmlFor="presenter_alias" className="text-primary font-bold">Schedule Alias (Google Sheet Name)</Label>
+                            <Input
+                                id="presenter_alias"
+                                name="presenter_alias"
+                                value={formData.presenter_alias}
+                                onChange={handleInputChange}
+                                placeholder="e.g. MARION or KANE WILLIAM"
+                                className="mt-1.5 bg-white"
+                            />
+                            <p className="text-xs text-muted-foreground mt-2">
+                                <strong>Crucial:</strong> This must match the name in the Google Sheet schedule exactly (e.g. &apos;Hosted by [Alias]&apos;) for the &quot;On Air&quot; badge to work.
+                            </p>
                         </div>
 
                         {/* Email */}

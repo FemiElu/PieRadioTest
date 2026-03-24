@@ -2,7 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 import { PresentersClient } from "@/components/presenters/presenters-client";
 import { getUserLikedIds } from "@/app/actions/favourites";
 
-export const revalidate = 3600; // Revalidate every hour
+// Revalidate every 60 seconds so the live indicator reflects the current schedule
+// within a reasonable lag window. 3600 (1hr) was far too stale for live content.
+export const revalidate = 60;
 
 export const metadata = {
     title: "Presenters | Pie Radio",
@@ -57,6 +59,18 @@ const SENIOR_LEADERSHIP_DATA = [
         bio: "Head of Music.",
         is_live: false,
         presenter_meta: { category: "Senior Leadership", instagram_handle: "adiva-destiny", twitter_handle: "adiva-destiny" },
+        shows: [],
+    },
+    {
+        id: "s3",
+        full_name: "Joel (TechOnit)",
+        username: "joel-techonit",
+        slug: "joel-techonit",
+        avatar_url: "/assets/Boss_upload.webp",
+        role: "Head Of Tech-Support",
+        bio: "Head Of Tech-Support Presenter of the BigBass Show Pie Radios Flagship House Show.",
+        is_live: false,
+        presenter_meta: { category: "Senior Leadership", instagram_handle: null, twitter_handle: null },
         shows: [],
     },
 ];
@@ -156,41 +170,70 @@ const DUMMY_PRESENTERS = [
 export default async function PresentersPage() {
     const supabase = await createClient();
 
-    // Fetch users with 'presenter' role
-    const { data: presenters, error } = await supabase
-        .from("profiles")
-        .select(`
-            id,
-            full_name,
-            username,
-            slug,
-            avatar_url,
-            bio,
-            is_live,
-            presenter_meta (
-                category,
-                instagram_handle,
-                twitter_handle
-            )
-        `)
-        .eq("role", "presenter")
-        .order("full_name");
+    // Run profiles query and live-presenter lookup in parallel to minimise latency.
+    // get_live_presenter_ids() returns an array of profile UUIDs that currently have
+    // an active schedule slot (NOW() BETWEEN start_time AND end_time). This is the
+    // single source of truth for live status — we deliberately ignore profiles.is_live
+    // which is a static field that is never automatically updated.
+    const [profilesResult, liveIdsResult, likedData] = await Promise.allSettled([
+        supabase
+            .from("profiles")
+            .select(`
+                id,
+                full_name,
+                username,
+                slug,
+                avatar_url,
+                bio,
+                presenter_meta (
+                    category,
+                    instagram_handle,
+                    twitter_handle
+                )
+            `)
+            .eq("role", "presenter")
+            .order("full_name"),
+        (supabase as any).rpc("get_live_presenter_ids"),
+        getUserLikedIds(),
+    ]);
 
-    if (error) {
-        console.error("Error fetching presenters:", error);
+    // Extract profiles
+    const profilesData = profilesResult.status === "fulfilled" ? profilesResult.value.data : null;
+    const profilesError = profilesResult.status === "fulfilled" ? profilesResult.value.error : profilesResult.reason;
+    if (profilesError) {
+        console.error("[PresentersPage] Error fetching presenters:", profilesError);
     }
 
-    // Fetch liked IDs for the current user
+    // Extract live presenter IDs — gracefully degrade to empty array on any error
+    const livePresenterIds: string[] = (() => {
+        if (liveIdsResult.status !== "fulfilled") {
+            console.error("[PresentersPage] Error fetching live presenter IDs:", liveIdsResult.reason);
+            return [];
+        }
+        if (liveIdsResult.value.error) {
+            console.error("[PresentersPage] RPC error for live presenter IDs:", liveIdsResult.value.error);
+            return [];
+        }
+        return (liveIdsResult.value.data as string[] | null) ?? [];
+    })();
+
+    // Extract liked IDs
     let likedPresenterIds: string[] = [];
-    try {
-        const likedData = await getUserLikedIds();
-        likedPresenterIds = likedData.presenterIds;
-    } catch (e) {
-        // Fallback for unauthenticated or other errors
+    if (likedData.status === "fulfilled") {
+        likedPresenterIds = likedData.value.presenterIds;
     }
+    // Silently ignore liked-data errors — non-critical for unauthenticated visitors
+
+    // Merge: override is_live using the schedule-derived live IDs.
+    // This replaces the stale profiles.is_live boolean with a real-time check.
+    const presentersWithLiveStatus = (profilesData ?? []).map((p) => ({
+        ...p,
+        is_live: livePresenterIds.includes(p.id),
+    }));
 
     // Use dummy data if no real presenters exist or there's an error
-    const displayPresenters = (presenters && presenters.length > 0) ? presenters : DUMMY_PRESENTERS;
+    const displayPresenters =
+        presentersWithLiveStatus.length > 0 ? presentersWithLiveStatus : DUMMY_PRESENTERS;
 
     return (
         <div className="flex flex-col w-full min-h-screen bg-background">

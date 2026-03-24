@@ -21,6 +21,7 @@ interface DisplayPresenter {
     is_live: boolean | null;
     role: string | null;
     created_at: string | null;
+    presenter_alias: string | null;
     presenter_meta: {
         category: string | null;
         instagram_handle: string | null;
@@ -58,6 +59,7 @@ export default function AdminPresentersClient() {
                         is_live,
                         role,
                         created_at,
+                        presenter_alias,
                         presenter_meta (
                             category,
                             instagram_handle,
@@ -122,6 +124,7 @@ export default function AdminPresentersClient() {
             instagram_handle: presenter.presenter_meta?.instagram_handle || "",
             twitter_handle: presenter.presenter_meta?.twitter_handle || "",
             website_url: presenter.presenter_meta?.website_url || "",
+            presenter_alias: presenter.presenter_alias || "",
         };
         setSelectedPresenter(formData);
         setIsModalOpen(true);

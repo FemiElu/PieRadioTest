@@ -22,6 +22,7 @@ export interface Presenter {
     instagram_handle: string | null;
     twitter_handle: string | null;
   } | null;
+  role?: string | null;
   shows?: {
     title: string;
     description: string | null;
@@ -116,7 +117,8 @@ const PresenterCard = memo(function PresenterCard({
 
         {/* Show Info */}
         <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
-          {presenter.shows?.[0]?.title ||
+          {presenter.role ||
+            presenter.shows?.[0]?.title ||
             (Array.isArray(presenter.presenter_meta)
               ? presenter.presenter_meta[0]?.category
               : presenter.presenter_meta?.category) ||
