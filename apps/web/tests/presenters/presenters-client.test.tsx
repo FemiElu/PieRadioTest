@@ -39,5 +39,33 @@ describe("PresentersClient", () => {
       screen.getByText(/test presenter/i),
     ).toBeInTheDocument();
   });
-});
 
+  it("shows 'On Air' badge when presenter is_live is true", () => {
+    const livePresenter = makePresenter({ id: "live-1", full_name: "Live Presenter", is_live: true });
+
+    render(
+      <PresentersClient
+        initialPresenters={[livePresenter]}
+        executives={[]}
+        seniorLeadership={[]}
+      />,
+    );
+
+    // The badge text is "On Air" — rendered when presenter.is_live === true
+    expect(screen.getByText(/on air/i)).toBeInTheDocument();
+  });
+
+  it("does not show 'On Air' badge when presenter is_live is false", () => {
+    const offAirPresenter = makePresenter({ id: "off-1", full_name: "Off Air Presenter", is_live: false });
+
+    render(
+      <PresentersClient
+        initialPresenters={[offAirPresenter]}
+        executives={[]}
+        seniorLeadership={[]}
+      />,
+    );
+
+    expect(screen.queryByText(/on air/i)).not.toBeInTheDocument();
+  });
+});
