@@ -374,8 +374,8 @@ export default function PopeyesUkPage() {
                 <p>
                   We&apos;re closing the series in style with a live celebration
                   in Manchester (date and location TBA) featuring Manchester
-                  artists, DJs, special guests, limited-edition Popeyes® UK
-                  merch, and food from their Louisiana menu.
+                  artists, DJs, special guests, limited-edition Popeyes® UK and
+                  merch.
                 </p>
               </div>
               <p>Capacity is limited - sign up now 🎶🍗</p>
