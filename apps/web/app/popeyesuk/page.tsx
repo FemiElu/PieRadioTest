@@ -536,7 +536,7 @@ export default function PopeyesUkPage() {
                 <div>
                   <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5 sm:mb-1">Date & Time</p>
                   <p className="text-xs sm:text-sm font-bold text-deep-text leading-tight">
-                    Friday 22nd May <span className="text-popeyes-orange opacity-50 sm:opacity-100">|</span> 7PM - 11:30PM
+                    Friday 22nd May . 7PM - 11:30PM
                   </p>
                 </div>
               </div>
