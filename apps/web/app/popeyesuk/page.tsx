@@ -8,6 +8,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Newspaper,
+  MapPin,
+  Calendar,
+  Ticket,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { z } from "zod";
@@ -239,7 +243,7 @@ export default function PopeyesUkPage() {
     try {
       // Append marketing consent to formData
       formData.append("marketingConsent", agreeToMarketing.toString());
-      
+
       const response = await joinWaitlist(null, formData);
 
       if (response.success) {
@@ -488,18 +492,67 @@ export default function PopeyesUkPage() {
       >
         <div className="container max-w-screen-2xl mx-auto px-4 md:px-8">
           <div className="max-w-xl mx-auto text-center scroll-reveal">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-display text-deep-text tracking-tight mb-4">
-              Join the Waitlist
-            </h2>
-            <div className="mb-8 space-y-3">
-              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                Sign up for{" "}
-                <span className="gradient-text font-semibold">
-                  exclusive early access & giveaway tickets
-                </span>
-                .
-              </p>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-popeyes-orange/10 text-popeyes-orange text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-4 sm:mb-6">
+              <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              Exclusive Event
             </div>
+
+            <h2 className="text-[2.75rem] sm:text-5xl lg:text-7xl font-black font-display text-deep-text tracking-tighter mb-2 leading-[0.9] italic uppercase">
+              Feel The <span className="text-popeyes-orange">Heat</span>
+            </h2>
+
+            <p className="text-base sm:text-xl font-bold text-popeyes-orange mb-6 px-4">
+              PIE Radio x Popeyes® · Exclusive Live Event
+            </p>
+
+
+            <div className="flex flex-wrap justify-center md:justify-center gap-1.5 sm:gap-2 mb-8 px-2">
+              {[
+                "Live DJ sets",
+                "Epic giveaways",
+                "Free Popeyes Chicken Sandwiches",
+              ].map((tag, i) => (
+                <span
+                  key={i}
+                  className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-deep-text text-white text-[10px] min-[400px]:text-xs font-bold leading-none"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-10 text-left px-2 sm:px-0">
+              <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-sm flex items-start gap-3 sm:block">
+                <MapPin className="w-5 h-5 text-popeyes-orange shrink-0 sm:mb-2" />
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5 sm:mb-1">Venue</p>
+                  <p className="text-xs sm:text-sm font-bold text-deep-text leading-tight">
+                    CUPRA City Garage, Manchester, M2 7LG
+                  </p>
+                </div>
+              </div>
+              <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-sm flex items-start gap-3 sm:block">
+                <Calendar className="w-5 h-5 text-popeyes-orange shrink-0 sm:mb-2" />
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5 sm:mb-1">Date & Time</p>
+                  <p className="text-xs sm:text-sm font-bold text-deep-text leading-tight">
+                    Friday 22nd May <span className="text-popeyes-orange opacity-50 sm:opacity-100">|</span> 7PM - 11:30PM
+                  </p>
+                </div>
+              </div>
+              <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-sm flex items-start gap-3 sm:block">
+                <Ticket className="w-5 h-5 text-popeyes-orange shrink-0 sm:mb-2" />
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5 sm:mb-1">Entry</p>
+                  <p className="text-xs sm:text-sm font-bold text-deep-text leading-tight uppercase">
+                    Free entry - <span className="text-[10px] font-normal italic lowercase opacity-70">exclusive guest list</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+
 
             {formSuccess ? (
               <div className="bg-white rounded-2xl border border-popeyes-orange/30 p-8 sm:p-10 text-center animate-slide-in-up">
