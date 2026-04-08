@@ -218,12 +218,8 @@ export default function PopeyesUkPage() {
     e.preventDefault();
     setFormError("");
 
-    if (!agreeToMarketing) {
-      setFormError(
-        "Please agree to receive marketing emails, updates, and special offers to join the waitlist.",
-      );
-      return;
-    }
+    // Marketing consent is now optional as requested.
+
 
     const formData = new FormData(e.currentTarget as HTMLFormElement);
     const nameVal = formData.get("fullName")?.toString() || "";
@@ -241,14 +237,19 @@ export default function PopeyesUkPage() {
     }
 
     try {
+      // Append marketing consent to formData
+      formData.append("marketingConsent", agreeToMarketing.toString());
+      
       const response = await joinWaitlist(null, formData);
 
       if (response.success) {
         setFormSuccess(true);
         setShowConfetti(true);
+        // Reset local state
         setAgreeToMarketing(false);
         setEmail("");
         setFullName("");
+
         pushEvent("waitlist_signup", { email: result.data.email });
         setTimeout(() => setShowConfetti(false), 2000);
       } else {
