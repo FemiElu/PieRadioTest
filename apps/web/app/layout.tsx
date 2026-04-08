@@ -4,6 +4,8 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "sonner";
 import { ClientProviders } from "@/components/providers/client-providers";
+import { EventWaitlistPopup } from "@/components/shared/EventWaitlistPopup";
+
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
@@ -23,6 +25,7 @@ export default function RootLayout({
       <body className={cn(inter.variable, outfit.variable, "font-sans min-h-screen bg-background text-foreground antialiased")}>
         <ClientProviders>
           {children}
+          <EventWaitlistPopup />
           <Toaster position="top-right" richColors />
         </ClientProviders>
       </body>
