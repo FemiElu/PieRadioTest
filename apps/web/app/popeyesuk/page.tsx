@@ -510,7 +510,6 @@ export default function PopeyesUkPage() {
               {[
                 "Live DJ sets",
                 "Epic giveaways",
-                "Free Popeyes Chicken Sandwiches",
               ].map((tag, i) => (
                 <span
                   key={i}
@@ -546,7 +545,7 @@ export default function PopeyesUkPage() {
                 <div>
                   <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5 sm:mb-1">Entry</p>
                   <p className="text-xs sm:text-sm font-bold text-deep-text leading-tight uppercase">
-                    Free entry - <span className="text-[10px] font-normal italic lowercase opacity-70">exclusive guest list</span>
+                    Free entry <span className="capitalize">(exclusive guest list)</span>
                   </p>
                 </div>
               </div>
