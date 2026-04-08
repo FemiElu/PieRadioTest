@@ -6,6 +6,7 @@ import { z } from 'zod';
 const waitlistSchema = z.object({
     fullName: z.string().min(2, "Full name is required."),
     email: z.string().email("Please enter a valid email address."),
+    marketingConsent: z.boolean().optional().default(false),
 });
 
 export type WaitlistState = {
@@ -14,6 +15,7 @@ export type WaitlistState = {
     errors?: {
         fullName?: string[];
         email?: string[];
+        marketingConsent?: string[];
     };
 };
 
@@ -22,7 +24,7 @@ export type WaitlistState = {
  * 
  * 1. Validates input
  * 2. Inserts into Supabase
- * 3. (Optional) Pings Google Sheets Webhook
+ * 3. Pings Google Sheets Webhook
  */
 export async function joinWaitlist(
     prevState: any,
@@ -30,9 +32,14 @@ export async function joinWaitlist(
 ): Promise<WaitlistState> {
     const fullName = formData.get('fullName')?.toString().trim();
     const email = formData.get('email')?.toString().trim();
+    const marketingConsent = formData.get('marketingConsent') === 'true';
 
     // 1. Validation
-    const validatedFields = waitlistSchema.safeParse({ fullName, email });
+    const validatedFields = waitlistSchema.safeParse({ 
+        fullName, 
+        email, 
+        marketingConsent 
+    });
 
     if (!validatedFields.success) {
         return {
@@ -41,7 +48,11 @@ export async function joinWaitlist(
         };
     }
 
-    const { fullName: validatedName, email: validatedEmail } = validatedFields.data;
+    const { 
+        fullName: validatedName, 
+        email: validatedEmail, 
+        marketingConsent: validatedConsent 
+    } = validatedFields.data;
 
     try {
         const supabase = await createClient();
@@ -52,6 +63,7 @@ export async function joinWaitlist(
             .insert({
                 full_name: validatedName,
                 email: validatedEmail,
+                marketing_consent: validatedConsent,
                 source: 'partnership_page'
             });
 
@@ -60,23 +72,28 @@ export async function joinWaitlist(
             return { message: "Failed to record your entry. Please try again later." };
         }
 
-        // 3. Optional: Sync to Google Sheets
+        // 3. Sync to Google Sheets
+        // Priority: apps/web/.env.local or apps/web/.env
         const googleSheetUrl = process.env.WAITLIST_GOOGLE_SHEET_URL;
+        
         if (googleSheetUrl) {
-            console.log('[Waitlist] Syncing to Google Sheets...');
             try {
                 const syncResponse = await fetch(googleSheetUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fullName: validatedName, email: validatedEmail }),
+                    body: JSON.stringify({ 
+                        fullName: validatedName, 
+                        email: validatedEmail,
+                        marketingConsent: validatedConsent,
+                        source: 'partnership_page',
+                        timestamp: new Date().toISOString()
+                    }),
                     redirect: 'follow',
                 });
 
                 if (!syncResponse.ok) {
                     const errorText = await syncResponse.text();
                     console.error(`[Waitlist] Google Sheet Sync Failed (${syncResponse.status}):`, errorText);
-                } else {
-                    console.log('[Waitlist] Google Sheet Sync Successful');
                 }
             } catch (err) {
                 console.error('[Waitlist] Google Sheet Sync Network Error:', err);
@@ -85,9 +102,9 @@ export async function joinWaitlist(
 
         return { success: true, message: "Thank you for joining the waitlist!" };
 
-
     } catch (err) {
         console.error('[Waitlist] Unexpected Error:', err);
         return { message: "An unexpected error occurred." };
     }
 }
+
