@@ -23,6 +23,9 @@ export function useSchedule(date: Date) {
     const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [refreshCount, setRefreshCount] = useState(0);
+
+    const refresh = () => setRefreshCount(c => c + 1);
 
     useEffect(() => {
         async function fetchSchedule() {
@@ -35,8 +38,8 @@ export function useSchedule(date: Date) {
 
             const cacheKey = startOfDay.toISOString();
 
-            // Optimistic load from cache
-            if (scheduleCache.has(cacheKey)) {
+            // Optimistic load from cache (only if not a manual refresh)
+            if (scheduleCache.has(cacheKey) && refreshCount === 0) {
                 setSchedule(scheduleCache.get(cacheKey)!);
                 setLoading(false);
             } else {
@@ -70,6 +73,7 @@ export function useSchedule(date: Date) {
                 // If we have cached data, suppress the error so the UI doesn't break
                 if (scheduleCache.has(cacheKey)) {
                     console.warn('Network error. Falling back to cached mobile schedule data.');
+                    setSchedule(scheduleCache.get(cacheKey)!);
                     setError(null);
                 } else {
                     setError('Network error: ' + err.message);
@@ -80,7 +84,11 @@ export function useSchedule(date: Date) {
         }
 
         fetchSchedule();
-    }, [date]); // Re-run when date changes
 
-    return { schedule, loading, error };
+        // Revalidate every 5 minutes
+        const interval = setInterval(fetchSchedule, 5 * 60 * 1000);
+        return () => clearInterval(interval);
+    }, [date, refreshCount]); // Re-run when date or refreshCount changes
+
+    return { schedule, loading, error, refresh };
 }

@@ -3,8 +3,11 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { MobileAudioProvider } from "../context/mobile-audio-context";
 import { AuthProvider } from "../context/auth-context";
+import { usePushNotifications } from "../hooks/usePushNotifications";
 
 export default function RootLayout() {
+    usePushNotifications();
+
     return (
         <SafeAreaProvider>
             <AuthProvider>
