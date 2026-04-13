@@ -3,7 +3,6 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  ScrollView,
   FlatList,
   ActivityIndicator,
 } from "react-native";
@@ -62,11 +61,11 @@ export default function PresentersScreen() {
     <TouchableOpacity
       onPress={() => handlePresenterPress(item)}
       activeOpacity={0.8}
-      className="flex-1 m-2 rounded-2xl overflow-hidden bg-card border border-white/5"
+      className="flex-1 m-2 rounded-2xl overflow-hidden bg-card border-2 border-border"
       style={{ maxWidth: "46%" }}
     >
       {/* Image with Gradient */}
-      <View className="aspect-[4/5] relative bg-zinc-800">
+      <View className="aspect-[4/5] relative bg-zinc-100">
         {item.avatar_url ? (
           <Image
             source={{ uri: item.avatar_url }}
@@ -75,7 +74,7 @@ export default function PresentersScreen() {
           />
         ) : (
           <View className="w-full h-full items-center justify-center">
-            <Ionicons name="person" size={40} color="#52525b" />
+            <Ionicons name="person" size={40} color="#5d6476" />
           </View>
         )}
         {/* Gradient Overlay */}
@@ -92,11 +91,11 @@ export default function PresentersScreen() {
 
       {/* Info */}
       <View className="p-3">
-        <Text className="text-white font-bold text-base" numberOfLines={1}>
+        <Text className="text-card-foreground font-bold text-base" numberOfLines={1}>
           {item.full_name || item.username}
         </Text>
         {/* Show bio or generic text */}
-        <Text className="text-zinc-400 text-xs mt-0.5" numberOfLines={1}>
+        <Text className="text-muted-foreground text-xs mt-0.5" numberOfLines={1}>
           {item.bio || "Presenter"}
         </Text>
 
@@ -105,7 +104,7 @@ export default function PresentersScreen() {
           <Ionicons
             name="arrow-forward"
             size={12}
-            color="#E11D48"
+            color="#334aff"
             style={{ marginLeft: 4 }}
           />
         </View>
@@ -116,7 +115,7 @@ export default function PresentersScreen() {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center">
-        <ActivityIndicator color="#E11D48" />
+        <ActivityIndicator color="#334aff" />
       </SafeAreaView>
     );
   }
@@ -124,10 +123,10 @@ export default function PresentersScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
       <View className="px-5 pt-4 pb-2">
-        <Text className="text-text font-bold text-2xl font-display text-center mb-1">
+        <Text className="text-foreground font-bold text-2xl font-display text-center mb-1">
           Meet the Team
         </Text>
-        <Text className="text-zinc-400 text-sm text-center mb-6">
+        <Text className="text-muted-foreground text-sm text-center mb-6">
           Your favorite voices on Pie Radio
         </Text>
       </View>
@@ -140,7 +139,7 @@ export default function PresentersScreen() {
         contentContainerStyle={{ padding: 12, paddingBottom: 100 }}
         columnWrapperStyle={{ justifyContent: "space-between" }}
         ListEmptyComponent={
-          <Text className="text-zinc-500 text-center mt-10">
+          <Text className="text-muted-foreground text-center mt-10 px-6">
             No presenters found.
           </Text>
         }

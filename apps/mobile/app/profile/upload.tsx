@@ -9,6 +9,12 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/auth-context';
 import { decode } from 'base64-arraybuffer';
 
+interface ScheduleShow {
+    title: string;
+    image_url: string | null;
+    presenterName: string | null;
+}
+
 export default function TrackUploadScreen() {
     const { user } = useAuth();
     const [title, setTitle] = useState('');
@@ -16,8 +22,56 @@ export default function TrackUploadScreen() {
     const [pitchNotes, setPitchNotes] = useState('');
     const [audioFile, setAudioFile] = useState<DocumentPicker.DocumentPickerAsset | null>(null);
     const [coverFile, setCoverFile] = useState<DocumentPicker.DocumentPickerAsset | null>(null);
+    const [selectedShows, setSelectedShows] = useState<string[]>([]);
+    const [shows, setShows] = useState<ScheduleShow[]>([]);
+    const [showsLoading, setShowsLoading] = useState(true);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
+
+    React.useEffect(() => {
+        const fetchShows = async () => {
+            setShowsLoading(true);
+            const { data, error } = await supabase
+                .from('schedules')
+                .select('title, image_url, presenter:presenter_id(full_name)')
+                .order('title', { ascending: true });
+
+            if (error) {
+                console.error('Failed to fetch shows:', error);
+            } else {
+                const seen = new Set<string>();
+                const uniqueShows: ScheduleShow[] = [];
+                for (const entry of (data || [])) {
+                    const showTitle = entry.title as string;
+                    if (showTitle && !seen.has(showTitle)) {
+                        seen.add(showTitle);
+                        uniqueShows.push({
+                            title: showTitle,
+                            image_url: entry.image_url as string | null,
+                            presenterName: entry.presenter?.full_name || null,
+                        });
+                    }
+                }
+                setShows(uniqueShows);
+            }
+            setShowsLoading(false);
+        };
+
+        fetchShows();
+    }, []);
+
+    const toggleShowSelection = (showTitle: string) => {
+        setSelectedShows(prev => {
+            if (prev.includes(showTitle)) {
+                return prev.filter(t => t !== showTitle);
+            }
+            if (prev.length >= 2) {
+                Alert.alert('Selection Limit', 'You can select up to 2 shows.');
+                return prev;
+            }
+            return [...prev, showTitle];
+        });
+    };
 
     const pickAudio = async () => {
         try {
@@ -102,6 +156,7 @@ export default function TrackUploadScreen() {
                     pitch_notes: pitchNotes,
                     audio_url: audioPath,
                     cover_art_url: coverPath,
+                    preferred_show_ids: selectedShows,
                     status: 'pending'
                 });
 
@@ -213,6 +268,58 @@ export default function TrackUploadScreen() {
                                 <Text className="text-zinc-500 text-xs">JPG, PNG (Square preferred)</Text>
                             </View>
                         </TouchableOpacity>
+                    </View>
+
+                    {/* Show Preferences */}
+                    <View>
+                        <View className="flex-row items-center justify-between mb-2">
+                            <Text className="text-zinc-400 text-sm font-bold uppercase">Preferred Shows</Text>
+                            {selectedShows.length > 0 && (
+                                <TouchableOpacity onPress={() => setSelectedShows([])}>
+                                    <Text className="text-primary text-xs font-bold">CLEAR</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                        <Text className="text-zinc-500 text-xs mb-3">
+                            Select up to 2 shows where you'd love your track to be played.
+                        </Text>
+                        
+                        {showsLoading ? (
+                            <ActivityIndicator color="#E11D48" className="my-4" />
+                        ) : shows.length === 0 ? (
+                            <View className="py-4 items-center bg-zinc-800/50 rounded-xl border border-dashed border-zinc-700">
+                                <Text className="text-zinc-500 text-sm">No shows available.</Text>
+                            </View>
+                        ) : (
+                            <View className="flex-row flex-wrap gap-2">
+                                {shows.map((show) => {
+                                    const isSelected = selectedShows.includes(show.title);
+                                    return (
+                                        <TouchableOpacity
+                                            key={show.title}
+                                            onPress={() => toggleShowSelection(show.title)}
+                                            className={`flex-row items-center p-2 px-3 rounded-lg border-2 ${
+                                                isSelected 
+                                                    ? 'border-primary bg-primary/10' 
+                                                    : 'border-zinc-800 bg-card'
+                                            }`}
+                                        >
+                                            <Ionicons 
+                                                name={isSelected ? "checkmark-circle" : "radio-button-off"} 
+                                                size={16} 
+                                                color={isSelected ? "#E11D48" : "#A1A1AA"} 
+                                                className="mr-2"
+                                            />
+                                            <View>
+                                                <Text className={`font-semibold text-sm ${isSelected ? 'text-primary' : 'text-zinc-300'}`}>
+                                                    {show.title}
+                                                </Text>
+                                            </View>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </View>
+                        )}
                     </View>
 
                     {/* Submit Button */}
