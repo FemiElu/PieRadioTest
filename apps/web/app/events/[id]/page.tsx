@@ -21,14 +21,15 @@ import { EventStatusBadge } from "@/components/events/EventStatusBadge";
 import { FeaturedCarousel } from "@/components/events/FeaturedCarousel";
 
 interface EventDetailPageProps {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }
 
 export const revalidate = 60;
 
 export async function generateMetadata({ params }: EventDetailPageProps) {
     const supabase = await createClient();
-    const event = await getEventById(supabase, params.id);
+    const { id } = await params;
+    const event = await getEventById(supabase, id);
     
     if (!event) return { title: "Event Not Found | Pie Radio" };
     
@@ -40,7 +41,8 @@ export async function generateMetadata({ params }: EventDetailPageProps) {
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
     const supabase = await createClient();
-    const event = await getEventById(supabase, params.id);
+    const { id } = await params;
+    const event = await getEventById(supabase, id);
 
     if (!event) {
         notFound();
