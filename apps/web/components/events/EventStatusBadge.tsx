@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { EventStatus } from "@/lib/dummy-data/events";
+import type { EventStatus } from "@/lib/events/types";
+import { EVENT_STATUS_LABELS } from "@/lib/events/types";
 
 interface EventStatusBadgeProps {
     status: EventStatus;
@@ -10,14 +11,10 @@ interface EventStatusBadgeProps {
 export function EventStatusBadge({ status, className }: EventStatusBadgeProps) {
     const getStatusStyles = (status: EventStatus) => {
         switch (status) {
-            case "onsale":
-                return "bg-green-500 hover:bg-green-600 text-white border-transparent";
-            case "fewleft":
-                return "bg-orange-500 hover:bg-orange-600 text-white border-transparent";
-            case "presale":
-                return "bg-blue-500 hover:bg-blue-600 text-white border-transparent";
-            case "soldout":
-                return "bg-gray-500 hover:bg-gray-600 text-white border-transparent";
+            case "upcoming":
+                return "bg-emerald-500 hover:bg-emerald-600 text-white border-transparent";
+            case "past":
+                return "bg-zinc-500 hover:bg-zinc-600 text-white border-transparent";
             case "cancelled":
                 return "bg-red-500 hover:bg-red-600 text-white border-transparent";
             default:
@@ -25,26 +22,9 @@ export function EventStatusBadge({ status, className }: EventStatusBadgeProps) {
         }
     };
 
-    const getStatusLabel = (status: EventStatus) => {
-        switch (status) {
-            case "onsale":
-                return "On Sale";
-            case "fewleft":
-                return "Few Left";
-            case "presale":
-                return "Presale";
-            case "soldout":
-                return "Sold Out";
-            case "cancelled":
-                return "Cancelled";
-            default:
-                return status;
-        }
-    };
-
     return (
-        <Badge className={cn(getStatusStyles(status), className)}>
-            {getStatusLabel(status)}
+        <Badge className={cn("uppercase tracking-widest text-[10px] py-0.5 px-2 font-black", getStatusStyles(status), className)}>
+            {EVENT_STATUS_LABELS[status] || status}
         </Badge>
     );
 }
