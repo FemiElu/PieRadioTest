@@ -82,7 +82,7 @@ export async function updatePreferences(data: { wantsLiveShowAlerts: boolean, wa
         .update({ 
             wants_live_show_alerts: data.wantsLiveShowAlerts,
             wants_news_updates: data.wantsNewsUpdates
-        })
+        } as any)
         .eq('id', user.id);
 
     if (profileError) {
