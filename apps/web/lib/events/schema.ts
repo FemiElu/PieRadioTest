@@ -24,7 +24,7 @@ const EventBaseObject = z.object({
     .optional(),
 
   category: z.enum(EVENT_CATEGORIES, {
-    errorMap: () => ({ message: 'Please select a valid category' }),
+    message: 'Please select a valid category',
   }),
 
   status: z.enum(EVENT_STATUSES).default('upcoming'),
