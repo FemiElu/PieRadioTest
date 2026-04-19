@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import {
     Music,
@@ -47,7 +47,7 @@ export function SongRequestList({ showId }: SongRequestListProps) {
     const [updatingId, setUpdatingId] = useState<string | null>(null);
     const supabase = createClient();
 
-    const fetchRequests = async () => {
+    const fetchRequests = useCallback(async () => {
         setLoading(true);
         const { data, error } = await supabase
             .from('music_requests')
@@ -65,7 +65,7 @@ export function SongRequestList({ showId }: SongRequestListProps) {
             setRequests(data as SongRequest[]);
         }
         setLoading(false);
-    };
+    }, [showId, supabase]);
 
     useEffect(() => {
         if (!showId) return;

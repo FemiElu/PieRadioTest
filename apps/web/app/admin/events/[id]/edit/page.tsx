@@ -7,9 +7,10 @@ export const metadata = {
     title: "Edit Event | Admin",
 };
 
-export default async function EditEventPage({ params }: { params: { id: string } }) {
+export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
     const supabase = await createClient();
-    const event = await getEventById(supabase, params.id);
+    const { id } = await params;
+    const event = await getEventById(supabase, id);
 
     if (!event) {
         notFound();
