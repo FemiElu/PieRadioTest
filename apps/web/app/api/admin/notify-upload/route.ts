@@ -52,7 +52,7 @@ export async function POST(request: Request) {
             import('@/lib/notifications/in-app').then(({ createInAppNotification }) => {
                 const isApproved = action === 'approved';
                 createInAppNotification({
-                    userId: upload.artist_id,
+                    userId: upload.artist_id as string,
                     type: 'track_update',
                     title: isApproved ? 'Track Approved' : 'Track Status Update',
                     message: isApproved 
