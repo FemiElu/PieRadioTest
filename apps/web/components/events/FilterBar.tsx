@@ -79,7 +79,7 @@ export function FilterBar({ onSearch, onCategoryChange, onSortChange, resultsCou
                 <span className="text-sm font-bold text-zinc-400 uppercase tracking-widest">
                     {resultsCount} {resultsCount === 1 ? 'event' : 'events'} found
                 </span>
-                <DropdownMenu dropDown={false}>
+                <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="h-8 gap-1 text-zinc-500 font-bold uppercase tracking-widest hover:text-primary transition-colors text-[10px]">
                             Sort <ChevronDown className="w-3 h-3" />
