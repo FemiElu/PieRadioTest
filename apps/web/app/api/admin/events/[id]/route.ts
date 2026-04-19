@@ -24,14 +24,15 @@ async function requireAdmin(supabase: Awaited<ReturnType<typeof createClient>>) 
 
 export async function GET(
     _request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const supabase = await createClient();
         const authError = await requireAdmin(supabase);
         if (authError) return authError;
 
-        const event = await getEventById(supabase, params.id);
+        const { id } = await params;
+        const event = await getEventById(supabase, id);
         if (!event) {
             return NextResponse.json({ error: 'Event not found' }, { status: 404 });
         }
@@ -48,7 +49,7 @@ export async function GET(
 
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const supabase = await createClient();
@@ -70,10 +71,11 @@ export async function PATCH(
             );
         }
 
+        const { id } = await params;
         const { data, error } = await supabase
             .from('events')
             .update(parsed.data)
-            .eq('id', params.id)
+            .eq('id', id)
             .select('id')
             .single();
 
@@ -94,7 +96,7 @@ export async function PATCH(
 
 export async function DELETE(
     _request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const supabase = await createClient();
@@ -102,10 +104,11 @@ export async function DELETE(
         if (authError) return authError;
 
         // MVP: Instead of hard delete, we set status to 'cancelled'
+        const { id } = await params;
         const { error } = await supabase
             .from('events')
             .update({ status: 'cancelled' })
-            .eq('id', params.id);
+            .eq('id', id);
 
         if (error) {
             console.error('[DELETE /api/admin/events/[id]] DB update error:', error.message);
