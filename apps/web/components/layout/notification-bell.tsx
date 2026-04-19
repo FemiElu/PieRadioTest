@@ -28,7 +28,7 @@ export function NotificationBell() {
     // Fetch initial notifications
     const fetchNotifications = async () => {
       const { data, error } = await supabase
-        .from("notifications")
+        .from("notifications" as any)
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
@@ -75,7 +75,7 @@ export function NotificationBell() {
     setUnreadCount((prev) => Math.max(0, prev - 1));
 
     await supabase
-      .from("notifications")
+      .from("notifications" as any)
       .update({ is_read: true })
       .eq("id", id);
   };
@@ -87,7 +87,7 @@ export function NotificationBell() {
     setUnreadCount(0);
 
     await supabase
-      .from("notifications")
+      .from("notifications" as any)
       .update({ is_read: true })
       .eq("user_id", user?.id)
       .eq("is_read", false);

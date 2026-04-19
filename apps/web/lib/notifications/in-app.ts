@@ -19,7 +19,7 @@ export async function createInAppNotification(params: CreateNotificationParams):
         const supabase = await createClient();
 
         const { error } = await supabase
-            .from('notifications')
+            .from('notifications' as any)
             .insert({
                 user_id: params.userId,
                 type: params.type,
