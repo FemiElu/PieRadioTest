@@ -30,19 +30,28 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="interact"
-                options={{
-                    title: "Interact",
-                    tabBarIcon: ({ color }) => <Ionicons size={24} name="chatbubbles" color={color} />,
-                }}
-            />
-            <Tabs.Screen
                 name="presenters"
                 options={{
                     title: "Presenters",
                     tabBarIcon: ({ color }) => <Ionicons size={24} name="people" color={color} />,
                 }}
             />
+            <Tabs.Screen
+                name="news"
+                options={{
+                    title: "News",
+                    tabBarIcon: ({ color }) => <Ionicons size={24} name="newspaper" color={color} />,
+                }}
+            />
+
+            <Tabs.Screen
+                name="interact"
+                options={{
+                    href: null,
+                }}
+            />
+
+
             <Tabs.Screen
                 name="events"
                 options={{
