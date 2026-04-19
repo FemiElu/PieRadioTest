@@ -50,14 +50,12 @@ const EventBaseObject = z.object({
   venue_city: z.string().max(100).nullable().optional(),
 
   // Pricing
-  price_min: z
-    .number({ coerce: true })
+  price_min: z.coerce.number()
     .int()
     .min(0, 'Price cannot be negative')
     .default(0),
 
-  price_max: z
-    .number({ coerce: true })
+  price_max: z.coerce.number()
     .int()
     .min(0)
     .nullable()
