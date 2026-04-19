@@ -97,7 +97,7 @@ export function ScheduleGrid({ likedShowIds = [] }: { likedShowIds?: string[] })
   const activeDateObj = days[activeDayIndex].dateObj;
 
   // Fetch schedule for the selected day
-  const { schedule, loading: isLoading, error } = useSchedule(activeDateObj);
+  const { schedule, loading: isLoading, error, refresh } = useSchedule(activeDateObj);
 
   // Audio context
   const { isPlaying, togglePlay, isLoading: isAudioLoading } = useAudio();
@@ -183,6 +183,16 @@ export function ScheduleGrid({ likedShowIds = [] }: { likedShowIds?: string[] })
             {day.full}
           </button>
         ))}
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={refresh}
+          disabled={isLoading}
+          className="ml-auto rounded-full w-12 h-12 border-2 hover:border-primary hover:text-primary transition-all"
+          title="Refresh schedule"
+        >
+          <Loader2 className={cn("w-5 h-5", isLoading && "animate-spin")} />
+        </Button>
       </div>
 
       {/* --- Show List --- */}

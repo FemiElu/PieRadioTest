@@ -11,6 +11,8 @@ const trackMetadataSchema = z.object({
     audio_url: z.string().min(1, 'Audio file path is required'),
     cover_art_url: z.string().optional(),
     pitch_notes: z.string().optional(),
+    // Stores show titles (not UUIDs) since show data comes from the schedules view
+    preferred_show_ids: z.array(z.string().min(1)).max(2, 'You can select up to 2 shows').optional().default([]),
 });
 
 export async function submitTrackMetadata(data: z.infer<typeof trackMetadataSchema>) {
@@ -31,14 +33,15 @@ export async function submitTrackMetadata(data: z.infer<typeof trackMetadataSche
     const parsedData = trackMetadataSchema.parse(data);
 
     const { error } = await supabase.from('artist_uploads').insert({
-        artist_id: user.id, // Foreign key references profiles.id
+        artist_id: user.id,
         status: 'pending',
         title: parsedData.title,
         genre: parsedData.genre,
         audio_url: parsedData.audio_url,
         cover_art_url: parsedData.cover_art_url,
         pitch_notes: parsedData.pitch_notes,
-    });
+        preferred_show_ids: parsedData.preferred_show_ids,
+    } as any);
 
     if (error) {
         console.error('Failed to submit track metadata:', error);

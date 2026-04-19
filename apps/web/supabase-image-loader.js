@@ -8,9 +8,17 @@ export default function supabaseLoader({ src, width, quality }) {
     // 1. Identify and Clean the Path
     let path = src;
 
+    // If it's a Signed URL, return it as-is (we can't optimize signed URLs easily without breaking the signature)
+    if (src.includes('/sign/')) {
+        return src;
+    }
+
     // If it's a full URL, strip everything before the bucket name
     if (src.includes(supabaseUrl)) {
-        path = src.split('/public/')[1];
+        path = src.includes('/public/') ? src.split('/public/')[1] : src.replace(supabaseUrl, '');
+        if (path.startsWith('/storage/v1/object/')) {
+            path = path.replace('/storage/v1/object/', '');
+        }
     }
     // If it's a relative path that still has the storage prefix, strip it
     else if (src.startsWith('/storage/v1/object/public/')) {
@@ -23,7 +31,7 @@ export default function supabaseLoader({ src, width, quality }) {
 
     // 2. Handle External Images (Unsplash, Apple Music, etc.)
     // If after cleaning it still starts with http, it's a truly external image
-    if (path.startsWith('http')) {
+    if (path && path.startsWith('http')) {
         // Handle Unsplash optimization
         if (path.includes('images.unsplash.com')) {
             try {

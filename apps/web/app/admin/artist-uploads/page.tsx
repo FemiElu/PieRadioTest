@@ -4,10 +4,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Music2, Play, UploadCloud } from 'lucide-react';
+import { Music2, Play, UploadCloud, Radio } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { TrackVettingModal } from '@/components/admin/track-vetting-modal';
 import { toast } from 'sonner';
+
+// Removed ShowLookup interface as we store titles directly
 
 export default function AdminArtistUploadsPage() {
     const supabase = createClient();
@@ -59,6 +61,12 @@ export default function AdminArtistUploadsPage() {
         }).catch(err => console.error("Notification trigger failed:", err));
     };
 
+    const getPreferredShowNames = (upload: any): string[] => {
+        const ids = upload.preferred_show_ids as string[] | null;
+        if (!ids || ids.length === 0) return [];
+        return ids; // ids are now show titles
+    };
+
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div>
@@ -99,36 +107,49 @@ export default function AdminArtistUploadsPage() {
                         </div>
                     ) : (
                         <div className="divide-y divide-border/50">
-                            {uploads.map((upload) => (
-                                <div key={upload.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 gap-4 hover:bg-zinc-50/50 transition-colors group">
-                                    <div className="flex items-center gap-4 min-w-0">
-                                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
-                                            <Music2 className="w-6 h-6 text-primary" />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <h4 className="font-bold text-[#141827] truncate">{upload.title}</h4>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <Badge variant="outline" className="text-[10px] uppercase tracking-wider">{upload.genre}</Badge>
-                                                <span className="text-xs text-zinc-500 truncate">by {upload.profiles?.full_name || 'Unknown'}</span>
+                            {uploads.map((upload) => {
+                                const preferredShowNames = getPreferredShowNames(upload);
+                                return (
+                                    <div key={upload.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 gap-4 hover:bg-zinc-50/50 transition-colors group">
+                                        <div className="flex items-center gap-4 min-w-0">
+                                            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                                                <Music2 className="w-6 h-6 text-primary" />
+                                            </div>
+                                            <div className="min-w-0">
+                                                <h4 className="font-bold text-[#141827] truncate">{upload.title}</h4>
+                                                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                                    <Badge variant="outline" className="text-[10px] uppercase tracking-wider">{upload.genre}</Badge>
+                                                    <span className="text-xs text-zinc-500 truncate">by {upload.profiles?.full_name || 'Unknown'}</span>
+                                                </div>
+                                                {preferredShowNames.length > 0 && (
+                                                    <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                                                        <Radio className="w-3 h-3 text-primary shrink-0" />
+                                                        {preferredShowNames.map((name) => (
+                                                            <Badge key={name} variant="secondary" className="text-[10px] bg-primary/10 text-primary hover:bg-primary/20">
+                                                                {name}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div className="flex items-center gap-3 sm:w-auto w-full justify-between sm:justify-end">
-                                        <div className="text-xs text-zinc-400 text-right hidden sm:block">
-                                            {new Date(upload.created_at).toLocaleDateString()}<br />
-                                            {new Date(upload.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        <div className="flex items-center gap-3 sm:w-auto w-full justify-between sm:justify-end">
+                                            <div className="text-xs text-zinc-400 text-right hidden sm:block">
+                                                {new Date(upload.created_at).toLocaleDateString()}<br />
+                                                {new Date(upload.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </div>
+                                            <Button
+                                                onClick={() => setSelectedUpload(upload)}
+                                                className="w-full sm:w-auto font-bold uppercase tracking-wider text-xs"
+                                            >
+                                                <Play className="w-4 h-4 mr-2" />
+                                                Review
+                                            </Button>
                                         </div>
-                                        <Button
-                                            onClick={() => setSelectedUpload(upload)}
-                                            className="w-full sm:w-auto font-bold uppercase tracking-wider text-xs"
-                                        >
-                                            <Play className="w-4 h-4 mr-2" />
-                                            Review
-                                        </Button>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </CardContent>
@@ -143,3 +164,4 @@ export default function AdminArtistUploadsPage() {
         </div>
     );
 }
+

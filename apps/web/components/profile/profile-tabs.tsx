@@ -62,6 +62,28 @@ export function ProfileTabs({
         }
     };
 
+    const [wantsLiveShowAlerts, setWantsLiveShowAlerts] = useState(profile?.wants_live_show_alerts ?? true);
+    const [wantsNewsUpdates, setWantsNewsUpdates] = useState(profile?.wants_news_updates ?? true);
+    const [isUpdatingPrefs, setIsUpdatingPrefs] = useState(false);
+
+    const handleUpdatePreferences = async () => {
+        setIsUpdatingPrefs(true);
+        try {
+            const { updatePreferences } = await import('@/app/actions/profile');
+            const result = await updatePreferences({ wantsLiveShowAlerts, wantsNewsUpdates });
+            if (result.success) {
+                await refreshProfile();
+                toast.success('Preferences saved successfully');
+            } else {
+                toast.error(result.error || 'Failed to save preferences');
+            }
+        } catch (error) {
+            toast.error('An unexpected error occurred');
+        } finally {
+            setIsUpdatingPrefs(false);
+        }
+    };
+
     return (
         <Tabs defaultValue="activity" className="w-full">
             <TabsList className="flex w-full grid-cols-4 lg:w-[600px] bg-card border border-border/40 p-1">
@@ -247,20 +269,22 @@ export function ProfileTabs({
                                         <Label className="text-base">Live Show Alerts</Label>
                                         <p className="text-sm text-muted-foreground">Receive push notifications when your favorite shows go live.</p>
                                     </div>
-                                    <Switch defaultChecked />
+                                    <Switch checked={wantsLiveShowAlerts} onCheckedChange={setWantsLiveShowAlerts} />
                                 </div>
                                 <div className="flex items-center justify-between rounded-lg border p-4">
                                     <div className="space-y-0.5">
                                         <Label className="text-base">News Updates</Label>
                                         <p className="text-sm text-muted-foreground">Get notified about breaking news and platform updates.</p>
                                     </div>
-                                    <Switch defaultChecked />
+                                    <Switch checked={wantsNewsUpdates} onCheckedChange={setWantsNewsUpdates} />
                                 </div>
                             </div>
                         </div>
                     </CardContent>
                     <CardFooter className="bg-muted/50 py-4 mt-6 border-t border-border/40 flex justify-end">
-                        <Button>Save Preferences</Button>
+                        <Button onClick={handleUpdatePreferences} disabled={isUpdatingPrefs}>
+                            {isUpdatingPrefs ? 'Saving...' : 'Save Preferences'}
+                        </Button>
                     </CardFooter>
                 </Card>
             </TabsContent>

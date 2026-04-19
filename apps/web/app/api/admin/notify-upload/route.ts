@@ -18,6 +18,7 @@ export async function POST(request: Request) {
             .from('artist_uploads')
             .select(`
                 title,
+                artist_id,
                 profiles!artist_id (
                     full_name,
                     email
@@ -45,6 +46,21 @@ export async function POST(request: Request) {
             trackTitle: upload.title,
             action: action as 'approved' | 'rejected',
         });
+
+        // 2.5 Send In-App Notification
+        if (upload.artist_id) {
+            import('@/lib/notifications/in-app').then(({ createInAppNotification }) => {
+                const isApproved = action === 'approved';
+                createInAppNotification({
+                    userId: upload.artist_id,
+                    type: 'track_update',
+                    title: isApproved ? 'Track Approved' : 'Track Status Update',
+                    message: isApproved 
+                        ? `Congratulations! Your track "${upload.title}" has been approved for airplay.`
+                        : `Your track submission "${upload.title}" was reviewed. Check your email for more details.`,
+                }).catch(err => console.error('[In-App] Failed:', err));
+            });
+        }
 
         if (!emailResult.success) {
             return NextResponse.json({ error: emailResult.error }, { status: 500 });
