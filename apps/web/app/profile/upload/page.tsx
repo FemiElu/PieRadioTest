@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Music2, UploadCloud, Image as ImageIcon, CheckCircle2, Loader2, ArrowLeft } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Music2, UploadCloud, Image as ImageIcon, CheckCircle2, Loader2, ArrowLeft, Radio, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { submitTrackMetadata } from '@/app/actions/tracks';
@@ -16,6 +17,12 @@ import { useAuth } from '@/context/auth-context';
 import Link from 'next/link';
 
 const GENRES = ['AfroBeats', 'R&B', 'Hip Hop', 'Amapiano', 'Dancehall', 'UK Drill', 'Grime', 'House', 'Pop', 'Alternative'];
+
+interface ScheduleShow {
+    title: string;
+    image_url: string | null;
+    presenterName: string | null;
+}
 
 export default function TrackUploadPage() {
     const router = useRouter();
@@ -29,9 +36,58 @@ export default function TrackUploadPage() {
     const [pitchNotes, setPitchNotes] = useState('');
     const [audioFile, setAudioFile] = useState<File | null>(null);
     const [coverFile, setCoverFile] = useState<File | null>(null);
+    const [selectedShows, setSelectedShows] = useState<string[]>([]);
+    const [shows, setShows] = useState<ScheduleShow[]>([]);
+    const [showsLoading, setShowsLoading] = useState(true);
 
     const audioInputRef = useRef<HTMLInputElement>(null);
     const coverInputRef = useRef<HTMLInputElement>(null);
+
+    // Fetch distinct shows from the schedules view (real show data)
+    useEffect(() => {
+        const fetchShows = async () => {
+            setShowsLoading(true);
+            const { data, error } = await (supabase.from('schedules' as any) as any)
+                .select('title, image_url, presenter:presenter_id(full_name)')
+                .order('title', { ascending: true });
+
+            if (error) {
+                console.error('Failed to fetch shows from schedules:', error);
+            } else {
+                // Deduplicate by title — same show runs weekly
+                const seen = new Set<string>();
+                const uniqueShows: ScheduleShow[] = [];
+                for (const entry of (data || [])) {
+                    const showTitle = entry.title as string;
+                    if (showTitle && !seen.has(showTitle)) {
+                        seen.add(showTitle);
+                        uniqueShows.push({
+                            title: showTitle,
+                            image_url: entry.image_url as string | null,
+                            presenterName: entry.presenter?.full_name || null,
+                        });
+                    }
+                }
+                setShows(uniqueShows);
+            }
+            setShowsLoading(false);
+        };
+
+        fetchShows();
+    }, [supabase]);
+
+    const toggleShowSelection = (showTitle: string) => {
+        setSelectedShows(prev => {
+            if (prev.includes(showTitle)) {
+                return prev.filter(t => t !== showTitle);
+            }
+            if (prev.length >= 2) {
+                toast.error('You can select up to 2 shows.');
+                return prev;
+            }
+            return [...prev, showTitle];
+        });
+    };
 
     const handleAudioDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -99,6 +155,7 @@ export default function TrackUploadPage() {
                 audio_url: audioPath,
                 cover_art_url: coverPath,
                 pitch_notes: pitchNotes,
+                preferred_show_ids: selectedShows,
             });
 
             if (result.success) {
@@ -233,6 +290,90 @@ export default function TrackUploadPage() {
                         </div>
                     </div>
 
+                    {/* Show Preferences */}
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <Label className="flex items-center gap-2">
+                                    <Radio className="w-4 h-4 text-primary" />
+                                    Preferred Shows (Optional)
+                                </Label>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    Select up to 2 shows where you&apos;d love your track to be played. This helps our presenters route your music.
+                                </p>
+                            </div>
+                            {selectedShows.length > 0 && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setSelectedShows([])}
+                                    className="text-xs text-muted-foreground hover:text-destructive"
+                                >
+                                    <X className="w-3 h-3 mr-1" />
+                                    Clear
+                                </Button>
+                            )}
+                        </div>
+
+                        {showsLoading ? (
+                            <div className="flex items-center justify-center py-8 text-muted-foreground">
+                                <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                                <span className="text-sm">Loading shows...</span>
+                            </div>
+                        ) : shows.length === 0 ? (
+                            <div className="py-6 text-center text-sm text-muted-foreground bg-muted/30 rounded-xl border border-dashed border-border">
+                                No shows available at the moment.
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[280px] overflow-y-auto pr-1">
+                                {shows.map((show) => {
+                                    const isSelected = selectedShows.includes(show.title);
+                                    return (
+                                        <button
+                                            key={show.title}
+                                            type="button"
+                                            onClick={() => toggleShowSelection(show.title)}
+                                            className={`
+                                                flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-all duration-200
+                                                ${isSelected
+                                                    ? 'border-primary bg-primary/5 shadow-sm shadow-primary/10 ring-1 ring-primary/20'
+                                                    : 'border-border hover:border-primary/30 hover:bg-muted/30'
+                                                }
+                                            `}
+                                        >
+                                            <div className={`
+                                                w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors
+                                                ${isSelected ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}
+                                            `}>
+                                                {isSelected ? (
+                                                    <CheckCircle2 className="w-5 h-5" />
+                                                ) : (
+                                                    <Radio className="w-5 h-5" />
+                                                )}
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <p className={`font-semibold text-sm truncate ${isSelected ? 'text-primary' : 'text-foreground'}`}>
+                                                    {show.title}
+                                                </p>
+                                                {show.presenterName && (
+                                                    <span className="text-xs text-muted-foreground">
+                                                        with {show.presenterName}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {selectedShows.length > 0 && (
+                            <p className="text-xs text-primary font-medium">
+                                {selectedShows.length}/2 show{selectedShows.length > 1 ? 's' : ''} selected
+                            </p>
+                        )}
+                    </div>
+
                     <div className="space-y-3">
                         <Label htmlFor="pitch">Pitch Notes (Optional)</Label>
                         <Textarea
@@ -279,3 +420,4 @@ export default function TrackUploadPage() {
         </div>
     );
 }
+

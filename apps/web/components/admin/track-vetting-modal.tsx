@@ -4,16 +4,21 @@ import { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Music2, CheckCircle2, XCircle, Play, Pause, Loader2 } from 'lucide-react';
+import { Music2, CheckCircle2, XCircle, Play, Pause, Loader2, Radio } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
+
+interface ShowLookup {
+    [id: string]: { title: string; genre: string | null };
+}
 
 interface VettingModalProps {
     upload: any;
     isOpen: boolean;
     onClose: () => void;
     onAction: (id: string, action: 'approved' | 'rejected') => Promise<void>;
+    showsMap?: ShowLookup;
 }
 
 export function TrackVettingModal({ upload, isOpen, onClose, onAction }: VettingModalProps) {
@@ -186,6 +191,33 @@ export function TrackVettingModal({ upload, isOpen, onClose, onAction }: Vetting
                             <div className="bg-muted/50 p-4 rounded-xl border border-border/40 min-h-[100px] text-sm leading-relaxed max-h-[150px] overflow-y-auto">
                                 {upload.pitch_notes ? upload.pitch_notes : <span className="text-muted-foreground italic">No pitch notes provided.</span>}
                             </div>
+                        </div>
+
+                        {/* Show Preferences */}
+                        <div className="space-y-2">
+                            <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                                <Radio className="w-3 h-3" />
+                                Show Preferences
+                            </h4>
+                            {upload.preferred_show_ids && upload.preferred_show_ids.length > 0 ? (
+                                <div className="flex flex-wrap gap-2">
+                                    {(upload.preferred_show_ids as string[]).map((showTitle: string) => {
+                                        return (
+                                            <Badge
+                                                key={showTitle}
+                                                variant="secondary"
+                                                className="bg-primary/10 text-primary text-xs py-1 px-2.5"
+                                            >
+                                                {showTitle}
+                                            </Badge>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <p className="text-xs text-muted-foreground italic">
+                                    No show preference — available for all shows.
+                                </p>
+                            )}
                         </div>
 
                         <div className="text-xs text-muted-foreground">

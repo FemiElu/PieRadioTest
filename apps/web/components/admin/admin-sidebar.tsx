@@ -48,6 +48,11 @@ const sidebarItems = [
     href: "/admin/news",
     icon: Newspaper,
   },
+  {
+    title: "Events",
+    href: "/admin/events",
+    icon: ListMusic,
+  },
 ];
 
 export function AdminSidebar() {

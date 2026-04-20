@@ -4,6 +4,7 @@ import axios from 'axios';
 import { parse } from 'csv-parse/sync';
 import { addWeeks, format, startOfDay, addDays } from 'date-fns';
 import { fromZonedTime } from 'date-fns-tz';
+import { createHash } from 'crypto';
 
 export const dynamic = 'force-dynamic'; // Ensure this route is never cached
 
@@ -19,15 +20,13 @@ export async function GET(request: Request) {
         const authHeader = request.headers.get('authorization');
         const cronSecret = process.env.CRON_SECRET;
 
-        // In a real Vercel environment, headers are used.
-        // We also allow a query param ?secret=xx for manual triggering via browser if needed by admins
         const url = new URL(request.url);
         const secretParam = url.searchParams.get('secret');
 
         const isAuthorized =
             (cronSecret && authHeader === `Bearer ${cronSecret}`) ||
             (cronSecret && secretParam === cronSecret) ||
-            process.env.NODE_ENV === 'development'; // Allow local dev testing
+            process.env.NODE_ENV === 'development';
 
         if (!isAuthorized) {
             console.error('[Cron Sync] Unauthorized attempt to sync schedule');
@@ -47,7 +46,26 @@ export async function GET(request: Request) {
         const response = await axios.get(GOOGLE_SHEET_CSV_URL);
         const content = response.data;
 
-        // 3. Parse CSV
+        // 3. Content-Hash Check (CPU Optimization)
+        const contentHash = createHash('sha256').update(content).digest('hex');
+        
+        // Fetch existing hash from sync_metadata
+        const { data: existingMeta } = await supabase
+            .from('sync_metadata')
+            .select('value')
+            .eq('key', 'schedule_csv_hash')
+            .single();
+
+        if (existingMeta?.value === contentHash) {
+            console.log('[Cron Sync] Content hash matches previous sync. Skipping execution to save CPU.');
+            return NextResponse.json({
+                success: true,
+                message: 'No changes detected in Google Sheet. Sync skipped.',
+                hash: contentHash
+            });
+        }
+
+        // 4. Parse CSV
         const records = parse(content, {
             skip_empty_lines: true,
         });
@@ -73,21 +91,13 @@ export async function GET(request: Request) {
             if (h) colMap[h.trim()] = i;
         });
 
-        // 4. Fetch all profiles for presenter matching
-        // Fetch all profiles to link presenters by name/alias.
-        // We include the new presenter_alias column which is the primary bridge to the Google Sheet.
+        // 5. Fetch profiles for matching
         const { data: profiles, error: profileErr } = await supabase.from('profiles').select('id, full_name, username, presenter_alias');
         if (profileErr) throw new Error(`Profiles fetch failed: ${profileErr.message}`);
 
-        // Normalise a name string for fuzzy matching: lowercase, strip non-alphanumeric
-        // characters (except spaces), then collapse multiple spaces. This lets us match
-        // "Joe Shamz" in the sheet to "joe shamz" in the DB, and handles cases like
-        // trailing punctuation or unicode apostrophes.
         const normaliseName = (name: string) =>
             name.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
 
-        // Mapping of spreadsheet names (aliases) to DB profile names or usernames.
-        // This handles cases like "MARION" in the sheet matching "Marion Taba-Goma" in the DB.
         const PRESENTER_MAPPING: Record<string, string> = {
             'MARION': 'Marion Taba-Goma',
             'KEMOY B': 'Kemoy Walker',
@@ -97,30 +107,27 @@ export async function GET(request: Request) {
             'DJ WATTEH': 'Callum Watteh',
             'DJ MALIBU': 'DJ Malibu',
             'NANA': 'Nana Mwene',
-            'APHRODITE': 'Aphrodite', // Placeholder if exists
-            'LADY YOLA': 'Lady Yola', // Placeholder if exists
-            'PELUMI JOY': 'Pelumi Joy', // Placeholder if exists
-            'QUAN': 'Quantel', // Placeholder if exists
+            'APHRODITE': 'Aphrodite',
+            'LADY YOLA': 'Lady Yola',
+            'PELUMI JOY': 'Pelumi Joy',
+            'QUAN': 'Quantel',
         };
 
         const profileLookup = (name: string): string | null => {
             if (!name) return null;
-            
             const rawName = name.trim();
             const upperName = rawName.toUpperCase();
             
-            // 1. Try exact match on the new presenter_alias column (Highest priority)
             const aliasMatch = profiles?.find(p => 
                 p.presenter_alias?.toUpperCase().trim() === upperName ||
                 (p.presenter_alias && normaliseName(p.presenter_alias) === normaliseName(rawName))
             );
             if (aliasMatch) return aliasMatch.id;
 
-            // 2. Try hard coded mapping table (Transition support)
             const mappedName = PRESENTER_MAPPING[upperName];
             const lookupName = mappedName || rawName;
-            
             const normalised = normaliseName(lookupName);
+            
             const match = profiles?.find(p => {
                 const byUsername = p.username ? normaliseName(p.username) : null;
                 const byFullName = p.full_name ? normaliseName(p.full_name) : null;
@@ -128,17 +135,13 @@ export async function GET(request: Request) {
             });
             
             if (!match) {
-                // 3. Try partial match as fallback
                 const partialMatch = profiles?.find(p => {
                     const fullName = (p.full_name || '').toLowerCase();
                     const username = (p.username || '').toLowerCase();
                     const n = normalised.toLowerCase();
                     return fullName.includes(n) || username.includes(n);
                 });
-                
                 if (partialMatch) return partialMatch.id;
-                
-                console.warn(`[Cron Sync] No DB presenter matched for name: "${name}"`);
                 return null;
             }
             return match.id;
@@ -147,7 +150,7 @@ export async function GET(request: Request) {
         const scheduleEntries: any[] = [];
         const lastSeenContent: Record<string, string> = {};
 
-        // 5. Process Rows
+        // 6. Process Rows
         for (const row of dataRows) {
             const timeRange = row[colMap['Time Range']];
             if (!timeRange) continue;
@@ -167,24 +170,15 @@ export async function GET(request: Request) {
 
             const startHour = parseTime(times[0]);
             const endHour = parseTime(times[1]);
-
             if (startHour === null || endHour === null) continue;
 
             for (const dayName of DAYS_OF_WEEK) {
-                let cellContent = row[colMap[dayName]]?.trim();
-
-                // Carry forward logic for merged cells
-                if (!cellContent) {
-                    cellContent = lastSeenContent[dayName];
-                } else {
-                    lastSeenContent[dayName] = cellContent;
-                }
-
+                let cellContent = row[colMap[dayName]]?.trim() || lastSeenContent[dayName];
+                if (cellContent) lastSeenContent[dayName] = cellContent;
                 if (!cellContent) continue;
 
                 let title = cellContent.trim();
                 let presenterName = '';
-
                 const presenterMatch = cellContent.match(/(.+?)\s*(?:W\/|WITH)\s*(.+)/i);
                 if (presenterMatch) {
                     title = presenterMatch[1].trim();
@@ -192,24 +186,20 @@ export async function GET(request: Request) {
                 }
 
                 const presenterId = profileLookup(presenterName);
-
-                // Project for next 4 weeks
                 const now = new Date();
                 const startOfThisWeek = startOfDay(addDays(now, -now.getDay()));
 
-                for (let weekOffset = 0; weekOffset < 4; weekOffset++) {
+                // Reduced to 2 weeks for CPU optimization
+                for (let weekOffset = 0; weekOffset < 2; weekOffset++) {
                     const dayOffset = DAYS_OF_WEEK.indexOf(dayName);
                     const showDate = addDays(startOfThisWeek, dayOffset + (weekOffset * 7));
-
                     const yyyyMmDd = format(showDate, 'yyyy-MM-dd');
-                    const startLocalString = `${yyyyMmDd} ${startHour.toString().padStart(2, '0')}:00:00`;
-
+                    
                     const endShowDate = endHour <= startHour ? addDays(showDate, 1) : showDate;
                     const endYyyyMmDd = format(endShowDate, 'yyyy-MM-dd');
-                    const endLocalString = `${endYyyyMmDd} ${endHour.toString().padStart(2, '0')}:00:00`;
-
-                    const startUtc = fromZonedTime(startLocalString, TIMEZONE);
-                    const endUtc = fromZonedTime(endLocalString, TIMEZONE);
+                    
+                    const startUtc = fromZonedTime(`${yyyyMmDd} ${startHour.toString().padStart(2, '0')}:00:00`, TIMEZONE);
+                    const endUtc = fromZonedTime(`${endYyyyMmDd} ${endHour.toString().padStart(2, '0')}:00:00`, TIMEZONE);
 
                     scheduleEntries.push({
                         title,
@@ -223,28 +213,34 @@ export async function GET(request: Request) {
             }
         }
 
-        console.log(`[Cron Sync] Prepared ${scheduleEntries.length} entries for the next 4 weeks.`);
-
-        // 6. Replace data in Supabase
+        // 7. Replace data in Supabase
         const startOfThisWeek = startOfDay(addDays(new Date(), -new Date().getDay()));
-        const fourWeeksAhead = addWeeks(new Date(), 4);
+        const twoWeeksAhead = addWeeks(new Date(), 2);
 
         const { error: delError } = await supabase
             .from('schedules')
             .delete()
             .gte('start_time', startOfThisWeek.toISOString())
-            .lte('start_time', fourWeeksAhead.toISOString());
+            .lte('start_time', twoWeeksAhead.toISOString());
 
         if (delError) throw new Error(`Delete failed: ${delError.message}`);
 
         const { error: insError } = await supabase.from('schedules').insert(scheduleEntries);
         if (insError) throw new Error(`Insert failed: ${insError.message}`);
 
+        // 8. Update sync metadata (Save Hash)
+        await supabase.from('sync_metadata').upsert({
+            key: 'schedule_csv_hash',
+            value: contentHash,
+            updated_at: new Date().toISOString()
+        });
+
         console.log('[Cron Sync] Completed Successfully!');
 
         return NextResponse.json({
             success: true,
-            message: `Synched ${scheduleEntries.length} schedule entries.`
+            message: `Synched ${scheduleEntries.length} entries. Hash updated.`,
+            hash: contentHash
         });
 
     } catch (err: any) {

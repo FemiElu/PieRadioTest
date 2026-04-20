@@ -1,36 +1,26 @@
 import { View, Text } from 'react-native';
-import { styled } from 'nativewind';
+import type { EventStatus } from '../../lib/events/types';
+import { EVENT_STATUS_LABELS } from '../../lib/events/types';
 
 interface EventStatusBadgeProps {
-    status: "onsale" | "soldout" | "fewleft" | "presale" | "cancelled";
+    status: EventStatus;
 }
 
 export function EventStatusBadge({ status }: EventStatusBadgeProps) {
     const getStatusStyles = () => {
         switch (status) {
-            case "onsale": return "bg-green-500";
-            case "fewleft": return "bg-orange-500";
-            case "presale": return "bg-blue-500";
-            case "soldout": return "bg-gray-500";
+            case "upcoming": return "bg-emerald-500";
+            case "past": return "bg-zinc-500";
             case "cancelled": return "bg-red-500";
-            default: return "bg-primary";
-        }
-    };
-
-    const getStatusLabel = () => {
-        switch (status) {
-            case "onsale": return "On Sale";
-            case "fewleft": return "Few Left";
-            case "presale": return "Presale";
-            case "soldout": return "Sold Out";
-            case "cancelled": return "Cancelled";
-            default: return status;
+            default: return "bg-[#334AFF]"; // Primary blue
         }
     };
 
     return (
-        <View className={`px-2 py-1 rounded-full self-start ${getStatusStyles()}`}>
-            <Text className="text-white text-xs font-bold uppercase">{getStatusLabel()}</Text>
+        <View className={`px-2 py-0.5 rounded-md self-start ${getStatusStyles()}`}>
+            <Text className="text-white text-[10px] font-black uppercase tracking-widest">
+                {EVENT_STATUS_LABELS[status] || status}
+            </Text>
         </View>
     );
 }

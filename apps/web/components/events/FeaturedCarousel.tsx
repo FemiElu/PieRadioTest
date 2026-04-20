@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Event } from "@/lib/dummy-data/events";
+import { Event } from "@/lib/events/types";
 import { EventCard } from "./EventCard";
 import { cn } from "@/lib/utils";
 

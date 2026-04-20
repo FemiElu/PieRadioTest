@@ -1,281 +1,223 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { getEventById, getRelatedEvents } from "@/lib/events/queries";
+import { formatEventPrice, EVENT_CATEGORY_LABELS } from "@/lib/events/types";
+import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
 import {
     Calendar,
     MapPin,
-    Clock,
     ArrowLeft,
     Share2,
-    Heart,
-    CalendarPlus,
-    PlayCircle,
-    PauseCircle,
-    Navigation,
+    Ticket,
+    ExternalLink,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { EVENTS } from "@/lib/dummy-data/events";
 import { EventStatusBadge } from "@/components/events/EventStatusBadge";
-import { PurchaseModal } from "@/components/events/PurchaseModal";
 import { FeaturedCarousel } from "@/components/events/FeaturedCarousel";
-import { useAudio } from "@/context/audio-context";
-import { Howl } from "howler";
 
-export default function EventDetailPage() {
-    const params = useParams();
-    const router = useRouter();
-    const { isPlaying: isRadioPlaying, togglePlay: toggleRadio } = useAudio();
+interface EventDetailPageProps {
+    params: Promise<{ id: string }>;
+}
 
-    const id = params.id as string;
-    const event = EVENTS.find((e) => e.id === id);
+export const revalidate = 60;
 
-    const [isPurchaseOpen, setIsPurchaseOpen] = useState(false);
-    const [isPlayingPromo, setIsPlayingPromo] = useState(false);
-    const [promoSound, setPromoSound] = useState<Howl | null>(null);
-
-    // Initialize Audio Promo
-    useEffect(() => {
-        if (event?.audioPromoUrl) {
-            const sound = new Howl({
-                src: [event.audioPromoUrl],
-                html5: true,
-                onend: () => setIsPlayingPromo(false),
-                onpause: () => setIsPlayingPromo(false),
-                onplay: () => setIsPlayingPromo(true),
-            });
-            setPromoSound(sound);
-
-            return () => {
-                sound.unload();
-            };
-        }
-    }, [event]);
-
-    const togglePromo = () => {
-        if (!promoSound) return;
-
-        if (isPlayingPromo) {
-            promoSound.pause();
-        } else {
-            // Pause radio if playing
-            if (isRadioPlaying) {
-                toggleRadio();
-            }
-            promoSound.play();
-        }
+export async function generateMetadata({ params }: EventDetailPageProps) {
+    const supabase = await createClient();
+    const { id } = await params;
+    const event = await getEventById(supabase, id);
+    
+    if (!event) return { title: "Event Not Found | Pie Radio" };
+    
+    return {
+        title: `${event.title} | Pie Radio Events`,
+        description: event.description?.slice(0, 160) || `Catch ${event.artist_name} at ${event.venue_name} on Pie Radio.`,
     };
+}
+
+export default async function EventDetailPage({ params }: EventDetailPageProps) {
+    const supabase = await createClient();
+    const { id } = await params;
+    const event = await getEventById(supabase, id);
 
     if (!event) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh]">
-                <h1 className="text-2xl font-bold">Event Not Found</h1>
-                <Button variant="link" onClick={() => router.push("/events")}>
-                    Back to Events
-                </Button>
-            </div>
-        );
+        notFound();
     }
 
-    const formattedDate = format(new Date(event.date), "EEEE, MMMM do, yyyy");
-    const relatedEvents = EVENTS.filter(
-        (e) => e.id !== event.id && (e.category === event.category || e.venue.city === event.venue.city)
-    ).slice(0, 5);
+    const relatedEvents = await getRelatedEvents(
+        supabase, 
+        event.id, 
+        event.category, 
+        event.venue_city
+    );
 
+    const formattedDate = format(new Date(event.start_time), "EEEE, MMMM do, yyyy");
+    const formattedTime = format(new Date(event.start_time), "HH:mm");
+    
     return (
         <div className="pb-20">
-            {/* Back Button (Mobile/Desktop) */}
+            {/* Nav Header */}
             <div className="container py-4 md:py-6">
-                <Button
-                    variant="ghost"
-                    className="gap-2 pl-0 hover:pl-2 transition-all"
-                    onClick={() => router.push("/events")}
-                >
-                    <ArrowLeft className="w-4 h-4" /> Back to Events
-                </Button>
+                <Link href="/events">
+                    <Button
+                        variant="ghost"
+                        className="gap-2 pl-0 hover:pl-2 transition-all font-bold text-xs uppercase tracking-widest text-zinc-500"
+                    >
+                        <ArrowLeft className="w-4 h-4" /> Back to Events
+                    </Button>
+                </Link>
             </div>
 
             {/* Hero Section */}
-            <div className="relative w-full h-[40vh] md:h-[50vh] lg:h-[60vh] bg-muted/20">
-                <Image
-                    src={event.image}
-                    alt={event.title}
-                    fill
-                    className="object-cover"
-                    priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+            <div className="relative w-full h-[45vh] md:h-[60vh] bg-zinc-900 overflow-hidden">
+                {event.cover_image_url ? (
+                    <Image
+                        src={event.cover_image_url}
+                        alt={event.title}
+                        fill
+                        className="object-cover opacity-60"
+                        priority
+                    />
+                ) : (
+                    <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                        <Calendar className="w-24 h-24 text-zinc-700" />
+                    </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#141827] via-[#141827]/40 to-transparent" />
 
-                <div className="absolute bottom-0 left-0 right-0 container pb-8 md:pb-12">
-                    <div className="max-w-4xl space-y-4">
-                        <div className="flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="absolute bottom-0 left-0 right-0 container pb-8 md:pb-16">
+                    <div className="max-w-4xl space-y-6">
+                        <div className="flex items-center gap-3">
                             <EventStatusBadge status={event.status} />
-                            <Badge variant="outline" className="bg-background/50 backdrop-blur text-foreground border-white/20">
-                                {event.category.toUpperCase()}
+                            <Badge variant="outline" className="bg-white/10 backdrop-blur text-white border-white/20 uppercase tracking-widest text-[10px] font-black py-1">
+                                {EVENT_CATEGORY_LABELS[event.category]}
                             </Badge>
                         </div>
 
-                        <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold text-white shadow-sm animate-in fade-in slide-in-from-bottom-6 duration-700">
-                            {event.title}
-                        </h1>
-
-                        <p className="text-lg md:text-2xl text-white/90 font-medium animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
-                            {event.artist}
-                        </p>
-
-                        {/* Audio Promo CTA */}
-                        {event.audioPromoUrl && (
-                            <Button
-                                size="lg"
-                                variant="outline"
-                                className="mt-4 gap-2 bg-white/10 hover:bg-white/20 text-white border-white/20"
-                                onClick={togglePromo}
-                            >
-                                {isPlayingPromo ? (
-                                    <>
-                                        <PauseCircle className="w-5 h-5" /> Pause Preview
-                                    </>
-                                ) : (
-                                    <>
-                                        <PlayCircle className="w-5 h-5" /> Listen to Preview
-                                    </>
-                                )}
-                            </Button>
-                        )}
+                        <div className="space-y-2">
+                            <h1 className="text-4xl md:text-7xl font-black font-display text-white leading-[0.9] tracking-tighter">
+                                {event.title}
+                            </h1>
+                            {event.artist_name && (
+                                <p className="text-xl md:text-3xl text-primary font-black italic uppercase tracking-tight">
+                                    {event.artist_name}
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="container grid grid-cols-1 lg:grid-cols-3 gap-10 mt-8">
+            <div className="container grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-16 mt-12">
                 {/* Main Content (Left Col) */}
-                <div className="lg:col-span-2 space-y-8">
-
+                <div className="lg:col-span-2 space-y-12">
                     {/* Key Details Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-xl border bg-card/50">
-                        <div className="flex items-start gap-3">
-                            <Calendar className="w-5 h-5 text-primary mt-1" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8 rounded-3xl border border-border/50 bg-card/50 shadow-sm">
+                        <div className="flex items-start gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                <Calendar className="w-5 h-5 text-primary" />
+                            </div>
                             <div>
-                                <h3 className="font-semibold">Date & Time</h3>
-                                <p className="text-muted-foreground">{formattedDate}</p>
-                                <p className="text-muted-foreground">{event.time}</p>
-                                <Button variant="link" className="px-0 h-auto text-primary text-xs mt-1">
-                                    <CalendarPlus className="w-3 h-3 mr-1" /> Add to Calendar
-                                </Button>
+                                <h3 className="font-bold text-xs uppercase tracking-widest text-zinc-400 mb-1">Date & Time</h3>
+                                <p className="font-bold text-[#141827]">{formattedDate}</p>
+                                <p className="text-zinc-500 font-medium">Starts at {formattedTime}</p>
                             </div>
                         </div>
-                        <div className="flex items-start gap-3">
-                            <MapPin className="w-5 h-5 text-primary mt-1" />
+                        <div className="flex items-start gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                <MapPin className="w-5 h-5 text-primary" />
+                            </div>
                             <div>
-                                <h3 className="font-semibold">Venue</h3>
-                                <p className="font-medium">{event.venue.name}</p>
-                                <p className="text-muted-foreground">{event.venue.address}</p>
-                                <p className="text-muted-foreground">{event.venue.city}</p>
-                                <Button variant="link" className="px-0 h-auto text-primary text-xs mt-1">
-                                    <Navigation className="w-3 h-3 mr-1" /> Get Directions
-                                </Button>
+                                <h3 className="font-bold text-xs uppercase tracking-widest text-zinc-400 mb-1">Venue</h3>
+                                <p className="font-bold text-[#141827]">{event.venue_name || event.location || "TBA"}</p>
+                                <p className="text-zinc-500">{event.venue_address}</p>
+                                <p className="text-zinc-500 font-medium">{event.venue_city}</p>
                             </div>
                         </div>
                     </div>
 
-                    {/* About Section */}
-                    <div className="space-y-4">
-                        <h2 className="text-2xl font-bold font-display">About the Event</h2>
-                        <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                            {event.description}
-                        </p>
-                    </div>
-
-                    {/* Venue Info Extended */}
-                    <div className="space-y-4">
-                        <h2 className="text-2xl font-bold font-display">Venue Information</h2>
-                        <div className="p-4 bg-muted/30 rounded-lg space-y-3">
-                            {event.venue.transportTips && (
-                                <div>
-                                    <span className="font-semibold block text-sm mb-1">Getting There</span>
-                                    <p className="text-sm text-muted-foreground">{event.venue.transportTips}</p>
-                                </div>
-                            )}
-                            {event.venue.rules && (
-                                <div>
-                                    <span className="font-semibold block text-sm mb-1">Venue Rules</span>
-                                    <ul className="list-disc list-inside text-sm text-muted-foreground">
-                                        {event.venue.rules.map((rule, idx) => (
-                                            <li key={idx}>{rule}</li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
+                    {/* Description Section */}
+                    {event.description && (
+                         <div className="space-y-6">
+                            <div className="flex items-center gap-3">
+                                <div className="h-px bg-primary w-8" />
+                                <h2 className="text-2xl font-black font-display uppercase tracking-tight text-[#141827]">About Event</h2>
+                            </div>
+                            <div className="prose prose-zinc max-w-none prose-p:text-zinc-500 prose-p:leading-relaxed prose-p:font-medium">
+                                <p className="whitespace-pre-wrap">{event.description}</p>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
 
-                {/* Sidebar (Right Col) - Sticky Ticket Box */}
+                {/* Sidebar (Right Col) */}
                 <div className="lg:col-span-1">
                     <div className="sticky top-24 space-y-6">
-                        <div className="p-6 rounded-xl border bg-card shadow-sm space-y-6">
-                            <div className="price-tiers space-y-3">
-                                <h3 className="font-semibold text-lg">Tickets</h3>
-                                <div className="space-y-2">
-                                    {event.ticketTiers.map(tier => (
-                                        <div key={tier.id} className="flex justify-between items-center text-sm py-2 border-b last:border-0 border-border/50">
-                                            <div>
-                                                <span className="font-medium">{tier.name}</span>
-                                                {tier.available < 20 && tier.available > 0 && (
-                                                    <span className="block text-xs text-orange-500">Only {tier.available} left!</span>
-                                                )}
-                                            </div>
-                                            <span className="font-bold">{tier.currency}{tier.price}</span>
-                                        </div>
-                                    ))}
+                        <div className="p-8 rounded-3xl border border-border/50 bg-white shadow-xl shadow-zinc-200/50 space-y-8">
+                            <div className="space-y-2">
+                                <h3 className="font-black font-display text-xs uppercase tracking-[0.2em] text-zinc-300">Tickets & Pricing</h3>
+                                <div className="text-4xl font-black font-display text-[#141827]">
+                                    {formatEventPrice(event)}
                                 </div>
                             </div>
 
-                            <Button
-                                size="lg"
-                                className="w-full text-lg shadow-primary/20 shadow-lg"
-                                onClick={() => setIsPurchaseOpen(true)}
-                                disabled={event.status === 'soldout' || event.status === 'cancelled'}
-                            >
-                                {event.status === 'soldout' ? 'Sold Out' : 'Buy Tickets'}
-                            </Button>
+                            <div className="space-y-4">
+                                {event.ticket_url ? (
+                                    <Link href={event.ticket_url} target="_blank" className="block">
+                                        <Button
+                                            size="lg"
+                                            className="w-full h-14 text-base font-black uppercase tracking-widest gap-2 shadow-lg shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                            disabled={event.status === 'cancelled' || event.status === 'past'}
+                                        >
+                                            <Ticket className="w-5 h-5" />
+                                            Get Tickets
+                                            <ExternalLink className="w-4 h-4 opacity-50" />
+                                        </Button>
+                                    </Link>
+                                ) : event.status === 'upcoming' && (event.price_min === 0) ? (
+                                    <div className="h-14 flex items-center justify-center bg-emerald-50 text-emerald-700 rounded-2xl border border-emerald-100 font-black uppercase tracking-widest text-sm">
+                                        Free Entry
+                                    </div>
+                                ) : (
+                                    <Button
+                                        size="lg"
+                                        disabled
+                                        className="w-full h-14 text-base font-black uppercase tracking-widest gap-2"
+                                    >
+                                        Unavailable
+                                    </Button>
+                                )}
 
-                            <div className="flex gap-2">
-                                <Button variant="outline" className="flex-1 gap-2">
-                                    <Share2 className="w-4 h-4" /> Share
-                                </Button>
-                                <Button variant="outline" className="flex-1 gap-2">
-                                    <Heart className="w-4 h-4" /> Save
+                                <Button variant="outline" className="w-full h-12 rounded-2xl border-border/50 text-zinc-500 font-bold uppercase tracking-widest text-[10px] gap-2 hover:bg-zinc-50 transition-all">
+                                    <Share2 className="w-3 h-3" /> Share Event
                                 </Button>
                             </div>
 
-                            <div className="text-xs text-center text-muted-foreground">
-                                Secure checkout powered by Pie Radio
+                            <div className="pt-6 border-t border-dashed border-border/50 text-center">
+                                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                                    All sales handled via external partner
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <Separator className="my-12" />
+            <Separator className="my-20 opacity-50" />
 
             {/* Related Events */}
-            <div className="container">
-                <h2 className="text-2xl font-bold font-display mb-6">You Might Also Like</h2>
-                <FeaturedCarousel events={relatedEvents} />
-            </div>
-
-            {/* Purchase Modal */}
-            <PurchaseModal
-                event={event}
-                isOpen={isPurchaseOpen}
-                onClose={() => setIsPurchaseOpen(false)}
-            />
+            {relatedEvents.length > 0 && (
+                <div className="container">
+                    <div className="flex items-center justify-between mb-8">
+                        <h2 className="text-3xl font-black font-display uppercase tracking-tight text-[#141827]">You Might Also Like</h2>
+                    </div>
+                    <FeaturedCarousel events={relatedEvents} />
+                </div>
+            )}
         </div>
     );
 }

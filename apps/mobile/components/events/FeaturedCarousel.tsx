@@ -1,5 +1,5 @@
 import { View, Text, FlatList, Dimensions } from 'react-native';
-import { Event } from '../../lib/dummy-events';
+import type { Event } from '../../lib/events/types';
 import { EventCard } from './EventCard';
 
 interface FeaturedCarouselProps {

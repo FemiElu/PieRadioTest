@@ -154,7 +154,7 @@ export default function AdminPresentersClient() {
                         <RefreshCw className="w-4 h-4" />
                         Refresh
                     </Button>
-                    <Button onClick={handleAddPresenter} className="rounded-xl gap-2">
+                    <Button disabled onClick={handleAddPresenter} className="rounded-xl gap-2">
                         <Plus className="w-4 h-4" />
                         Add Presenter
                     </Button>

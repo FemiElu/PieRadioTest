@@ -5,7 +5,12 @@ import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { Radio, Mic, Calendar, Upload, Music, AlertCircle } from "lucide-react";
 import { PresenterMessagesList } from "@/components/presenters/messages-list";
+import { SongRequestList } from "@/components/presenters/song-request-list";
 import { PresenterMessage } from "@/actions/presenter-messages";
+import { useCurrentShow } from "@/hooks/use-current-show";
+import { toast } from "sonner";
+import { createTestShow, seedTestRequests } from "@/app/actions/demo";
+import { Plus, Database, FlaskConical } from "lucide-react";
 
 interface DashboardClientProps {
     initialMessages: PresenterMessage[];
@@ -14,6 +19,13 @@ interface DashboardClientProps {
 export function DashboardClient({ initialMessages }: DashboardClientProps) {
     const { user, profile } = useAuth();
     const [isLive, setIsLive] = useState(false);
+    const { currentShow, loading: showLoading } = useCurrentShow();
+
+    // Determine if the current show belongs to this presenter
+    // useCurrentShow maps the presenter's full_name to shows.host_id
+    const isOurShow = currentShow?.shows?.host_id === profile?.full_name;
+    
+    const activeShowId = isOurShow ? currentShow?.id : null;
 
     const toggleLiveStatus = async () => {
         // TODO: Implement API call to update station_metadata
@@ -90,6 +102,23 @@ export function DashboardClient({ initialMessages }: DashboardClientProps) {
                         </div>
                     </div>
 
+                    {/* Song Requests Section (Live only for this presenter's show) */}
+                    {activeShowId ? (
+                        <SongRequestList showId={activeShowId} />
+                    ) : (
+                        <div className="rounded-xl border border-border/50 bg-card p-6 shadow-sm">
+                            <h2 className="text-xl font-semibold mb-2 flex items-center gap-2">
+                                <Music className="w-5 h-5 text-primary" />
+                                Song Requests
+                            </h2>
+                            <p className="text-muted-foreground text-sm">
+                                {showLoading 
+                                    ? "Checking for active shows..." 
+                                    : "You don't have an active show in the schedule right now. Requests will appear here when your show is live."}
+                            </p>
+                        </div>
+                    )}
+
                     {/* Messages List */}
                     <PresenterMessagesList initialMessages={initialMessages} />
                 </div>
@@ -100,9 +129,16 @@ export function DashboardClient({ initialMessages }: DashboardClientProps) {
                     <div className="rounded-xl border border-border/50 bg-card p-6 shadow-sm">
                         <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
                         <div className="space-y-2">
-                            <Button variant="outline" className="w-full justify-start gap-2">
+                            <Button 
+                                variant="outline" 
+                                className="w-full justify-start gap-2"
+                                onClick={() => {
+                                    const el = document.getElementById('song-requests-section');
+                                    el?.scrollIntoView({ behavior: 'smooth' });
+                                }}
+                            >
                                 <Music className="w-4 h-4" />
-                                Log Request
+                                Song Requests
                             </Button>
                             <Button variant="outline" className="w-full justify-start gap-2">
                                 <Calendar className="w-4 h-4" />
@@ -129,6 +165,60 @@ export function DashboardClient({ initialMessages }: DashboardClientProps) {
                             </span>
                         </div>
                     </div>
+
+                    {/* Developer Tools (Admin or Dev Mode) */}
+                    {(profile?.role === 'admin' || profile?.role === 'presenter') && (
+                        <div className="rounded-xl border border-primary/20 bg-primary/5 p-6 shadow-sm">
+                            <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-primary">
+                                <FlaskConical className="w-5 h-5" />
+                                Demo Mode
+                            </h2>
+                            <div className="space-y-3">
+                                <Button 
+                                    className="w-full justify-start gap-2" 
+                                    onClick={async () => {
+                                        try {
+                                            toast.loading("Creating test show...", { id: "demo-show" });
+                                            await createTestShow();
+                                            toast.success("Test show created! Dashboard will refresh.", { id: "demo-show" });
+                                            // useCurrentShow will pick up the new show via its interval or we can force reload
+                                            window.location.reload();
+                                        } catch (e: any) {
+                                            toast.error(e.message, { id: "demo-show" });
+                                        }
+                                    }}
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    Start 1h Test Show
+                                </Button>
+
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full justify-start gap-2" 
+                                    disabled={!activeShowId}
+                                    onClick={async () => {
+                                        if (!activeShowId) return;
+                                        try {
+                                            toast.loading("Seeding requests...", { id: "seed-req" });
+                                            await seedTestRequests(activeShowId);
+                                            toast.success("3 dummy requests added!", { id: "seed-req" });
+                                        } catch (e: any) {
+                                            toast.error(e.message, { id: "seed-req" });
+                                        }
+                                    }}
+                                >
+                                    <Database className="w-4 h-4" />
+                                    Simulate 3 Requests
+                                </Button>
+                                
+                                {!activeShowId && (
+                                    <p className="text-[10px] text-muted-foreground mt-2 italic">
+                                        * You must have an active show to simulate requests.
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

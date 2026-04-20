@@ -5,6 +5,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { Image } from "react-native";
+import { ProfileTabs } from "@/components/profile/ProfileTabs";
 
 export default function ProfileScreen() {
     const { user, profile, signOut, isAuthenticated } = useAuth();
@@ -75,18 +77,27 @@ export default function ProfileScreen() {
                     {/* Header */}
                     <View className="flex-row items-center justify-between mb-8">
                         <Text className="text-foreground text-3xl font-bold">Profile</Text>
-                        <TouchableOpacity onPress={() => signOut()} className="bg-red-500/10 px-4 py-2 rounded-full">
-                            <Text className="text-red-600 font-bold">Sign Out</Text>
-                        </TouchableOpacity>
+                        <View className="flex-row gap-2">
+                            <TouchableOpacity onPress={() => router.push("/profile/edit")} className="bg-primary/10 px-4 py-2 rounded-full">
+                                <Text className="text-primary font-bold">Edit</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => signOut()} className="bg-red-500/10 px-4 py-2 rounded-full">
+                                <Text className="text-red-600 font-bold">Sign Out</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
 
                     {/* Profile Card */}
                     <View className="bg-card border border-border rounded-2xl p-6 mb-6">
                         <View className="flex-row items-center gap-4 mb-4">
-                            <View className="w-16 h-16 bg-primary rounded-full items-center justify-center">
-                                <Text className="text-primary-foreground text-2xl font-bold">
-                                    {(profile?.full_name?.[0] || profile?.username?.[0] || user?.email?.[0] || "?").toUpperCase()}
-                                </Text>
+                            <View className="w-16 h-16 bg-primary rounded-full items-center justify-center overflow-hidden border-2 border-border">
+                                {profile?.avatar_url ? (
+                                    <Image source={{ uri: profile.avatar_url }} className="w-full h-full" />
+                                ) : (
+                                    <Text className="text-primary-foreground text-2xl font-bold">
+                                        {(profile?.full_name?.[0] || profile?.username?.[0] || user?.email?.[0] || "?").toUpperCase()}
+                                    </Text>
+                                )}
                             </View>
                             <View>
                                 <Text className="text-card-foreground text-xl font-bold">{profile?.full_name || "User"}</Text>
@@ -103,60 +114,7 @@ export default function ProfileScreen() {
                         </View>
                     </View>
 
-                    {/* Artist Features */}
-                    {artistProfile && (
-                        <View className="mb-6">
-                            <Text className="text-muted-foreground text-sm font-bold uppercase mb-4 tracking-wide">
-                                Artist Services
-                            </Text>
-
-                            <TouchableOpacity
-                                onPress={() => router.push("/profile/upload")}
-                                className="bg-card border-2 border-primary/25 rounded-xl p-4 flex-row items-center justify-between mb-3 shadow-sm"
-                            >
-                                <View className="flex-row items-center gap-3">
-                                    <View className="w-10 h-10 bg-primary/15 rounded-full items-center justify-center">
-                                        <Ionicons name="cloud-upload" size={20} color="#334aff" />
-                                    </View>
-                                    <View>
-                                        <Text className="text-card-foreground font-bold text-lg">Upload Track</Text>
-                                        <Text className="text-muted-foreground text-xs">Submit music for airplay</Text>
-                                    </View>
-                                </View>
-                                <Ionicons name="chevron-forward" size={20} color="#5d6476" />
-                            </TouchableOpacity>
-                        </View>
-                    )}
-
-                    {/* Presenter Features */}
-                    {(profile?.role === 'presenter' || profile?.role === 'admin') && (
-                        <View className="mb-6">
-                            <Text className="text-muted-foreground text-sm font-bold uppercase mb-4 tracking-wide">
-                                Presenter Tools
-                            </Text>
-
-                            <TouchableOpacity
-                                onPress={() => router.push("/dashboard/messages")}
-                                className="bg-card border-2 border-border rounded-xl p-4 flex-row items-center justify-between mb-3"
-                            >
-                                <View className="flex-row items-center gap-3">
-                                    <View className="w-10 h-10 bg-primary/15 rounded-full items-center justify-center">
-                                        <Ionicons name="mail" size={20} color="#334aff" />
-                                    </View>
-                                    <Text className="text-card-foreground font-bold text-lg">Messages</Text>
-                                </View>
-                                <Ionicons name="chevron-forward" size={20} color="#5d6476" />
-                            </TouchableOpacity>
-
-                            {/* Add more tools here later */}
-                        </View>
-                    )}
-
-                    {/* General Settings */}
-                    {/* <View>
-                         <Text className="text-zinc-400 text-sm font-bold uppercase mb-4 ">Settings</Text>
-                         // ...
-                    </View> */}
+                    <ProfileTabs user={user} profile={profile} artistProfile={artistProfile} />
                 </View>
             </ScrollView>
         </SafeAreaView>

@@ -5,11 +5,7 @@ import { useAuth } from "@/context/auth-context";
 import { useRouter } from "expo-router";
 import { Alert } from "react-native";
 
-interface MobileHeaderProps {
-    title?: string;
-}
-
-export function MobileHeader({ title = "PIE RADIO" }: MobileHeaderProps) {
+export function MobileHeader() {
     const { user, profile, isAuthenticated, signOut } = useAuth();
     const router = useRouter();
 
@@ -35,9 +31,13 @@ export function MobileHeader({ title = "PIE RADIO" }: MobileHeaderProps) {
     };
 
     return (
-        <View className="flex-row items-center justify-between px-4 py-3 bg-white border-b border-zinc-100">
-            <View className="flex-row items-center gap-2">
-                <Text className="text-zinc-900 font-black text-xl italic ">{title}</Text>
+        <View className="flex-row items-center justify-between px-4 py-2 bg-white border-b border-zinc-100">
+            <View className="flex-row items-center">
+                <Image
+                    source={require("../assets/logo.png")}
+                    className="w-28 h-10"
+                    resizeMode="contain"
+                />
             </View>
 
             <TouchableOpacity

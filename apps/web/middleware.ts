@@ -66,89 +66,49 @@ export async function middleware(request: NextRequest) {
     };
 
     // -------------------------------------------------------------------------
-    // Protect /admin routes - Require ADMIN role
+    // Protected Route Logic
+    // Only perform expensive database role checks if the user is 
+    // accessing a route that actually requires it.
     // -------------------------------------------------------------------------
-    if (pathname.startsWith("/admin")) {
+    
+    // 1. Admin Routes
+    if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
         if (!user) {
+            if (pathname.startsWith("/api/")) {
+                return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            }
             return redirectToLogin();
         }
 
-        // Fetch user role from database
-        const { data: profile, error } = await supabase
+        const { data: profile } = await supabase
             .from('profiles')
             .select('role')
             .eq('id', user.id)
             .single();
 
-        if (error || !profile) {
-            // User exists but no profile - shouldn't happen with triggers
-            console.error('Profile fetch error in middleware:', error);
-            return redirectToUnauthorized();
-        }
-
-        if (profile.role !== 'admin') {
+        if (!profile || profile.role !== 'admin') {
+            if (pathname.startsWith("/api/")) {
+                return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+            }
             return redirectToUnauthorized();
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Protect /dashboard/presenter routes - Require PRESENTER or ADMIN role
-    // -------------------------------------------------------------------------
-    if (pathname.startsWith("/dashboard/presenter")) {
-        if (!user) {
-            return redirectToLogin();
-        }
+    // 2. Presenter & Dashboard Routes
+    if (pathname.startsWith("/dashboard")) {
+        if (!user) return redirectToLogin();
 
-        // Fetch user role from database
-        const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single();
+        // Specific presenter routes require further checks
+        if (pathname.startsWith("/dashboard/presenter")) {
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', user.id)
+                .single();
 
-        if (error || !profile) {
-            console.error('Profile fetch error in middleware:', error);
-            return redirectToUnauthorized();
-        }
-
-        if (profile.role !== 'presenter' && profile.role !== 'admin') {
-            return redirectToUnauthorized();
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Protect /dashboard routes (general) - Require authentication only
-    // -------------------------------------------------------------------------
-    if (pathname.startsWith("/dashboard") && !pathname.startsWith("/dashboard/presenter")) {
-        if (!user) {
-            return redirectToLogin();
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Protect /api/admin routes - API-level protection (belt and suspenders)
-    // Note: API routes also have their own protection via role-guards
-    // -------------------------------------------------------------------------
-    if (pathname.startsWith("/api/admin")) {
-        if (!user) {
-            return NextResponse.json(
-                { error: "Unauthorized", code: "UNAUTHORIZED" },
-                { status: 401 }
-            );
-        }
-
-        // Fetch user role
-        const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single();
-
-        if (error || !profile || profile.role !== 'admin') {
-            return NextResponse.json(
-                { error: "Forbidden: Admin access required", code: "FORBIDDEN" },
-                { status: 403 }
-            );
+            if (!profile || (profile.role !== 'presenter' && profile.role !== 'admin')) {
+                return redirectToUnauthorized();
+            }
         }
     }
 
@@ -188,7 +148,16 @@ export const config = {
          * - _next/image (image optimization files)
          * - favicon.ico (favicon file)
          * - public assets (svg, png, jpg, etc.)
+         * - Public pages that don't need auth checks in middleware:
+         *   - / (homepage)
+         *   - /events
+         *   - /schedule
+         *   - /press
+         *   - /stations
+         *   - /api/events
+         *   - /api/news
+         *   - /api/stations
          */
-        "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+        "/((?!_next/static|_next/image|favicon.ico|events|schedule|press|stations|api/events|api/news|api/stations|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
     ],
 };

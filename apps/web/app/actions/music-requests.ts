@@ -255,16 +255,13 @@ export async function updateRequestStatus(
         .eq('id', user.id)
         .single();
 
-    // MVP: Admin only (no presenter access)
-    if (!profile || profile.role !== 'admin') {
-        throw new Error('Forbidden: Admin access required');
-    }
+    if (!profile) throw new Error('Profile not found');
 
     // 2. Fetch Request (with user email for notification)
     const { data: request, error: fetchError } = await supabase
         .from('music_requests')
         .select(`
-            id, created_at, status, artist_name, song_title,
+            id, created_at, status, artist_name, song_title, requested_by_user_id, show_id,
             profiles!music_requests_requested_by_user_id_fkey(email, full_name, username)
         `)
         .eq('id', requestId)
@@ -272,6 +269,26 @@ export async function updateRequestStatus(
 
     if (fetchError || !request) {
         throw new Error('Request not found');
+    }
+
+    // MVP: Admin or Presenter of the associated show
+    let isAuthorized = profile.role === 'admin';
+
+    if (!isAuthorized && profile.role === 'presenter' && request.show_id) {
+        // Check if this presenter is assigned to this show
+        const { data: show } = await supabase
+            .from('schedules')
+            .select('presenter_id')
+            .eq('id', request.show_id)
+            .single();
+
+        if (show?.presenter_id === user.id) {
+            isAuthorized = true;
+        }
+    }
+
+    if (!isAuthorized) {
+        throw new Error('Forbidden: You do not have permission to manage this request');
     }
 
     // 3. Expiry check (server-side, DB trigger also enforces)
@@ -312,17 +329,45 @@ export async function updateRequestStatus(
     }
 
     // 6. AFTER commit: Send notifications (async, non-blocking)
+    const userProfile = (request as any).profiles as {
+        email: string | null;
+        full_name: string | null;
+        username: string | null;
+    } | null;
+
+    const userEmail = userProfile?.email;
+    const userName = userProfile?.full_name || userProfile?.username || 'Listener';
+    const userId = request.requested_by_user_id;
+
+    // Send In-App Notification (async, don't await)
+    if (userId) {
+        import('@/lib/notifications/in-app').then(({ createInAppNotification }) => {
+            let title = '';
+            let message = '';
+
+            if (newStatus === 'approved') {
+                title = 'Song Request Approved';
+                message = `Your request for "${request.song_title}" by ${request.artist_name} has been approved!`;
+            } else if (newStatus === 'rejected') {
+                title = 'Song Request Update';
+                message = `Your request for "${request.song_title}" was not selected at this time.`;
+            } else if (newStatus === 'played') {
+                title = 'Your Song is Playing!';
+                message = `Tune in now! Your request for "${request.song_title}" is currently playing.`;
+            }
+
+            if (title && message) {
+                createInAppNotification({
+                    userId,
+                    type: 'song_request',
+                    title,
+                    message,
+                }).catch(err => console.error('[In-App Notification] Failed:', err));
+            }
+        });
+    }
+
     if (newStatus === 'approved') {
-        // Get user info for notification
-        const userProfile = (request as any).profiles as {
-            email: string | null;
-            full_name: string | null;
-            username: string | null;
-        } | null;
-
-        const userEmail = userProfile?.email;
-        const userName = userProfile?.full_name || userProfile?.username || 'Listener';
-
         // Send email notification (async, don't await)
         if (userEmail) {
             import('@/lib/notifications/email').then(({ sendApprovalEmail }) => {

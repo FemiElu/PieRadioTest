@@ -1,1 +1,1591 @@
-{"types":"export type Json =\n  | string\n  | number\n  | boolean\n  | null\n  | { [key: string]: Json | undefined }\n  | Json[]\n\nexport type Database = {\n  // Allows to automatically instantiate createClient with right options\n  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)\n  __InternalSupabase: {\n    PostgrestVersion: \"13.0.5\"\n  }\n  public: {\n    Tables: {\n      artist_uploads: {\n        Row: {\n          artist_id: string | null\n          audio_url: string\n          created_at: string | null\n          genre: string | null\n          id: string\n          reviewed_by: string | null\n          status: Database[\"public\"][\"Enums\"][\"request_status\"] | null\n          title: string\n        }\n        Insert: {\n          artist_id?: string | null\n          audio_url: string\n          created_at?: string | null\n          genre?: string | null\n          id?: string\n          reviewed_by?: string | null\n          status?: Database[\"public\"][\"Enums\"][\"request_status\"] | null\n          title: string\n        }\n        Update: {\n          artist_id?: string | null\n          audio_url?: string\n          created_at?: string | null\n          genre?: string | null\n          id?: string\n          reviewed_by?: string | null\n          status?: Database[\"public\"][\"Enums\"][\"request_status\"] | null\n          title?: string\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"artist_uploads_artist_id_fkey\"\n            columns: [\"artist_id\"]\n            isOneToOne: false\n            referencedRelation: \"profiles\"\n            referencedColumns: [\"id\"]\n          },\n          {\n            foreignKeyName: \"artist_uploads_reviewed_by_fkey\"\n            columns: [\"reviewed_by\"]\n            isOneToOne: false\n            referencedRelation: \"profiles\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n      chat_messages: {\n        Row: {\n          content: string\n          created_at: string | null\n          id: string\n          is_hidden: boolean | null\n          room_id: string | null\n          user_id: string | null\n        }\n        Insert: {\n          content: string\n          created_at?: string | null\n          id?: string\n          is_hidden?: boolean | null\n          room_id?: string | null\n          user_id?: string | null\n        }\n        Update: {\n          content?: string\n          created_at?: string | null\n          id?: string\n          is_hidden?: boolean | null\n          room_id?: string | null\n          user_id?: string | null\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"chat_messages_user_id_fkey\"\n            columns: [\"user_id\"]\n            isOneToOne: false\n            referencedRelation: \"profiles\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n      episodes: {\n        Row: {\n          created_at: string | null\n          description: string | null\n          duration_seconds: number | null\n          file_key: string | null\n          id: string\n          published_at: string | null\n          show_id: string | null\n          title: string\n          updated_at: string | null\n          vod_hls_url: string | null\n        }\n        Insert: {\n          created_at?: string | null\n          description?: string | null\n          duration_seconds?: number | null\n          file_key?: string | null\n          id?: string\n          published_at?: string | null\n          show_id?: string | null\n          title: string\n          updated_at?: string | null\n          vod_hls_url?: string | null\n        }\n        Update: {\n          created_at?: string | null\n          description?: string | null\n          duration_seconds?: number | null\n          file_key?: string | null\n          id?: string\n          published_at?: string | null\n          show_id?: string | null\n          title?: string\n          updated_at?: string | null\n          vod_hls_url?: string | null\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"episodes_show_id_fkey\"\n            columns: [\"show_id\"]\n            isOneToOne: false\n            referencedRelation: \"shows\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n      events: {\n        Row: {\n          capacity: number | null\n          cover_image_url: string | null\n          created_at: string | null\n          currency: string | null\n          description: string | null\n          end_time: string | null\n          id: string\n          location: string | null\n          price_amount: number | null\n          start_time: string\n          title: string\n        }\n        Insert: {\n          capacity?: number | null\n          cover_image_url?: string | null\n          created_at?: string | null\n          currency?: string | null\n          description?: string | null\n          end_time?: string | null\n          id?: string\n          location?: string | null\n          price_amount?: number | null\n          start_time: string\n          title: string\n        }\n        Update: {\n          capacity?: number | null\n          cover_image_url?: string | null\n          created_at?: string | null\n          currency?: string | null\n          description?: string | null\n          end_time?: string | null\n          id?: string\n          location?: string | null\n          price_amount?: number | null\n          start_time?: string\n          title?: string\n        }\n        Relationships: []\n      }\n      favorites: {\n        Row: {\n          created_at: string | null\n          id: string\n          user_id: string | null\n        }\n        Insert: {\n          created_at?: string | null\n          id?: string\n          user_id?: string | null\n        }\n        Update: {\n          created_at?: string | null\n          id?: string\n          user_id?: string | null\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"favorites_user_id_fkey\"\n            columns: [\"user_id\"]\n            isOneToOne: false\n            referencedRelation: \"profiles\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n      music_requests: {\n        Row: {\n          approved_at: string | null\n          artist_name: string\n          created_at: string | null\n          dedicated_to: string | null\n          device_id: string | null\n          id: string\n          listener_note: string | null\n          played_at: string | null\n          preferred_play_date: string | null\n          rejection_reason: string | null\n          requested_by_user_id: string | null\n          show_id: string | null\n          song_title: string\n          station_id: number | null\n          status: Database[\"public\"][\"Enums\"][\"request_status\"] | null\n          updated_at: string | null\n          user_id: string | null\n        }\n        Insert: {\n          approved_at?: string | null\n          artist_name: string\n          created_at?: string | null\n          dedicated_to?: string | null\n          device_id?: string | null\n          id?: string\n          listener_note?: string | null\n          played_at?: string | null\n          preferred_play_date?: string | null\n          rejection_reason?: string | null\n          requested_by_user_id?: string | null\n          show_id?: string | null\n          song_title: string\n          station_id?: number | null\n          status?: Database[\"public\"][\"Enums\"][\"request_status\"] | null\n          updated_at?: string | null\n          user_id?: string | null\n        }\n        Update: {\n          approved_at?: string | null\n          artist_name?: string\n          created_at?: string | null\n          dedicated_to?: string | null\n          device_id?: string | null\n          id?: string\n          listener_note?: string | null\n          played_at?: string | null\n          preferred_play_date?: string | null\n          rejection_reason?: string | null\n          requested_by_user_id?: string | null\n          show_id?: string | null\n          song_title?: string\n          station_id?: number | null\n          status?: Database[\"public\"][\"Enums\"][\"request_status\"] | null\n          updated_at?: string | null\n          user_id?: string | null\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"music_requests_requested_by_user_id_fkey\"\n            columns: [\"requested_by_user_id\"]\n            isOneToOne: false\n            referencedRelation: \"profiles\"\n            referencedColumns: [\"id\"]\n          },\n          {\n            foreignKeyName: \"music_requests_show_id_fkey\"\n            columns: [\"show_id\"]\n            isOneToOne: false\n            referencedRelation: \"shows\"\n            referencedColumns: [\"id\"]\n          },\n          {\n            foreignKeyName: \"music_requests_user_id_fkey\"\n            columns: [\"user_id\"]\n            isOneToOne: false\n            referencedRelation: \"profiles\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n      news_articles: {\n        Row: {\n          author_id: string | null\n          content: string\n          cover_image_url: string | null\n          created_at: string | null\n          id: string\n          published_at: string | null\n          slug: string\n          title: string\n        }\n        Insert: {\n          author_id?: string | null\n          content: string\n          cover_image_url?: string | null\n          created_at?: string | null\n          id?: string\n          published_at?: string | null\n          slug: string\n          title: string\n        }\n        Update: {\n          author_id?: string | null\n          content?: string\n          cover_image_url?: string | null\n          created_at?: string | null\n          id?: string\n          published_at?: string | null\n          slug?: string\n          title?: string\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"news_articles_author_id_fkey\"\n            columns: [\"author_id\"]\n            isOneToOne: false\n            referencedRelation: \"profiles\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n      playback_events: {\n        Row: {\n          client: string | null\n          created_at: string | null\n          duration_seconds: number | null\n          episode_id: string | null\n          event_type: string\n          id: string\n          position_seconds: number | null\n          station_id: string | null\n          user_id: string | null\n        }\n        Insert: {\n          client?: string | null\n          created_at?: string | null\n          duration_seconds?: number | null\n          episode_id?: string | null\n          event_type: string\n          id?: string\n          position_seconds?: number | null\n          station_id?: string | null\n          user_id?: string | null\n        }\n        Update: {\n          client?: string | null\n          created_at?: string | null\n          duration_seconds?: number | null\n          episode_id?: string | null\n          event_type?: string\n          id?: string\n          position_seconds?: number | null\n          station_id?: string | null\n          user_id?: string | null\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"playback_events_station_id_fkey\"\n            columns: [\"station_id\"]\n            isOneToOne: false\n            referencedRelation: \"station\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n      presenter_messages: {\n        Row: {\n          created_at: string | null\n          id: string\n          is_read: boolean | null\n          message: string\n          presenter_id: string\n          sender_email: string\n          sender_name: string\n          updated_at: string | null\n        }\n        Insert: {\n          created_at?: string | null\n          id?: string\n          is_read?: boolean | null\n          message: string\n          presenter_id: string\n          sender_email: string\n          sender_name: string\n          updated_at?: string | null\n        }\n        Update: {\n          created_at?: string | null\n          id?: string\n          is_read?: boolean | null\n          message?: string\n          presenter_id?: string\n          sender_email?: string\n          sender_name?: string\n          updated_at?: string | null\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"presenter_messages_presenter_id_fkey\"\n            columns: [\"presenter_id\"]\n            isOneToOne: false\n            referencedRelation: \"profiles\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n      presenter_meta: {\n        Row: {\n          category: string | null\n          instagram_handle: string | null\n          joined_date: string | null\n          twitter_handle: string | null\n          user_id: string\n          website_url: string | null\n        }\n        Insert: {\n          category?: string | null\n          instagram_handle?: string | null\n          joined_date?: string | null\n          twitter_handle?: string | null\n          user_id: string\n          website_url?: string | null\n        }\n        Update: {\n          category?: string | null\n          instagram_handle?: string | null\n          joined_date?: string | null\n          twitter_handle?: string | null\n          user_id?: string\n          website_url?: string | null\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"presenter_meta_user_id_fkey\"\n            columns: [\"user_id\"]\n            isOneToOne: true\n            referencedRelation: \"profiles\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n      profiles: {\n        Row: {\n          avatar_url: string | null\n          bio: string | null\n          created_at: string | null\n          email: string | null\n          full_name: string | null\n          id: string\n          is_live: boolean | null\n          role: string\n          slug: string | null\n          updated_at: string | null\n          username: string | null\n        }\n        Insert: {\n          avatar_url?: string | null\n          bio?: string | null\n          created_at?: string | null\n          email?: string | null\n          full_name?: string | null\n          id: string\n          is_live?: boolean | null\n          role?: string\n          slug?: string | null\n          updated_at?: string | null\n          username?: string | null\n        }\n        Update: {\n          avatar_url?: string | null\n          bio?: string | null\n          created_at?: string | null\n          email?: string | null\n          full_name?: string | null\n          id?: string\n          is_live?: boolean | null\n          role?: string\n          slug?: string | null\n          updated_at?: string | null\n          username?: string | null\n        }\n        Relationships: []\n      }\n      role_change_audit: {\n        Row: {\n          changed_at: string\n          changed_by: string | null\n          id: string\n          ip_address: unknown\n          new_role: string\n          old_role: string | null\n          reason: string | null\n          user_agent: string | null\n          user_id: string\n        }\n        Insert: {\n          changed_at?: string\n          changed_by?: string | null\n          id?: string\n          ip_address?: unknown\n          new_role: string\n          old_role?: string | null\n          reason?: string | null\n          user_agent?: string | null\n          user_id: string\n        }\n        Update: {\n          changed_at?: string\n          changed_by?: string | null\n          id?: string\n          ip_address?: unknown\n          new_role?: string\n          old_role?: string | null\n          reason?: string | null\n          user_agent?: string | null\n          user_id?: string\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"role_change_audit_changed_by_fkey\"\n            columns: [\"changed_by\"]\n            isOneToOne: false\n            referencedRelation: \"profiles\"\n            referencedColumns: [\"id\"]\n          },\n          {\n            foreignKeyName: \"role_change_audit_user_id_fkey\"\n            columns: [\"user_id\"]\n            isOneToOne: false\n            referencedRelation: \"profiles\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n      schedule_entries: {\n        Row: {\n          created_at: string | null\n          description: string | null\n          end_time: string | null\n          id: string\n          show_id: string | null\n          start_time: string\n          title: string | null\n        }\n        Insert: {\n          created_at?: string | null\n          description?: string | null\n          end_time?: string | null\n          id?: string\n          show_id?: string | null\n          start_time: string\n          title?: string | null\n        }\n        Update: {\n          created_at?: string | null\n          description?: string | null\n          end_time?: string | null\n          id?: string\n          show_id?: string | null\n          start_time?: string\n          title?: string | null\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"schedule_entries_show_id_fkey\"\n            columns: [\"show_id\"]\n            isOneToOne: false\n            referencedRelation: \"shows\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n      schedule_slots: {\n        Row: {\n          created_at: string | null\n          day_of_week: number | null\n          end_time: string\n          id: string\n          is_recurring: boolean | null\n          override_date: string | null\n          show_id: string | null\n          start_time: string\n        }\n        Insert: {\n          created_at?: string | null\n          day_of_week?: number | null\n          end_time: string\n          id?: string\n          is_recurring?: boolean | null\n          override_date?: string | null\n          show_id?: string | null\n          start_time: string\n        }\n        Update: {\n          created_at?: string | null\n          day_of_week?: number | null\n          end_time?: string\n          id?: string\n          is_recurring?: boolean | null\n          override_date?: string | null\n          show_id?: string | null\n          start_time?: string\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"schedule_slots_show_id_fkey\"\n            columns: [\"show_id\"]\n            isOneToOne: false\n            referencedRelation: \"shows\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n      shows: {\n        Row: {\n          artwork_url: string | null\n          created_at: string | null\n          description: string | null\n          genre: string | null\n          host_id: string | null\n          id: string\n          is_featured: boolean | null\n          title: string\n          updated_at: string | null\n        }\n        Insert: {\n          artwork_url?: string | null\n          created_at?: string | null\n          description?: string | null\n          genre?: string | null\n          host_id?: string | null\n          id?: string\n          is_featured?: boolean | null\n          title: string\n          updated_at?: string | null\n        }\n        Update: {\n          artwork_url?: string | null\n          created_at?: string | null\n          description?: string | null\n          genre?: string | null\n          host_id?: string | null\n          id?: string\n          is_featured?: boolean | null\n          title?: string\n          updated_at?: string | null\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"shows_host_id_fkey\"\n            columns: [\"host_id\"]\n            isOneToOne: false\n            referencedRelation: \"profiles\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n      station: {\n        Row: {\n          created_at: string | null\n          description: string | null\n          id: string\n          logo_url: string | null\n          name: string\n          slug: string\n          stream_hls_url: string | null\n          stream_icy_url: string | null\n          timezone: string | null\n          updated_at: string | null\n        }\n        Insert: {\n          created_at?: string | null\n          description?: string | null\n          id?: string\n          logo_url?: string | null\n          name: string\n          slug: string\n          stream_hls_url?: string | null\n          stream_icy_url?: string | null\n          timezone?: string | null\n          updated_at?: string | null\n        }\n        Update: {\n          created_at?: string | null\n          description?: string | null\n          id?: string\n          logo_url?: string | null\n          name?: string\n          slug?: string\n          stream_hls_url?: string | null\n          stream_icy_url?: string | null\n          timezone?: string | null\n          updated_at?: string | null\n        }\n        Relationships: []\n      }\n      station_metadata: {\n        Row: {\n          artist: string | null\n          cover_url: string | null\n          id: number\n          title: string | null\n          updated_at: string | null\n        }\n        Insert: {\n          artist?: string | null\n          cover_url?: string | null\n          id?: never\n          title?: string | null\n          updated_at?: string | null\n        }\n        Update: {\n          artist?: string | null\n          cover_url?: string | null\n          id?: never\n          title?: string | null\n          updated_at?: string | null\n        }\n        Relationships: []\n      }\n      station_metadata_history: {\n        Row: {\n          artist: string | null\n          cover_url: string | null\n          id: string\n          metadata_id: number | null\n          played_at: string | null\n          title: string | null\n        }\n        Insert: {\n          artist?: string | null\n          cover_url?: string | null\n          id?: string\n          metadata_id?: number | null\n          played_at?: string | null\n          title?: string | null\n        }\n        Update: {\n          artist?: string | null\n          cover_url?: string | null\n          id?: string\n          metadata_id?: number | null\n          played_at?: string | null\n          title?: string | null\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"station_metadata_history_metadata_id_fkey\"\n            columns: [\"metadata_id\"]\n            isOneToOne: false\n            referencedRelation: \"station_metadata\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n      tickets: {\n        Row: {\n          event_id: string | null\n          id: string\n          purchased_at: string | null\n          qr_code: string | null\n          status: string | null\n          stripe_session_id: string | null\n          user_id: string | null\n        }\n        Insert: {\n          event_id?: string | null\n          id?: string\n          purchased_at?: string | null\n          qr_code?: string | null\n          status?: string | null\n          stripe_session_id?: string | null\n          user_id?: string | null\n        }\n        Update: {\n          event_id?: string | null\n          id?: string\n          purchased_at?: string | null\n          qr_code?: string | null\n          status?: string | null\n          stripe_session_id?: string | null\n          user_id?: string | null\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"tickets_event_id_fkey\"\n            columns: [\"event_id\"]\n            isOneToOne: false\n            referencedRelation: \"events\"\n            referencedColumns: [\"id\"]\n          },\n          {\n            foreignKeyName: \"tickets_user_id_fkey\"\n            columns: [\"user_id\"]\n            isOneToOne: false\n            referencedRelation: \"profiles\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n      uploads: {\n        Row: {\n          created_at: string | null\n          error: string | null\n          file_key: string | null\n          id: string\n          original_filename: string | null\n          purpose: string | null\n          status: string | null\n          updated_at: string | null\n          uploaded_by: string | null\n        }\n        Insert: {\n          created_at?: string | null\n          error?: string | null\n          file_key?: string | null\n          id?: string\n          original_filename?: string | null\n          purpose?: string | null\n          status?: string | null\n          updated_at?: string | null\n          uploaded_by?: string | null\n        }\n        Update: {\n          created_at?: string | null\n          error?: string | null\n          file_key?: string | null\n          id?: string\n          original_filename?: string | null\n          purpose?: string | null\n          status?: string | null\n          updated_at?: string | null\n          uploaded_by?: string | null\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"uploads_uploaded_by_fkey\"\n            columns: [\"uploaded_by\"]\n            isOneToOne: false\n            referencedRelation: \"profiles\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n      user_favorites: {\n        Row: {\n          created_at: string | null\n          id: string\n          item_id: string\n          item_type: string | null\n          user_id: string | null\n        }\n        Insert: {\n          created_at?: string | null\n          id?: string\n          item_id: string\n          item_type?: string | null\n          user_id?: string | null\n        }\n        Update: {\n          created_at?: string | null\n          id?: string\n          item_id?: string\n          item_type?: string | null\n          user_id?: string | null\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"user_favorites_user_id_fkey\"\n            columns: [\"user_id\"]\n            isOneToOne: false\n            referencedRelation: \"profiles\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n    }\n    Views: {\n      role_change_audit_view: {\n        Row: {\n          changed_at: string | null\n          changed_by: string | null\n          changed_by_email: string | null\n          changed_by_username: string | null\n          id: string | null\n          new_role: string | null\n          old_role: string | null\n          reason: string | null\n          user_email: string | null\n          user_full_name: string | null\n          user_id: string | null\n          user_username: string | null\n        }\n        Relationships: [\n          {\n            foreignKeyName: \"role_change_audit_changed_by_fkey\"\n            columns: [\"changed_by\"]\n            isOneToOne: false\n            referencedRelation: \"profiles\"\n            referencedColumns: [\"id\"]\n          },\n          {\n            foreignKeyName: \"role_change_audit_user_id_fkey\"\n            columns: [\"user_id\"]\n            isOneToOne: false\n            referencedRelation: \"profiles\"\n            referencedColumns: [\"id\"]\n          },\n        ]\n      }\n    }\n    Functions: {\n      current_user_role: { Args: never; Returns: string }\n      get_user_role: { Args: never; Returns: string }\n      has_any_role: { Args: { required_roles: string[] }; Returns: boolean }\n      has_role: { Args: { required_role: string }; Returns: boolean }\n      is_admin: { Args: never; Returns: boolean }\n      is_presenter: { Args: never; Returns: boolean }\n      is_presenter_or_admin: { Args: never; Returns: boolean }\n    }\n    Enums: {\n      request_status:\n        | \"pending\"\n        | \"approved\"\n        | \"declined\"\n        | \"played\"\n        | \"rejected\"\n        | \"expired\"\n      user_role: \"listener\" | \"presenter\" | \"admin\"\n    }\n    CompositeTypes: {\n      [_ in never]: never\n    }\n  }\n}\n\ntype DatabaseWithoutInternals = Omit<Database, \"__InternalSupabase\">\n\ntype DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, \"public\">]\n\nexport type Tables<\n  DefaultSchemaTableNameOrOptions extends\n    | keyof (DefaultSchema[\"Tables\"] & DefaultSchema[\"Views\"])\n    | { schema: keyof DatabaseWithoutInternals },\n  TableName extends DefaultSchemaTableNameOrOptions extends {\n    schema: keyof DatabaseWithoutInternals\n  }\n    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions[\"schema\"]][\"Tables\"] &\n        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions[\"schema\"]][\"Views\"])\n    : never = never,\n> = DefaultSchemaTableNameOrOptions extends {\n  schema: keyof DatabaseWithoutInternals\n}\n  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions[\"schema\"]][\"Tables\"] &\n      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions[\"schema\"]][\"Views\"])[TableName] extends {\n      Row: infer R\n    }\n    ? R\n    : never\n  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema[\"Tables\"] &\n        DefaultSchema[\"Views\"])\n    ? (DefaultSchema[\"Tables\"] &\n        DefaultSchema[\"Views\"])[DefaultSchemaTableNameOrOptions] extends {\n        Row: infer R\n      }\n      ? R\n      : never\n    : never\n\nexport type TablesInsert<\n  DefaultSchemaTableNameOrOptions extends\n    | keyof DefaultSchema[\"Tables\"]\n    | { schema: keyof DatabaseWithoutInternals },\n  TableName extends DefaultSchemaTableNameOrOptions extends {\n    schema: keyof DatabaseWithoutInternals\n  }\n    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions[\"schema\"]][\"Tables\"]\n    : never = never,\n> = DefaultSchemaTableNameOrOptions extends {\n  schema: keyof DatabaseWithoutInternals\n}\n  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions[\"schema\"]][\"Tables\"][TableName] extends {\n      Insert: infer I\n    }\n    ? I\n    : never\n  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema[\"Tables\"]\n    ? DefaultSchema[\"Tables\"][DefaultSchemaTableNameOrOptions] extends {\n        Insert: infer I\n      }\n      ? I\n      : never\n    : never\n\nexport type TablesUpdate<\n  DefaultSchemaTableNameOrOptions extends\n    | keyof DefaultSchema[\"Tables\"]\n    | { schema: keyof DatabaseWithoutInternals },\n  TableName extends DefaultSchemaTableNameOrOptions extends {\n    schema: keyof DatabaseWithoutInternals\n  }\n    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions[\"schema\"]][\"Tables\"]\n    : never = never,\n> = DefaultSchemaTableNameOrOptions extends {\n  schema: keyof DatabaseWithoutInternals\n}\n  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions[\"schema\"]][\"Tables\"][TableName] extends {\n      Update: infer U\n    }\n    ? U\n    : never\n  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema[\"Tables\"]\n    ? DefaultSchema[\"Tables\"][DefaultSchemaTableNameOrOptions] extends {\n        Update: infer U\n      }\n      ? U\n      : never\n    : never\n\nexport type Enums<\n  DefaultSchemaEnumNameOrOptions extends\n    | keyof DefaultSchema[\"Enums\"]\n    | { schema: keyof DatabaseWithoutInternals },\n  EnumName extends DefaultSchemaEnumNameOrOptions extends {\n    schema: keyof DatabaseWithoutInternals\n  }\n    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions[\"schema\"]][\"Enums\"]\n    : never = never,\n> = DefaultSchemaEnumNameOrOptions extends {\n  schema: keyof DatabaseWithoutInternals\n}\n  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions[\"schema\"]][\"Enums\"][EnumName]\n  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema[\"Enums\"]\n    ? DefaultSchema[\"Enums\"][DefaultSchemaEnumNameOrOptions]\n    : never\n\nexport type CompositeTypes<\n  PublicCompositeTypeNameOrOptions extends\n    | keyof DefaultSchema[\"CompositeTypes\"]\n    | { schema: keyof DatabaseWithoutInternals },\n  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {\n    schema: keyof DatabaseWithoutInternals\n  }\n    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions[\"schema\"]][\"CompositeTypes\"]\n    : never = never,\n> = PublicCompositeTypeNameOrOptions extends {\n  schema: keyof DatabaseWithoutInternals\n}\n  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions[\"schema\"]][\"CompositeTypes\"][CompositeTypeName]\n  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema[\"CompositeTypes\"]\n    ? DefaultSchema[\"CompositeTypes\"][PublicCompositeTypeNameOrOptions]\n    : never\n\nexport const Constants = {\n  public: {\n    Enums: {\n      request_status: [\n        \"pending\",\n        \"approved\",\n        \"declined\",\n        \"played\",\n        \"rejected\",\n        \"expired\",\n      ],\n      user_role: [\"listener\", \"presenter\", \"admin\"],\n    },\n  },\n} as const\n"}
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "13.0.5"
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+  public: {
+    Tables: {
+      artist_profiles: {
+        Row: {
+          apple_music_id: string | null
+          bio: string | null
+          created_at: string
+          featured_track_url: string | null
+          id: string
+          is_verified: boolean | null
+          spotify_id: string | null
+          stage_name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          apple_music_id?: string | null
+          bio?: string | null
+          created_at?: string
+          featured_track_url?: string | null
+          id?: string
+          is_verified?: boolean | null
+          spotify_id?: string | null
+          stage_name?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          apple_music_id?: string | null
+          bio?: string | null
+          created_at?: string
+          featured_track_url?: string | null
+          id?: string
+          is_verified?: boolean | null
+          spotify_id?: string | null
+          stage_name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      artist_uploads: {
+        Row: {
+          artist_id: string | null
+          assigned_show_id: string | null
+          audio_url: string
+          cover_art_url: string | null
+          created_at: string | null
+          genre: string | null
+          id: string
+          pitch_notes: string | null
+          preferred_show_ids: string[] | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["request_status"] | null
+          title: string
+        }
+        Insert: {
+          artist_id?: string | null
+          assigned_show_id?: string | null
+          audio_url: string
+          cover_art_url?: string | null
+          created_at?: string | null
+          genre?: string | null
+          id?: string
+          pitch_notes?: string | null
+          preferred_show_ids?: string[] | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["request_status"] | null
+          title: string
+        }
+        Update: {
+          artist_id?: string | null
+          assigned_show_id?: string | null
+          audio_url?: string
+          cover_art_url?: string | null
+          created_at?: string | null
+          genre?: string | null
+          id?: string
+          pitch_notes?: string | null
+          preferred_show_ids?: string[] | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["request_status"] | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_uploads_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_uploads_assigned_show_id_fkey"
+            columns: ["assigned_show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_uploads_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          is_hidden: boolean | null
+          room_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          is_hidden?: boolean | null
+          room_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_hidden?: boolean | null
+          room_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      episodes: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          duration_seconds: number | null
+          file_key: string | null
+          id: string
+          published_at: string | null
+          show_id: string | null
+          title: string
+          updated_at: string | null
+          vod_hls_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          duration_seconds?: number | null
+          file_key?: string | null
+          id?: string
+          published_at?: string | null
+          show_id?: string | null
+          title: string
+          updated_at?: string | null
+          vod_hls_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          duration_seconds?: number | null
+          file_key?: string | null
+          id?: string
+          published_at?: string | null
+          show_id?: string | null
+          title?: string
+          updated_at?: string | null
+          vod_hls_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "episodes_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          artist_name: string | null
+          capacity: number | null
+          category: string | null
+          cover_image_url: string | null
+          created_at: string | null
+          created_by: string | null
+          currency: string | null
+          description: string | null
+          end_time: string | null
+          id: string
+          is_featured: boolean | null
+          location: string | null
+          price_amount: number | null
+          price_max: number | null
+          price_min: number | null
+          start_time: string
+          status: string | null
+          ticket_url: string | null
+          title: string
+          updated_at: string | null
+          venue_address: string | null
+          venue_city: string | null
+          venue_name: string | null
+        }
+        Insert: {
+          artist_name?: string | null
+          capacity?: number | null
+          category?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          is_featured?: boolean | null
+          location?: string | null
+          price_amount?: number | null
+          price_max?: number | null
+          price_min?: number | null
+          start_time: string
+          status?: string | null
+          ticket_url?: string | null
+          title: string
+          updated_at?: string | null
+          venue_address?: string | null
+          venue_city?: string | null
+          venue_name?: string | null
+        }
+        Update: {
+          artist_name?: string | null
+          capacity?: number | null
+          category?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          is_featured?: boolean | null
+          location?: string | null
+          price_amount?: number | null
+          price_max?: number | null
+          price_min?: number | null
+          start_time?: string
+          status?: string | null
+          ticket_url?: string | null
+          title?: string
+          updated_at?: string | null
+          venue_address?: string | null
+          venue_city?: string | null
+          venue_name?: string | null
+        }
+        Relationships: []
+      }
+      favorites: {
+        Row: {
+          created_at: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      liked_presenters: {
+        Row: {
+          created_at: string
+          id: string
+          presenter_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          presenter_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          presenter_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "liked_presenters_presenter_id_fkey"
+            columns: ["presenter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "liked_presenters_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      liked_shows: {
+        Row: {
+          created_at: string
+          id: string
+          show_id: string
+          show_image_url: string | null
+          show_title: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          show_id: string
+          show_image_url?: string | null
+          show_title?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          show_id?: string
+          show_image_url?: string | null
+          show_title?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "liked_shows_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      liked_songs: {
+        Row: {
+          artist_name: string | null
+          cover_url: string | null
+          created_at: string
+          id: string
+          song_title: string
+          user_id: string
+        }
+        Insert: {
+          artist_name?: string | null
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          song_title: string
+          user_id: string
+        }
+        Update: {
+          artist_name?: string | null
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          song_title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "liked_songs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      music_requests: {
+        Row: {
+          approved_at: string | null
+          artist_name: string
+          created_at: string | null
+          dedicated_to: string | null
+          device_id: string | null
+          id: string
+          listener_note: string | null
+          played_at: string | null
+          preferred_play_date: string | null
+          rejection_reason: string | null
+          requested_by_user_id: string | null
+          show_id: string | null
+          song_title: string
+          station_id: number | null
+          status: Database["public"]["Enums"]["request_status"] | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          artist_name: string
+          created_at?: string | null
+          dedicated_to?: string | null
+          device_id?: string | null
+          id?: string
+          listener_note?: string | null
+          played_at?: string | null
+          preferred_play_date?: string | null
+          rejection_reason?: string | null
+          requested_by_user_id?: string | null
+          show_id?: string | null
+          song_title: string
+          station_id?: number | null
+          status?: Database["public"]["Enums"]["request_status"] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          artist_name?: string
+          created_at?: string | null
+          dedicated_to?: string | null
+          device_id?: string | null
+          id?: string
+          listener_note?: string | null
+          played_at?: string | null
+          preferred_play_date?: string | null
+          rejection_reason?: string | null
+          requested_by_user_id?: string | null
+          show_id?: string | null
+          song_title?: string
+          station_id?: number | null
+          status?: Database["public"]["Enums"]["request_status"] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_requests_requested_by_user_id_fkey"
+            columns: ["requested_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "music_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      news_articles: {
+        Row: {
+          audio_moments: Json | null
+          audio_preview_url: string | null
+          author_id: string | null
+          author_name: string | null
+          category: string | null
+          comments_count: number
+          content: string
+          cover_image_url: string | null
+          created_at: string | null
+          id: string
+          is_breaking: boolean
+          likes_count: number
+          published_at: string | null
+          shares_count: number
+          slug: string
+          status: string
+          summary: string | null
+          tier: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          audio_moments?: Json | null
+          audio_preview_url?: string | null
+          author_id?: string | null
+          author_name?: string | null
+          category?: string | null
+          comments_count?: number
+          content: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_breaking?: boolean
+          likes_count?: number
+          published_at?: string | null
+          shares_count?: number
+          slug: string
+          status?: string
+          summary?: string | null
+          tier?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          audio_moments?: Json | null
+          audio_preview_url?: string | null
+          author_id?: string | null
+          author_name?: string | null
+          category?: string | null
+          comments_count?: number
+          content?: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_breaking?: boolean
+          likes_count?: number
+          published_at?: string | null
+          shares_count?: number
+          slug?: string
+          status?: string
+          summary?: string | null
+          tier?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_articles_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          link_url: string | null
+          message: string
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          link_url?: string | null
+          message: string
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          link_url?: string | null
+          message?: string
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      playback_events: {
+        Row: {
+          client: string | null
+          created_at: string | null
+          duration_seconds: number | null
+          episode_id: string | null
+          event_type: string
+          id: string
+          position_seconds: number | null
+          station_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          client?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          episode_id?: string | null
+          event_type: string
+          id?: string
+          position_seconds?: number | null
+          station_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          client?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          episode_id?: string | null
+          event_type?: string
+          id?: string
+          position_seconds?: number | null
+          station_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playback_events_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "station"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      presenter_messages: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          presenter_id: string
+          sender_email: string
+          sender_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          presenter_id: string
+          sender_email: string
+          sender_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          presenter_id?: string
+          sender_email?: string
+          sender_name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "presenter_messages_presenter_id_fkey"
+            columns: ["presenter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      presenter_meta: {
+        Row: {
+          category: string | null
+          instagram_handle: string | null
+          joined_date: string | null
+          twitter_handle: string | null
+          user_id: string
+          website_url: string | null
+        }
+        Insert: {
+          category?: string | null
+          instagram_handle?: string | null
+          joined_date?: string | null
+          twitter_handle?: string | null
+          user_id: string
+          website_url?: string | null
+        }
+        Update: {
+          category?: string | null
+          instagram_handle?: string | null
+          joined_date?: string | null
+          twitter_handle?: string | null
+          user_id?: string
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "presenter_meta_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      presenter_shows: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string | null
+          description: string | null
+          display_order: number
+          id: string
+          presenter_id: string
+          schedule: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number
+          id?: string
+          presenter_id: string
+          schedule?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number
+          id?: string
+          presenter_id?: string
+          schedule?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "presenter_shows_presenter_id_fkey"
+            columns: ["presenter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          is_live: boolean | null
+          presenter_alias: string | null
+          role: string
+          slug: string | null
+          updated_at: string | null
+          username: string | null
+          wants_live_show_alerts: boolean | null
+          wants_news_updates: boolean | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          is_live?: boolean | null
+          presenter_alias?: string | null
+          role?: string
+          slug?: string | null
+          updated_at?: string | null
+          username?: string | null
+          wants_live_show_alerts?: boolean | null
+          wants_news_updates?: boolean | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          is_live?: boolean | null
+          presenter_alias?: string | null
+          role?: string
+          slug?: string | null
+          updated_at?: string | null
+          username?: string | null
+          wants_live_show_alerts?: boolean | null
+          wants_news_updates?: boolean | null
+        }
+        Relationships: []
+      }
+      push_tokens: {
+        Row: {
+          created_at: string | null
+          id: string
+          platform: string | null
+          token: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          platform?: string | null
+          token: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          platform?: string | null
+          token?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      role_change_audit: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          id: string
+          ip_address: unknown
+          new_role: string
+          old_role: string | null
+          reason: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          ip_address?: unknown
+          new_role: string
+          old_role?: string | null
+          reason?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          ip_address?: unknown
+          new_role?: string
+          old_role?: string | null
+          reason?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_change_audit_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_change_audit_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_entries: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          end_time: string | null
+          id: string
+          show_id: string | null
+          start_time: string
+          title: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          show_id?: string | null
+          start_time: string
+          title?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          show_id?: string | null
+          start_time?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_entries_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_slots: {
+        Row: {
+          created_at: string | null
+          day_of_week: number | null
+          end_time: string
+          id: string
+          is_recurring: boolean | null
+          override_date: string | null
+          show_id: string | null
+          start_time: string
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week?: number | null
+          end_time: string
+          id?: string
+          is_recurring?: boolean | null
+          override_date?: string | null
+          show_id?: string | null
+          start_time: string
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: number | null
+          end_time?: string
+          id?: string
+          is_recurring?: boolean | null
+          override_date?: string | null
+          show_id?: string | null
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_slots_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedules: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          end_time: string
+          id: string
+          image_url: string | null
+          is_live: boolean | null
+          presenter_id: string | null
+          start_time: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          end_time: string
+          id?: string
+          image_url?: string | null
+          is_live?: boolean | null
+          presenter_id?: string | null
+          start_time: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          end_time?: string
+          id?: string
+          image_url?: string | null
+          is_live?: boolean | null
+          presenter_id?: string | null
+          start_time?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedules_presenter_id_fkey"
+            columns: ["presenter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shows: {
+        Row: {
+          artwork_url: string | null
+          created_at: string | null
+          description: string | null
+          genre: string | null
+          host_id: string | null
+          id: string
+          is_featured: boolean | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          artwork_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          genre?: string | null
+          host_id?: string | null
+          id?: string
+          is_featured?: boolean | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          artwork_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          genre?: string | null
+          host_id?: string | null
+          id?: string
+          is_featured?: boolean | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shows_host_id_fkey"
+            columns: ["host_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      station: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          slug: string
+          stream_hls_url: string | null
+          stream_icy_url: string | null
+          timezone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          slug: string
+          stream_hls_url?: string | null
+          stream_icy_url?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          slug?: string
+          stream_hls_url?: string | null
+          stream_icy_url?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      station_metadata: {
+        Row: {
+          artist: string | null
+          cover_url: string | null
+          id: number
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          artist?: string | null
+          cover_url?: string | null
+          id?: never
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          artist?: string | null
+          cover_url?: string | null
+          id?: never
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      station_metadata_history: {
+        Row: {
+          artist: string | null
+          cover_url: string | null
+          id: string
+          metadata_id: number | null
+          played_at: string | null
+          title: string | null
+        }
+        Insert: {
+          artist?: string | null
+          cover_url?: string | null
+          id?: string
+          metadata_id?: number | null
+          played_at?: string | null
+          title?: string | null
+        }
+        Update: {
+          artist?: string | null
+          cover_url?: string | null
+          id?: string
+          metadata_id?: number | null
+          played_at?: string | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "station_metadata_history_metadata_id_fkey"
+            columns: ["metadata_id"]
+            isOneToOne: false
+            referencedRelation: "station_metadata"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sync_metadata: {
+        Row: {
+          key: string
+          updated_at: string | null
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string | null
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
+      tickets: {
+        Row: {
+          event_id: string | null
+          id: string
+          purchased_at: string | null
+          qr_code: string | null
+          status: string | null
+          stripe_session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          event_id?: string | null
+          id?: string
+          purchased_at?: string | null
+          qr_code?: string | null
+          status?: string | null
+          stripe_session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          event_id?: string | null
+          id?: string
+          purchased_at?: string | null
+          qr_code?: string | null
+          status?: string | null
+          stripe_session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      uploads: {
+        Row: {
+          created_at: string | null
+          error: string | null
+          file_key: string | null
+          id: string
+          original_filename: string | null
+          purpose: string | null
+          status: string | null
+          updated_at: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error?: string | null
+          file_key?: string | null
+          id?: string
+          original_filename?: string | null
+          purpose?: string | null
+          status?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error?: string | null
+          file_key?: string | null
+          id?: string
+          original_filename?: string | null
+          purpose?: string | null
+          status?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "uploads_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_favorites: {
+        Row: {
+          created_at: string | null
+          id: string
+          item_id: string
+          item_type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          item_id: string
+          item_type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          item_id?: string
+          item_type?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      waitlist: {
+        Row: {
+          created_at: string | null
+          email: string
+          full_name: string
+          id: string
+          marketing_consent: boolean | null
+          source: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          full_name: string
+          id?: string
+          marketing_consent?: boolean | null
+          source?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          marketing_consent?: boolean | null
+          source?: string | null
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      role_change_audit_view: {
+        Row: {
+          changed_at: string | null
+          changed_by: string | null
+          changed_by_name: string | null
+          id: string | null
+          new_role: string | null
+          old_role: string | null
+          reason: string | null
+          user_email: string | null
+          user_full_name: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_change_audit_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_change_audit_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
+    Functions: {
+      current_user_role: { Args: never; Returns: string }
+      get_live_presenter_ids: { Args: never; Returns: string[] }
+      get_user_role: { Args: never; Returns: string }
+      has_any_role: { Args: { required_roles: string[] }; Returns: boolean }
+      has_role: { Args: { required_role: string }; Returns: boolean }
+      is_admin: { Args: never; Returns: boolean }
+      is_presenter: { Args: never; Returns: boolean }
+      is_presenter_or_admin: { Args: never; Returns: boolean }
+    }
+    Enums: {
+      notification_type:
+        | "track_update"
+        | "song_request"
+        | "show_alert"
+        | "news"
+        | "system"
+      request_status:
+        | "pending"
+        | "approved"
+        | "declined"
+        | "played"
+        | "rejected"
+        | "expired"
+        | "under_review"
+        | "queued"
+        | "scheduled"
+      user_role: "listener" | "presenter" | "admin"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
+  public: {
+    Enums: {
+      notification_type: [
+        "track_update",
+        "song_request",
+        "show_alert",
+        "news",
+        "system",
+      ],
+      request_status: [
+        "pending",
+        "approved",
+        "declined",
+        "played",
+        "rejected",
+        "expired",
+        "under_review",
+        "queued",
+        "scheduled",
+      ],
+      user_role: ["listener", "presenter", "admin"],
+    },
+  },
+} as const

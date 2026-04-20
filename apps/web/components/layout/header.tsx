@@ -23,6 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { NotificationBell } from "./notification-bell";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -111,61 +112,64 @@ export function Header() {
             {mounted && !isLoading && (
               <>
                 {user ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="rounded-full"
-                      >
-                        <User className="h-5 w-5" />
-                        <span className="sr-only">Account</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuLabel>
-                        <div className="flex flex-col space-y-1">
-                          <p className="text-sm font-medium leading-none">
-                            {profile?.full_name || "User"}
-                          </p>
-                          <p className="text-xs leading-none text-muted-foreground">
-                            {profile?.email || user.email}
-                          </p>
-                        </div>
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {(profile?.role === "admin" ||
-                        profile?.role === "presenter") && (
+                  <div className="flex items-center gap-1">
+                    <NotificationBell />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="rounded-full"
+                        >
+                          <User className="h-5 w-5" />
+                          <span className="sr-only">Account</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuLabel>
+                          <div className="flex flex-col space-y-1">
+                            <p className="text-sm font-medium leading-none">
+                              {profile?.full_name || "User"}
+                            </p>
+                            <p className="text-xs leading-none text-muted-foreground">
+                              {profile?.email || user.email}
+                            </p>
+                          </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {(profile?.role === "admin" ||
+                          profile?.role === "presenter") && (
+                          <DropdownMenuItem asChild>
+                            <Link
+                              href={
+                                profile.role === "admin"
+                                  ? "/admin"
+                                  : "/dashboard/presenter"
+                              }
+                              className="cursor-pointer"
+                            >
+                              <LayoutDashboard className="mr-2 h-4 w-4" />
+                              Dashboard
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem asChild>
-                          <Link
-                            href={
-                              profile.role === "admin"
-                                ? "/admin"
-                                : "/dashboard/presenter"
-                            }
-                            className="cursor-pointer"
-                          >
-                            <LayoutDashboard className="mr-2 h-4 w-4" />
-                            Dashboard
+                          <Link href="/profile" className="cursor-pointer">
+                            <Settings className="mr-2 h-4 w-4" />
+                            Settings & Profile
                           </Link>
                         </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem asChild>
-                        <Link href="/profile" className="cursor-pointer">
-                          <Settings className="mr-2 h-4 w-4" />
-                          Settings & Profile
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => signOut()}
-                        className="cursor-pointer text-red-600 focus:text-red-600"
-                      >
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Log out
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => signOut()}
+                          className="cursor-pointer text-red-600 focus:text-red-600"
+                        >
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Log out
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 ) : (
                   <div className="hidden md:flex items-center gap-2">
                     <Button variant="ghost" asChild>

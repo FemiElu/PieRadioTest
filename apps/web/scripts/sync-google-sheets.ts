@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import axios from 'axios';
 import { parse } from 'csv-parse/sync';
-import { addWeeks, format, parse as dateParse, startOfDay, addDays, setHours, setMinutes, isAfter } from 'date-fns';
-import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+import { addWeeks, format, startOfDay, addDays } from 'date-fns';
+import { fromZonedTime } from 'date-fns-tz';
 import * as dotenv from 'dotenv';
 import { resolve } from 'path';
 
@@ -22,7 +22,22 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const TIMEZONE = 'Europe/London'; // Adjust to station's timezone
+const TIMEZONE = 'Europe/London';
+
+const PRESENTER_MAPPING: Record<string, string> = {
+    'MARION': 'Marion Taba-Goma',
+    'KEMOY B': 'Kemoy Walker',
+    'JASON': 'Jason Da Costa',
+    'KANE': 'kane williams',
+    'KANE WILLIAM': 'kane williams',
+    'DJ WATTEH': 'Callum Watteh',
+    'DJ MALIBU': 'DJ Malibu',
+    'NANA': 'Nana Mwene',
+    'APHRODITE': 'Aphrodite',
+    'LADY YOLA': 'Lady Yola',
+    'PELUMI JOY': 'Pelumi Joy',
+    'QUAN': 'Quantel',
+};
 
 async function sync() {
     console.log('Starting Google Sheets Schedule Sync...');
@@ -37,7 +52,7 @@ async function sync() {
             skip_empty_lines: true,
         });
 
-        // Find the header row (Time Range, Monday...)
+        // Find the "Time Range" header row
         let headerRowIndex = -1;
         for (let i = 0; i < records.length; i++) {
             if (records[i].includes('Time Range')) {
@@ -53,34 +68,60 @@ async function sync() {
         const headers = records[headerRowIndex];
         const dataRows = records.slice(headerRowIndex + 1);
 
-        // Map column indices
         const colMap: Record<string, number> = {};
         headers.forEach((h: string, i: number) => {
             if (h) colMap[h.trim()] = i;
         });
 
-        console.log('Found Schedule Rows:', dataRows.length);
+        // 3. Fetch profiles
+        const { data: profiles, error: profileErr } = await supabase.from('profiles').select('id, full_name, username, presenter_alias');
+        if (profileErr) throw new Error(`Profiles fetch failed: ${profileErr.message}`);
 
-        // 3. Fetch all profiles for presenter matching
-        const { data: profiles } = await supabase.from('profiles').select('id, full_name, username');
-        const profileLookup = (name: string) => {
+        const normaliseName = (name: string) =>
+            name.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+
+        const profileLookup = (name: string): string | null => {
             if (!name) return null;
-            const normalized = name.toLowerCase().trim();
-            return profiles?.find(p =>
-                p.username?.toLowerCase() === normalized ||
-                p.full_name?.toLowerCase() === normalized
-            )?.id || null;
+            const rawName = name.trim();
+            const upperName = rawName.toUpperCase();
+            
+            const aliasMatch = profiles?.find(p => 
+                p.presenter_alias?.toUpperCase().trim() === upperName ||
+                (p.presenter_alias && normaliseName(p.presenter_alias) === normaliseName(rawName))
+            );
+            if (aliasMatch) return aliasMatch.id;
+
+            const mappedName = PRESENTER_MAPPING[upperName];
+            const lookupName = mappedName || rawName;
+            const normalised = normaliseName(lookupName);
+            
+            const match = profiles?.find(p => {
+                const byUsername = p.username ? normaliseName(p.username) : null;
+                const byFullName = p.full_name ? normaliseName(p.full_name) : null;
+                return byUsername === normalised || byFullName === normalised;
+            });
+            
+            if (!match) {
+                const partialMatch = profiles?.find(p => {
+                    const fullName = (p.full_name || '').toLowerCase();
+                    const username = (p.username || '').toLowerCase();
+                    const n = normalised.toLowerCase();
+                    return fullName.includes(n) || username.includes(n);
+                });
+                if (partialMatch) return partialMatch.id;
+                return null;
+            }
+            return match.id;
         };
 
         const scheduleEntries: any[] = [];
         const lastSeenContent: Record<string, string> = {};
 
-        // 4. Process each row and day
+        // 4. Process Rows
         for (const row of dataRows) {
             const timeRange = row[colMap['Time Range']];
             if (!timeRange) continue;
 
-            // Parse "1AM - 8AM" or "11PM- 12AM"
             const times = timeRange.split(/[-–]/).map((s: string) => s.trim());
             if (times.length !== 2) continue;
 
@@ -100,32 +141,20 @@ async function sync() {
             if (startHour === null || endHour === null) continue;
 
             for (const dayName of DAYS_OF_WEEK) {
-                let content = row[colMap[dayName]]?.trim();
+                let cellContent = row[colMap[dayName]]?.trim();
 
-                // CARRY FORWARD LOGIC:
-                // If this cell is empty, it's likely a merged cell in Google Sheets.
-                // We carry forward the content from the "last seen" row for this day.
-                if (!content) {
-                    content = lastSeenContent[dayName];
+                if (!cellContent) {
+                    cellContent = lastSeenContent[dayName];
                 } else {
-                    // Update "last seen" for future empty cells (merged cells)
-                    lastSeenContent[dayName] = content;
+                    lastSeenContent[dayName] = cellContent;
                 }
 
-                if (!content) continue;
+                if (!cellContent) continue;
 
-                if (content.toLowerCase() === 'non stop music') {
-                    // We can still create "Non Stop Music" entries if we want, 
-                    // or just skip and have the UI handle gaps.
-                    // For now, let's create them so the list is continuous.
-                }
-
-                // Extract Title and Presenter
-                let title = content.trim();
+                let title = cellContent.trim();
                 let presenterName = '';
 
-                // Patterns like "Show Name W/ Host" or "Show Name WITH Host"
-                const presenterMatch = content.match(/(.+?)\s*(?:W\/|WITH)\s*(.+)/i);
+                const presenterMatch = cellContent.match(/(.+?)\s*(?:W\/|WITH)\s*(.+)/i);
                 if (presenterMatch) {
                     title = presenterMatch[1].trim();
                     presenterName = presenterMatch[2].trim();
@@ -133,24 +162,20 @@ async function sync() {
 
                 const presenterId = profileLookup(presenterName);
 
-                // Project for next 4 weeks
                 const now = new Date();
-                const startOfThisWeek = startOfDay(addDays(now, -now.getDay())); // Sunday
+                const startOfThisWeek = startOfDay(addDays(now, -now.getDay()));
 
                 for (let weekOffset = 0; weekOffset < 4; weekOffset++) {
                     const dayOffset = DAYS_OF_WEEK.indexOf(dayName);
                     const showDate = addDays(startOfThisWeek, dayOffset + (weekOffset * 7));
 
-                    // Form a strict string in London timezone format
                     const yyyyMmDd = format(showDate, 'yyyy-MM-dd');
                     const startLocalString = `${yyyyMmDd} ${startHour.toString().padStart(2, '0')}:00:00`;
 
-                    // End date might be next day
                     const endShowDate = endHour <= startHour ? addDays(showDate, 1) : showDate;
                     const endYyyyMmDd = format(endShowDate, 'yyyy-MM-dd');
                     const endLocalString = `${endYyyyMmDd} ${endHour.toString().padStart(2, '0')}:00:00`;
 
-                    // Convert from London time to actual UTC Date for DB storage
                     const startUtc = fromZonedTime(startLocalString, TIMEZONE);
                     const endUtc = fromZonedTime(endLocalString, TIMEZONE);
 
@@ -160,7 +185,7 @@ async function sync() {
                         start_time: startUtc.toISOString(),
                         end_time: endUtc.toISOString(),
                         presenter_id: presenterId,
-                        is_live: false, // Computed by UI usually
+                        is_live: false,
                     });
                 }
             }
@@ -179,7 +204,6 @@ async function sync() {
 
         if (delError) throw delError;
 
-        // Batch insert (Supabase limit is usually 1000 per request, we should be fine with ~700 entries)
         const { error: insError } = await supabase.from('schedules').insert(scheduleEntries);
         if (insError) throw insError;
 
@@ -191,3 +215,4 @@ async function sync() {
 }
 
 sync();
+

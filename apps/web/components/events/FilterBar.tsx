@@ -10,26 +10,22 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { EVENT_CATEGORIES, EVENT_CATEGORY_LABELS } from "@/lib/events/types";
 
 const CATEGORIES = [
     { id: "all", label: "All" },
-    { id: "pop", label: "Pop" },
-    { id: "jazz", label: "Jazz" },
-    { id: "electronic", label: "Electronic" },
-    { id: "rock", label: "Rock" },
-    { id: "hiphop", label: "Hip Hop" },
-    { id: "acoustic", label: "Acoustic" },
+    ...EVENT_CATEGORIES.map(cat => ({ id: cat, label: EVENT_CATEGORY_LABELS[cat] }))
 ];
 
 interface FilterBarProps {
     onSearch: (query: string) => void;
     onCategoryChange: (category: string) => void;
     onSortChange: (sort: string) => void;
+    resultsCount: number;
 }
 
-export function FilterBar({ onSearch, onCategoryChange, onSortChange }: FilterBarProps) {
+export function FilterBar({ onSearch, onCategoryChange, onSortChange, resultsCount }: FilterBarProps) {
     const [activeCategory, setActiveCategory] = useState("all");
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
@@ -67,10 +63,10 @@ export function FilterBar({ onSearch, onCategoryChange, onSortChange }: FilterBa
                         key={cat.id}
                         onClick={() => handleCategoryClick(cat.id)}
                         className={cn(
-                            "px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
+                            "px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-widest whitespace-nowrap transition-all border",
                             activeCategory === cat.id
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground border-transparent"
                         )}
                     >
                         {cat.label}
@@ -78,20 +74,22 @@ export function FilterBar({ onSearch, onCategoryChange, onSortChange }: FilterBa
                 ))}
             </div>
 
-            {/* Results Count & Sort (Visual only for now) */}
+            {/* Results Count & Sort */}
             <div className="flex items-center justify-between pt-2">
-                <span className="text-sm text-muted-foreground">6 events found</span>
+                <span className="text-sm font-bold text-zinc-400 uppercase tracking-widest">
+                    {resultsCount} {resultsCount === 1 ? 'event' : 'events'} found
+                </span>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 gap-1 text-muted-foreground hover:text-foreground">
-                            Recommended <ChevronDown className="w-4 h-4" />
+                        <Button variant="ghost" size="sm" className="h-8 gap-1 text-zinc-500 font-bold uppercase tracking-widest hover:text-primary transition-colors text-[10px]">
+                            Sort <ChevronDown className="w-3 h-3" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onSortChange("recommended")}>Recommended</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onSortChange("date_asc")}>Date (Soonest)</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onSortChange("price_asc")}>Price (Low to High)</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onSortChange("popular")}>Popular</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onSortChange("recommended")} className="font-bold text-xs uppercase tracking-widest">Recommended</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onSortChange("date_asc")} className="font-bold text-xs uppercase tracking-widest">Date (Soonest)</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onSortChange("price_asc")} className="font-bold text-xs uppercase tracking-widest">Price (Low to High)</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onSortChange("popular")} className="font-bold text-xs uppercase tracking-widest">Popular</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>

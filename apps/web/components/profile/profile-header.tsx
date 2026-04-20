@@ -1,12 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Link as LinkIcon, Music2, Edit3 } from 'lucide-react';
+import { EditProfileDialog } from './edit-profile-dialog';
 
 export function ProfileHeader({ profile, artistProfile }: { profile: any; artistProfile: any }) {
     const isArtist = !!artistProfile;
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
     // Fallback initials
     const initials = (profile?.full_name?.[0] || profile?.email?.[0] || '?').toUpperCase();
@@ -68,7 +71,7 @@ export function ProfileHeader({ profile, artistProfile }: { profile: any; artist
                             Apple Music
                         </Button>
                     )}
-                    <Button variant="secondary" size="sm">
+                    <Button variant="secondary" size="sm" onClick={() => setIsEditDialogOpen(true)}>
                         <Edit3 className="w-4 h-4 mr-2" />
                         Edit Profile
                     </Button>
@@ -91,6 +94,13 @@ export function ProfileHeader({ profile, artistProfile }: { profile: any; artist
                     </p>
                 </div>
             )}
+            
+            <EditProfileDialog 
+                open={isEditDialogOpen} 
+                onOpenChange={setIsEditDialogOpen} 
+                profile={profile} 
+                artistProfile={artistProfile} 
+            />
         </div>
     );
 }
