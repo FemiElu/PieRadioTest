@@ -491,170 +491,197 @@ export default function PopeyesUkPage() {
         className="bg-warm-cream py-16 sm:py-20 lg:py-24"
       >
         <div className="container max-w-screen-2xl mx-auto px-4 md:px-8">
-          <div className="max-w-xl mx-auto text-center scroll-reveal">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-popeyes-orange/10 text-popeyes-orange text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-4 sm:mb-6">
-              <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              Exclusive Event
-            </div>
-
-            <h2 className="text-[2.75rem] sm:text-5xl lg:text-7xl font-black font-display text-deep-text tracking-tighter mb-2 leading-[0.9] italic uppercase">
-              Feel The <span className="text-popeyes-orange">Heat</span>
-            </h2>
-
-            <p className="text-base sm:text-xl font-bold text-popeyes-orange mb-6 px-4">
-              PIE Radio x Popeyes® · Exclusive Live Event
-            </p>
-
-
-            <div className="flex flex-wrap justify-center md:justify-center gap-1.5 sm:gap-2 mb-8 px-2">
-              {[
-                "Live DJ sets",
-                "Epic giveaways",
-              ].map((tag, i) => (
-                <span
-                  key={i}
-                  className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-deep-text text-white text-[10px] min-[400px]:text-xs font-bold leading-none"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-10 text-left px-2 sm:px-0">
-              <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-sm flex items-start gap-3 sm:block">
-                <MapPin className="w-5 h-5 text-popeyes-orange shrink-0 sm:mb-2" />
-                <div>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5 sm:mb-1">Venue</p>
-                  <p className="text-xs sm:text-sm font-bold text-deep-text leading-tight">
-                    CUPRA City Garage, Manchester, M2 7LG
-                  </p>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+            {/* Left Column: Event Flyer */}
+            <div className="lg:col-span-5 flex justify-center scroll-reveal lg:order-1">
+              <div className="relative group perspective-1000 w-full max-w-[450px]">
+                <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-700 group-hover:shadow-[0_40px_80px_rgba(0,0,0,0.25)] group-hover:scale-[1.02] bg-white">
+                  <Image
+                    src="/assets/Pie Radio Main Flyer upload.webp"
+                    alt="Feel The Heat Event Flyer - Pie Radio x Popeyes"
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 1024px) 90vw, 500px"
+                    priority
+                  />
+                  {/* Subtle glass overlay on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 </div>
-              </div>
-              <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-sm flex items-start gap-3 sm:block">
-                <Calendar className="w-5 h-5 text-popeyes-orange shrink-0 sm:mb-2" />
-                <div>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5 sm:mb-1">Date & Time</p>
-                  <p className="text-xs sm:text-sm font-bold text-deep-text leading-tight">
-                    Friday 22nd May . 7PM - 11:30PM
-                  </p>
-                </div>
-              </div>
-              <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-sm flex items-start gap-3 sm:block">
-                <Ticket className="w-5 h-5 text-popeyes-orange shrink-0 sm:mb-2" />
-                <div>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5 sm:mb-1">Entry</p>
-                  <p className="text-xs sm:text-sm font-bold text-deep-text leading-tight uppercase">
-                    Free entry <span className="capitalize">(exclusive guest list)</span>
-                  </p>
-                </div>
+                
+                {/* Decorative background element */}
+                <div className="absolute -inset-4 bg-popeyes-orange/5 blur-3xl -z-10 rounded-full scale-150 animate-pulse" />
               </div>
             </div>
 
-
-
-            {formSuccess ? (
-              <div className="bg-white rounded-2xl border border-popeyes-orange/30 p-8 sm:p-10 text-center animate-slide-in-up">
-                <div className="w-16 h-16 rounded-full bg-popeyes-orange/10 flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl" role="img" aria-label="Party">
-                    🎉
-                  </span>
+            {/* Right Column: Event Content & Form */}
+            <div className="lg:col-span-7 w-full max-w-xl mx-auto lg:mx-0 scroll-reveal lg:order-2">
+              <div className="text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-popeyes-orange/10 text-popeyes-orange text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-4 sm:mb-6">
+                  <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  Exclusive Event
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold font-display text-deep-text mb-2">
-                  You&apos;re in!
-                </h3>
-                <p className="text-sm sm:text-base text-muted-foreground">
-                  We&apos;ll send event updates to{" "}
-                  <span className="font-semibold text-deep-text">
-                    {email || fullName}
-                  </span>
-                  .
-                  <br />
-                  Stay hungry. Stay vibing.
+
+                <h2 className="text-[2.75rem] sm:text-5xl lg:text-7xl font-black font-display text-deep-text tracking-tighter mb-2 leading-[0.9] italic uppercase">
+                  Feel The <span className="text-popeyes-orange">Heat</span>
+                </h2>
+
+                <p className="text-base sm:text-xl font-bold text-popeyes-orange mb-6">
+                  PIE Radio x Popeyes® · Exclusive Live Event
                 </p>
-              </div>
-            ) : (
-              <form
-                onSubmit={handleSubmit}
-                className="bg-white rounded-2xl border border-border/50 p-6 sm:p-8 shadow-lg scroll-reveal"
-                noValidate
-              >
-                <div className="space-y-4">
-                  <div className="text-left">
-                    <label
-                      htmlFor="full-name"
-                      className="text-sm font-medium text-deep-text mb-1.5 block"
-                    >
-                      Full name <span className="text-cajun-red">*</span>
-                    </label>
-                    <Input
-                      id="full-name"
-                      name="fullName"
-                      type="text"
-                      placeholder="Joe Doe"
-                      defaultValue={fullName}
-                      onChange={(e) => {
-                        setFullName(e.target.value);
-                        if (formError) setFormError("");
-                      }}
-                      className="h-12 rounded-xl text-base"
-                      required
-                      autoComplete="name"
-                    />
-                  </div>
 
-                  <div className="text-left">
-                    <label
-                      htmlFor="waitlist-email"
-                      className="text-sm font-medium text-deep-text mb-1.5 block"
+                <div className="flex flex-wrap justify-center lg:justify-start gap-1.5 sm:gap-2 mb-8">
+                  {["Live DJ sets", "Epic giveaways"].map((tag, i) => (
+                    <span
+                      key={i}
+                      className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-deep-text text-white text-[10px] min-[400px]:text-xs font-bold leading-none"
                     >
-                      Email address <span className="text-cajun-red">*</span>
-                    </label>
-                    <Input
-                      id="waitlist-email"
-                      name="email"
-                      type="email"
-                      placeholder="you@example.com"
-                      defaultValue={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        if (formError) setFormError("");
-                      }}
-                      className="h-12 rounded-xl text-base"
-                      required
-                      autoComplete="email"
-                    />
-                  </div>
-                  <label className="flex justify-center items-center items-start gap-2 text-xs md:text-sm text-white/80">
-                    <input
-                      type="checkbox"
-                      checked={agreeToMarketing}
-                      onChange={(e) => {
-                        setAgreeToMarketing(e.target.checked);
-                        if (formError) setFormError("");
-                      }}
-                      className="mt-1 h-4 w-4 accent-popeyes-orange rounded border-white/20 bg-white/10 text-popeyes-orange focus:ring-popeyes-orange"
-                    />
-                    <span className="leading-tight text-popeyes-orange font-xs text-start">
-                      I agree to receive marketing emails, updates, and special
-                      offers from Popeyes® UK.
+                      {tag}
                     </span>
-                  </label>
-
-                  {formError && (
-                    <p
-                      className="text-sm text-cajun-red text-left"
-                      role="alert"
-                      aria-live="assertive"
-                    >
-                      {formError}
-                    </p>
-                  )}
-
-                  <SubmitButton />
+                  ))}
                 </div>
-              </form>
-            )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-10 text-left">
+                  <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-sm flex items-start gap-3 sm:block">
+                    <MapPin className="w-5 h-5 text-popeyes-orange shrink-0 sm:mb-2" />
+                    <div>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5 sm:mb-1">
+                        Venue
+                      </p>
+                      <p className="text-xs sm:text-sm font-bold text-deep-text leading-tight">
+                        CUPRA City Garage, Manchester, M2 7LG
+                      </p>
+                    </div>
+                  </div>
+                  <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-sm flex items-start gap-3 sm:block">
+                    <Calendar className="w-5 h-5 text-popeyes-orange shrink-0 sm:mb-2" />
+                    <div>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5 sm:mb-1">
+                        Date & Time
+                      </p>
+                      <p className="text-xs sm:text-sm font-bold text-deep-text leading-tight">
+                        Friday 22nd May . 7PM - 11:30PM
+                      </p>
+                    </div>
+                  </div>
+                  <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-sm flex items-start gap-3 sm:block">
+                    <Ticket className="w-5 h-5 text-popeyes-orange shrink-0 sm:mb-2" />
+                    <div>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5 sm:mb-1">
+                        Entry
+                      </p>
+                      <p className="text-xs sm:text-sm font-bold text-deep-text leading-tight uppercase">
+                        Free entry{" "}
+                        <span className="capitalize">
+                          (exclusive guest list)
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {formSuccess ? (
+                  <div className="bg-white rounded-2xl border border-popeyes-orange/30 p-8 sm:p-10 text-center animate-slide-in-up">
+                    <div className="w-16 h-16 rounded-full bg-popeyes-orange/10 flex items-center justify-center mx-auto mb-4">
+                      <span className="text-3xl" role="img" aria-label="Party">
+                        🎉
+                      </span>
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-bold font-display text-deep-text mb-2">
+                      You&apos;re in!
+                    </h3>
+                    <p className="text-sm sm:text-base text-muted-foreground">
+                      We&apos;ll send event updates to{" "}
+                      <span className="font-semibold text-deep-text">
+                        {email || fullName}
+                      </span>
+                      .<br />
+                      Stay hungry. Stay vibing.
+                    </p>
+                  </div>
+                ) : (
+                  <form
+                    onSubmit={handleSubmit}
+                    className="bg-white rounded-2xl border border-border/50 p-6 sm:p-8 shadow-lg text-left"
+                    noValidate
+                  >
+                    <div className="space-y-4">
+                      <div className="text-left">
+                        <label
+                          htmlFor="full-name"
+                          className="text-sm font-medium text-deep-text mb-1.5 block"
+                        >
+                          Full name <span className="text-cajun-red">*</span>
+                        </label>
+                        <Input
+                          id="full-name"
+                          name="fullName"
+                          type="text"
+                          placeholder="Joe Doe"
+                          defaultValue={fullName}
+                          onChange={(e) => {
+                            setFullName(e.target.value);
+                            if (formError) setFormError("");
+                          }}
+                          className="h-12 rounded-xl text-base"
+                          required
+                          autoComplete="name"
+                        />
+                      </div>
+
+                      <div className="text-left">
+                        <label
+                          htmlFor="waitlist-email"
+                          className="text-sm font-medium text-deep-text mb-1.5 block"
+                        >
+                          Email address <span className="text-cajun-red">*</span>
+                        </label>
+                        <Input
+                          id="waitlist-email"
+                          name="email"
+                          type="email"
+                          placeholder="you@example.com"
+                          defaultValue={email}
+                          onChange={(e) => {
+                            setEmail(e.target.value);
+                            if (formError) setFormError("");
+                          }}
+                          className="h-12 rounded-xl text-base"
+                          required
+                          autoComplete="email"
+                        />
+                      </div>
+                      <label className="flex items-start gap-2 text-xs md:text-sm text-deep-text/80 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={agreeToMarketing}
+                          onChange={(e) => {
+                            setAgreeToMarketing(e.target.checked);
+                            if (formError) setFormError("");
+                          }}
+                          className="mt-1 h-4 w-4 accent-popeyes-orange rounded border-border"
+                        />
+                        <span className="leading-tight">
+                          I agree to receive marketing emails, updates, and
+                          special offers from Popeyes® UK.
+                        </span>
+                      </label>
+
+                      {formError && (
+                        <p
+                          className="text-sm text-cajun-red"
+                          role="alert"
+                          aria-live="assertive"
+                        >
+                          {formError}
+                        </p>
+                      )}
+
+                      <SubmitButton />
+                    </div>
+                  </form>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </section>
