@@ -99,14 +99,14 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Button
+            {/* <Button
               variant="ghost"
               size="icon"
               className="md:inline-flex hidden"
             >
               <Search className="h-4 w-4" />
               <span className="sr-only">Search</span>
-            </Button>
+            </Button> */}
 
             {/* Auth Buttons / User Menu */}
             {mounted && !isLoading && (

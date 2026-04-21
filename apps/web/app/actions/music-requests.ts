@@ -362,6 +362,7 @@ export async function updateRequestStatus(
                     type: 'song_request',
                     title,
                     message,
+                    linkUrl: '/profile',
                 }).catch(err => console.error('[In-App Notification] Failed:', err));
             }
         });

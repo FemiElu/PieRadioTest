@@ -9,6 +9,7 @@ import { MobileHeader } from "../../components/mobile-header";
 import { HomeFeaturedCard } from "../../components/HomeFeaturedCard";
 import { useRouter } from "expo-router";
 import React, { useMemo } from "react";
+import { RequestSongModal } from "../../components/RequestSongModal";
 
 const { width } = Dimensions.get('window');
 
@@ -103,6 +104,7 @@ export default function HomeScreen() {
                                     {displayArtist}
                                 </Text>
                             </View>
+                            <RequestSongModal />
                         </View>
 
                         <Text className="text-white text-5xl font-bold mb-4 leading-tight">

@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { sendExpoPushNotification } from './expo-push';
 
-export type NotificationType = 'track_update' | 'song_request' | 'show_alert' | 'news' | 'system';
+export type NotificationType = 'track_update' | 'song_request' | 'presenter_message' | 'show_alert' | 'news' | 'system';
 
 export interface CreateNotificationParams {
     userId: string;

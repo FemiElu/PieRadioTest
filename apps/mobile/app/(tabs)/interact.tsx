@@ -7,6 +7,7 @@ import { Filter } from "bad-words";
 import { router } from "expo-router";
 import { useAuth } from "@/context/auth-context";
 import { MobileHeader } from "../../components/mobile-header";
+import { RequestSongModal } from "../../components/RequestSongModal";
 
 export default function InteractScreen() {
     const { user, profile, isAuthenticated, isLoading: authLoading } = useAuth();
@@ -97,7 +98,10 @@ export default function InteractScreen() {
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <MobileHeader title="Community Chat" />
+            <MobileHeader 
+                title="Community Chat" 
+                rightElement={<RequestSongModal />} 
+            />
 
             {/* Messages */}
             <FlatList
@@ -158,36 +162,13 @@ export default function InteractScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000000',
+        backgroundColor: '#f4f5f8',
     },
     loadingContainer: {
         flex: 1,
-        backgroundColor: '#000000',
+        backgroundColor: '#f4f5f8',
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    header: {
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#27272a',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    headerTitle: {
-        color: '#ffffff',
-        fontSize: 24,
-        fontWeight: '700',
-    },
-    userBadge: {
-        backgroundColor: '#1a1a1a',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 16,
-    },
-    userBadgeText: {
-        color: '#a1a1aa',
-        fontSize: 12,
     },
     messageList: {
         padding: 16,
@@ -204,53 +185,65 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
     },
     messageBubble: {
-        maxWidth: '80%',
-        borderRadius: 12,
+        maxWidth: '85%',
+        borderRadius: 20,
         padding: 12,
     },
     messageBubbleMe: {
         backgroundColor: '#dc2626',
+        borderBottomRightRadius: 4,
     },
     messageBubbleOther: {
-        backgroundColor: '#27272a',
+        backgroundColor: '#ffffff',
+        borderBottomLeftRadius: 4,
+        borderWidth: 1,
+        borderColor: '#e5e7eb',
     },
     messageUsername: {
         fontSize: 12,
-        fontWeight: '600',
-        color: '#a1a1aa',
+        fontWeight: '700',
+        color: '#334aff', // Primary color for usernames
         marginBottom: 4,
+        marginLeft: 2,
     },
     messageText: {
         fontSize: 15,
+        lineHeight: 20,
     },
     messageTextMe: {
         color: '#ffffff',
     },
     messageTextOther: {
-        color: '#e4e4e7',
+        color: '#141827',
     },
     inputContainer: {
         padding: 16,
-        backgroundColor: '#0a0a0a',
+        backgroundColor: '#ffffff',
         borderTopWidth: 1,
-        borderTopColor: '#27272a',
+        borderTopColor: '#e5e7eb',
         flexDirection: 'row',
         alignItems: 'center',
     },
     input: {
         flex: 1,
-        backgroundColor: '#27272a',
-        color: '#ffffff',
+        backgroundColor: '#f4f5f8',
+        color: '#141827',
         borderRadius: 24,
         paddingHorizontal: 16,
-        paddingVertical: 10,
+        paddingVertical: 12,
         marginRight: 8,
         fontSize: 15,
+        borderWidth: 1,
+        borderColor: '#e5e7eb',
     },
     sendButton: {
         backgroundColor: '#dc2626',
         padding: 10,
         borderRadius: 20,
+        width: 44,
+        height: 44,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     loginPrompt: {
         flex: 1,
@@ -258,11 +251,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 8,
-        paddingVertical: 8,
+        paddingVertical: 12,
+        backgroundColor: '#fef2f2',
+        borderRadius: 16,
     },
     loginPromptText: {
         color: '#dc2626',
         fontSize: 15,
-        fontWeight: '500',
+        fontWeight: '600',
     },
 });

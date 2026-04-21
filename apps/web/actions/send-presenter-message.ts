@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from "@/lib/supabase/server";
+import { createInAppNotification } from "@/lib/notifications/in-app";
 import { z } from "zod";
 
 const schema = z.object({
@@ -51,6 +52,18 @@ export async function sendPresenterMessage(prevState: SendMessageState, formData
                 success: false,
                 error: "Failed to send message. Please try again later.",
             };
+        }
+
+        const notificationResult = await createInAppNotification({
+            userId: validatedData.data.presenterId,
+            type: "presenter_message",
+            title: "New Presenter Message",
+            message: `${validatedData.data.senderName} sent you a message: "${validatedData.data.message.slice(0, 120)}"`,
+            linkUrl: "/dashboard/presenter",
+        });
+
+        if (!notificationResult.success) {
+            console.error("Failed to create presenter notification:", notificationResult.error);
         }
 
         return {
