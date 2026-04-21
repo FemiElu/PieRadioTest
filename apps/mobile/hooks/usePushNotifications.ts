@@ -54,19 +54,17 @@ export function usePushNotifications() {
         try {
           const projectId =
             Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-          if (!projectId) {
-            console.warn('Project ID not found in app.json. Run `eas init` to configure Expo Push.');
-            // Using a dummy fallback for local development without EAS
-            token = await Notifications.getExpoPushTokenAsync({ projectId: 'your-project-id' }).catch(e => {
-                console.log("Failed to get Expo token without projectId", e);
-                return null;
-            });
+          if (projectId) {
+            token = await Notifications.getExpoPushTokenAsync({ projectId });
           } else {
-             token = await Notifications.getExpoPushTokenAsync({ projectId });
+            console.warn('Expo projectId not found in app.json. Using getExpoPushTokenAsync without a projectId. Add the projectId for production push notifications.');
+            token = await Notifications.getExpoPushTokenAsync();
           }
-          
-          if (token) {
+
+          if (token && token.data) {
             console.log('Expo Push Token generated: ', token.data);
+          } else {
+            console.warn('Expo Push Token was not returned.');
           }
         } catch (e) {
           console.warn('Error getting expo push token', e);

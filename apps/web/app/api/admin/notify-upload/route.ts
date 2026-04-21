@@ -58,6 +58,7 @@ export async function POST(request: Request) {
                     message: isApproved 
                         ? `Congratulations! Your track "${upload.title}" has been approved for airplay.`
                         : `Your track submission "${upload.title}" was reviewed. Check your email for more details.`,
+                    linkUrl: '/profile/upload',
                 }).catch(err => console.error('[In-App] Failed:', err));
             });
         }

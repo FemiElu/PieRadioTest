@@ -53,16 +53,24 @@ export async function sendExpoPushNotification(
       body: JSON.stringify(messages),
     });
 
+    const responseBody = await response.text();
     if (!response.ok) {
-      const respText = await response.text();
-      console.error('[Expo Push] Failed to send push notification:', respText);
+      console.error('[Expo Push] Failed to send push notification:', response.status, responseBody);
       return { success: false, error: 'Expo API error' };
     }
 
-    // Expo returns an array of ticket tickets
-    const results = await response.json();
+    const results = JSON.parse(responseBody);
+    if (Array.isArray(results) && results.some((item) => item.status !== 'ok')) {
+      console.warn('[Expo Push] Some push messages failed:', results);
+      return { success: false, error: 'Partial Expo push failure' };
+    }
+
+    if (results.errors) {
+      console.error('[Expo Push] Designated errors returned:', results.errors);
+      return { success: false, error: 'Expo push returned errors' };
+    }
+
     console.log(`[Expo Push] Successfully sent to ${messages.length} devices.`);
-    
     return { success: true };
   } catch (error) {
     console.error('[Expo Push] Unexpected error:', error);
