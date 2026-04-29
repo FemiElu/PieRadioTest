@@ -16,7 +16,7 @@ import { getArticleBySlug } from "@/lib/news/queries";
 import { Header } from "@/components/layout/header";
 import { ArticleDetailClient } from "./article-client";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 interface PageProps {
   params: Promise<{ slug: string }>;

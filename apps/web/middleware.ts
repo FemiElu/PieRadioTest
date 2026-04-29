@@ -143,21 +143,17 @@ export async function middleware(request: NextRequest) {
 export const config = {
     matcher: [
         /*
-         * Match all request paths except for the ones starting with:
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * - public assets (svg, png, jpg, etc.)
-         * - Public pages that don't need auth checks in middleware:
-         *   - / (homepage)
-         *   - /events
-         *   - /schedule
-         *   - /press
-         *   - /stations
-         *   - /api/events
-         *   - /api/news
-         *   - /api/stations
+         * ONLY run middleware on paths that require authentication/authorization,
+         * user-specific functionality, or auth flows:
          */
-        "/((?!_next/static|_next/image|favicon.ico|events|schedule|press|stations|api/events|api/news|api/stations|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+        "/admin/:path*",
+        "/api/admin/:path*",
+        "/dashboard/:path*",
+        "/profile/:path*",
+        "/chat/:path*",
+        "/login",
+        "/signup",
+        "/forgot-password",
+        "/reset-password",
     ],
 };

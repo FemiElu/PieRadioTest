@@ -4,7 +4,7 @@ import { getUserLikedIds } from "@/app/actions/favourites";
 
 // Revalidate every 60 seconds so the live indicator reflects the current schedule
 // within a reasonable lag window. 3600 (1hr) was far too stale for live content.
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export const metadata = {
     title: "Presenters | Pie Radio",
