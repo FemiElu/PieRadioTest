@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 };
 
 // Revalidate every 60 seconds for near-real-time updates
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export default async function NewsPage() {
   const supabase = await createClient();

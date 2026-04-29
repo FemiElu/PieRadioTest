@@ -24,7 +24,7 @@ interface EventDetailPageProps {
     params: Promise<{ id: string }>;
 }
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: EventDetailPageProps) {
     const supabase = await createClient();

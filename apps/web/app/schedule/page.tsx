@@ -2,7 +2,7 @@ import { ScheduleGrid } from "@/components/schedule/schedule-grid";
 import { Calendar } from "lucide-react";
 import { getUserLikedIds } from "@/app/actions/favourites";
 
-export const revalidate = 60; // Revalidate every minute
+export const revalidate = 3600; // Revalidate every hour
 
 export default async function SchedulePage() {
     let likedShowIds: string[] = [];
