@@ -467,8 +467,9 @@ export default function Home() {
               variant="secondary"
               size="lg"
               className="h-14 px-8 rounded-full font-bold shadow-2xl"
+              asChild
             >
-              Get Started
+              <a href="#" target="_blank" rel="noopener noreferrer">Download App</a>
             </Button>
             <Button
               variant="outline"

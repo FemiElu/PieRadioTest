@@ -30,17 +30,24 @@ export function Footer() {
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li><Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
                             <li><Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
-                            <li><Link href="/cookies" className="hover:text-primary transition-colors">Cookie Policy</Link></li>
                         </ul>
                     </div>
+
+                    {/* <div className="space-y-4">
+                        <h4 className="font-semibold text-sm tracking-wide uppercase text-foreground/80">Apps</h4>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                            <li><a href="#" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">App Store (iOS)</a></li>
+                            <li><a href="#" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Google Play (Android)</a></li>
+                        </ul>
+                    </div> */}
 
                     <div className="space-y-4">
                         <h4 className="font-semibold text-sm tracking-wide uppercase text-foreground/80">Connect</h4>
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li><a href="https://www.instagram.com/pieradiouk?igsh=MW5xOGpuZHNtbjRudA==" target="_blank" className="hover:text-primary transition-colors">Instagram</a></li>
                             <li><a href="https://www.facebook.com/share/1DXySGYU3Z/?mibextid=wwXIfr" target="_blank" className="hover:text-primary transition-colors">Facebook</a></li>
-                            <li><a href="#" className="hover:text-primary transition-colors">TikTok</a></li>
-                            <li><a href="#" className="hover:text-primary transition-colors">YouTube</a></li>
+                            <li><a href="https://www.tiktok.com/@pieradiouk" target="_blank" className="hover:text-primary transition-colors">TikTok</a></li>
+                            <li><a href="https://www.youtube.com/pieradiouk" target="_blank" className="hover:text-primary transition-colors">YouTube</a></li>
                         </ul>
                     </div>
                 </div>

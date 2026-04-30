@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 
 type ProfileType = 'listener' | 'artist' | null;
 
-const GENRES = ['AfroBeats', 'R&B', 'Hip Hop', 'Amapiano', 'Dancehall', 'UK Drill', 'Grime', 'House'];
+const GENRES = ['AfroBeats', 'R&B', 'Hip Hop', 'Amapiano', 'Dancehall', 'UK Drill', 'Grime', 'House', 'Alternative'];
 
 export function OnboardingWizard({ initialProfile }: { initialProfile: any }) {
     const router = useRouter();

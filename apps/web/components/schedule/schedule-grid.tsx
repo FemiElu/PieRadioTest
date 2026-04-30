@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import Link from "next/link";
 import { ChevronDown, Play, Pause, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -257,26 +258,56 @@ export function ScheduleGrid({ likedShowIds = [] }: { likedShowIds?: string[] })
                 {/* Content Container */}
                 <div className="flex-1 flex flex-col md:flex-row gap-6 items-center w-full">
                   {/* Image */}
-                  <div className="relative w-28 h-28 md:w-32 md:h-32 shrink-0 rounded-2xl overflow-hidden bg-zinc-100 shadow-md">
-                    <Image
-                      src={show.image_url || "/assets/pieRadioShowImg.webp"} // Fallback image needed
-                      alt={show.title}
-                      fill
-                      className="object-cover"
-                    />
-                    {isLive && (
-                      <div className="absolute top-2 left-2">
-                        <BlinkingDot />
-                      </div>
-                    )}
-                  </div>
+                  {show.presenter?.id ? (
+                    <Link
+                      href={`/presenters/${show.presenter.slug || show.presenter.username || show.presenter.id}`}
+                      className="relative w-28 h-28 md:w-32 md:h-32 shrink-0 rounded-2xl overflow-hidden bg-zinc-100 shadow-md hover:opacity-90 transition-opacity"
+                    >
+                      <Image
+                        src={show.image_url || show.presenter?.avatar_url || "/assets/pieRadioShowImg.webp"}
+                        alt={show.title}
+                        fill
+                        className="object-cover"
+                      />
+                      {isLive && (
+                        <div className="absolute top-2 left-2">
+                          <BlinkingDot />
+                        </div>
+                      )}
+                    </Link>
+                  ) : (
+                    <div className="relative w-28 h-28 md:w-32 md:h-32 shrink-0 rounded-2xl overflow-hidden bg-zinc-100 shadow-md">
+                      <Image
+                        src={show.image_url || show.presenter?.avatar_url || "/assets/pieRadioShowImg.webp"}
+                        alt={show.title}
+                        fill
+                        className="object-cover"
+                      />
+                      {isLive && (
+                        <div className="absolute top-2 left-2">
+                          <BlinkingDot />
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Text Info */}
                   <div className="flex-1 text-center md:text-left space-y-2">
                     <div className="flex items-center justify-center md:justify-start gap-3">
-                      <h3 className="text-xl md:text-2xl font-bold text-foreground leading-tight">
-                        {show.title}
-                      </h3>
+                      {show.presenter?.id ? (
+                        <Link
+                          href={`/presenters/${show.presenter.slug || show.presenter.username || show.presenter.id}`}
+                          className="hover:text-primary transition-colors"
+                        >
+                          <h3 className="text-xl md:text-2xl font-bold text-foreground leading-tight">
+                            {show.title}
+                          </h3>
+                        </Link>
+                      ) : (
+                        <h3 className="text-xl md:text-2xl font-bold text-foreground leading-tight">
+                          {show.title}
+                        </h3>
+                      )}
                       <LikeButton
                         isLiked={likedShowIds.includes(show.id)}
                         onToggle={() => toggleLikedShow(show.id, {

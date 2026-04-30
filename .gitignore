@@ -42,3 +42,5 @@ Thumbs.db
 .vercel
 .env*.local
 mcp_config.json
+mcp-debug.log
+supabase-mcp-debug.sh

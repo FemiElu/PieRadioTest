@@ -38,6 +38,8 @@ export const PRESENTER_CATEGORIES = [
   { id: "rnb", label: "R&B" },
   { id: "house", label: "House" },
   { id: "sports", label: "Sports" },
+  { id: "alternative", label: "Alternative" },
+  { id: "dancehall", label: "Dancehall" }
 ];
 
 interface PresenterGridProps {
@@ -175,11 +177,11 @@ export function PresenterGrid({
       selectedCategory === "all"
         ? presenters
         : presenters.filter((p) => {
-            const meta = Array.isArray(p.presenter_meta)
-              ? p.presenter_meta[0]
-              : p.presenter_meta;
-            return meta?.category?.toLowerCase() === selectedCategory;
-          }),
+          const meta = Array.isArray(p.presenter_meta)
+            ? p.presenter_meta[0]
+            : p.presenter_meta;
+          return meta?.category?.toLowerCase() === selectedCategory;
+        }),
     [presenters, selectedCategory],
   );
 

@@ -35,6 +35,8 @@ const CATEGORIES = [
     { value: "rnb", label: "R&B" },
     { value: "house", label: "House" },
     { value: "sports", label: "Sports" },
+    { value: "alternative", label: "Alternative" },
+    { value: "dancehall", label: "Dancehall" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -85,7 +87,7 @@ const defaultFormData: PresenterFormData = {
     email: "",
     bio: "",
     avatar_url: "",
-    category: "afrobeats",
+    category: "",
     instagram_handle: "",
     twitter_handle: "",
     website_url: "",
@@ -541,11 +543,11 @@ export function PresenterFormModal({
                             <Textarea id="bio" name="bio" value={formData.bio} onChange={handleInputChange} placeholder="Tell us about this presenter..." rows={4} className="mt-1 resize-none" />
                         </div>
 
-                        {/* Category */}
+                        {/* Genre */}
                         <div>
-                            <Label>Category / Station</Label>
+                            <Label>Genre</Label>
                             <Select value={formData.category} onValueChange={handleCategoryChange}>
-                                <SelectTrigger className="mt-1"><SelectValue placeholder="Select a category" /></SelectTrigger>
+                                <SelectTrigger className="mt-1"><SelectValue placeholder="Select a genre" /></SelectTrigger>
                                 <SelectContent>
                                     {CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
                                 </SelectContent>
