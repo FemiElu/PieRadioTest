@@ -13,9 +13,12 @@ export interface ScheduleItem {
   presenter_id: string | null;
   is_live: boolean;
   presenter?: {
-    full_name: string;
-    username: string;
-  };
+    id?: string;
+    full_name: string | null;
+    username: string | null;
+    slug?: string | null;
+    avatar_url?: string | null;
+  } | null;
 }
 
 // In-memory cache to survive component unmounts and brief network drops
@@ -57,8 +60,11 @@ export function useSchedule(date: Date) {
             `
                         *,
                         presenter: presenter_id(
+                            id,
                             full_name,
-                            username
+                            username,
+                            slug,
+                            avatar_url
                         )
                     `,
           )

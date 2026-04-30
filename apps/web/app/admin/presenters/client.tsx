@@ -120,7 +120,7 @@ export default function AdminPresentersClient() {
             email: presenter.email || "",
             bio: presenter.bio || "",
             avatar_url: presenter.avatar_url || "",
-            category: presenter.presenter_meta?.category || "afrobeats",
+            category: presenter.presenter_meta?.category || "",
             instagram_handle: presenter.presenter_meta?.instagram_handle || "",
             twitter_handle: presenter.presenter_meta?.twitter_handle || "",
             website_url: presenter.presenter_meta?.website_url || "",
@@ -205,7 +205,7 @@ export default function AdminPresentersClient() {
                         <thead>
                             <tr className="border-b border-border bg-zinc-50">
                                 <th className="text-left px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Presenter</th>
-                                <th className="text-left px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Category</th>
+                                <th className="text-left px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Genre</th>
                                 <th className="text-left px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Status</th>
                                 <th className="text-left px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Messages</th>
                                 <th className="text-right px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Actions</th>
@@ -248,7 +248,7 @@ export default function AdminPresentersClient() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary">
-                                                {presenter.presenter_meta?.category || "afrobeats"}
+                                                {presenter.presenter_meta?.category || "—"}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">
