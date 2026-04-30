@@ -41,10 +41,10 @@ const EXECUTIVES_DATA = [
 const SENIOR_LEADERSHIP_DATA = [
     {
         id: "s1",
-        full_name: "Jason Da Costa",
+        full_name: "Jason The Costa",
         username: "jason-da-costa",
         slug: "jason-da-costa",
-        avatar_url: null,
+        avatar_url: "assets/Jason_The_Costa-Senior.webp",
         bio: "Head of Content.",
         is_live: false,
         presenter_meta: { category: "Senior Leadership", instagram_handle: "jason-da-costa", twitter_handle: "jason-da-costa" },
