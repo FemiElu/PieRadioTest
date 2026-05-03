@@ -295,14 +295,25 @@ export function ProfileTabs({ user, profile, artistProfile }: ProfileTabsProps) 
                                 )}
 
                                 {!artistProfile && profile?.role === 'listener' && (
-                                    <View className="items-center justify-center p-8 border border-border rounded-xl bg-card">
-                                        <Ionicons name="information-circle-outline" size={32} color="#71717a" className="mb-2" />
-                                        <Text className="text-foreground font-medium text-center">
-                                            No special tools unlocked.
+                                    <View>
+                                        <Text className="text-muted-foreground text-xs font-bold uppercase tracking-widest mt-2 mb-3">
+                                            Account Settings
                                         </Text>
-                                        <Text className="text-muted-foreground text-xs text-center mt-1">
-                                            Edit your profile to claim an Artist account!
-                                        </Text>
+                                        <TouchableOpacity
+                                            onPress={() => router.push("/profile/delete-account")}
+                                            className="bg-card border-2 border-border rounded-xl p-4 flex-row items-center justify-between"
+                                        >
+                                            <View className="flex-row items-center gap-3">
+                                                <View className="w-10 h-10 bg-red-500/10 rounded-full items-center justify-center">
+                                                    <Ionicons name="trash-outline" size={20} color="#dc2626" />
+                                                </View>
+                                                <View>
+                                                    <Text className="text-red-600 font-bold text-lg">Delete Account</Text>
+                                                    <Text className="text-muted-foreground text-xs">Permanently remove your data</Text>
+                                                </View>
+                                            </View>
+                                            <Ionicons name="chevron-forward" size={20} color="#5d6476" />
+                                        </TouchableOpacity>
                                     </View>
                                 )}
                             </View>

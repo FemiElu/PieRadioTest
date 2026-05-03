@@ -9,6 +9,7 @@ import {
     Platform,
     ScrollView,
     ActivityIndicator,
+    Linking,
 } from 'react-native';
 import { Link, router } from 'expo-router';
 import { useAuth } from '@/context/auth-context';
@@ -202,8 +203,23 @@ export default function SignupScreen() {
                 {/* Terms */}
                 <Text style={styles.termsText}>
                     By creating an account, you agree to our{' '}
-                    <Text style={styles.termsLink}>Terms of Service</Text> and{' '}
-                    <Text style={styles.termsLink}>Privacy Policy</Text>
+                    <Text
+                        style={styles.termsLink}
+                        onPress={() => Linking.openURL('https://www.pieradio.co.uk/privacy')}
+                        accessibilityRole="link"
+                        accessibilityLabel="Terms of Service"
+                    >
+                        Terms of Service
+                    </Text>
+                    {' '}and{' '}
+                    <Text
+                        style={styles.termsLink}
+                        onPress={() => Linking.openURL('https://www.pieradio.co.uk/privacy')}
+                        accessibilityRole="link"
+                        accessibilityLabel="Privacy Policy"
+                    >
+                        Privacy Policy
+                    </Text>
                 </Text>
 
                 {/* Sign In Link */}

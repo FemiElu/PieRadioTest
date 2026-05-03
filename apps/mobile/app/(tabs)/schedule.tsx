@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
+import { useRouter } from "expo-router";
 
 const SafeAreaView = styled(RNSafeAreaView);
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -88,6 +89,7 @@ function BlinkingDot() {
 }
 
 export default function ScheduleScreen() {
+  const router = useRouter();
   const { isPlaying, isLoading: isAudioLoading, togglePlay } = useMobileAudio();
   // Dynamic current time for live indicator
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -252,9 +254,8 @@ export default function ScheduleScreen() {
               const isLive = currentTime >= showStart && currentTime < showEnd;
 
               return (
-                <TouchableOpacity
+                <View
                   key={item.originalIds.join("-")}
-                  activeOpacity={0.7}
                   className={`flex-row items-center rounded-2xl p-4 border-2 overflow-hidden ${
                     isLive
                       ? "bg-red-50/90 border-red-400/60 shadow-md"
@@ -262,8 +263,12 @@ export default function ScheduleScreen() {
                   }`}
                 >
                   {/* Image / Play Icon */}
-                  <View className="relative w-16 h-16 rounded-xl overflow-hidden bg-zinc-100 shrink-0">
-                    <ScheduleShowThumbnail imageUrl={item.image_url} />
+                  <TouchableOpacity
+                    activeOpacity={item.presenter?.id ? 0.7 : 1}
+                    onPress={() => item.presenter?.id ? router.push(`/presenter/${item.presenter.id}`) : null}
+                    className="relative w-16 h-16 rounded-xl overflow-hidden bg-zinc-100 shrink-0"
+                  >
+                    <ScheduleShowThumbnail imageUrl={item.image_url || item.presenter?.avatar_url || null} />
                     {/* Blinking Red Dot for Live */}
                     {isLive && (
                       <View className="absolute top-1 left-1">
@@ -285,7 +290,7 @@ export default function ScheduleScreen() {
                         />
                       </View>
                     </View>
-                  </View>
+                  </TouchableOpacity>
 
                   {/* Content */}
                   <View className="flex-1 ml-3">
@@ -335,12 +340,17 @@ export default function ScheduleScreen() {
                     </View>
 
                     {/* Title */}
-                    <Text
-                      className="text-card-foreground font-bold text-base leading-tight mb-0.5"
-                      numberOfLines={1}
+                    <TouchableOpacity
+                      activeOpacity={item.presenter?.id ? 0.7 : 1}
+                      onPress={() => item.presenter?.id ? router.push(`/presenter/${item.presenter.id}`) : null}
                     >
-                      {item.title}
-                    </Text>
+                      <Text
+                        className={`font-bold text-base leading-tight mb-0.5 ${item.presenter?.id ? 'text-primary' : 'text-card-foreground'}`}
+                        numberOfLines={1}
+                      >
+                        {item.title}
+                      </Text>
+                    </TouchableOpacity>
 
                     {/* Host */}
                     <Text
@@ -355,7 +365,7 @@ export default function ScheduleScreen() {
                       {item.description || ""}
                     </Text>
                   </View>
-                </TouchableOpacity>
+                </View>
               );
             })
           )}

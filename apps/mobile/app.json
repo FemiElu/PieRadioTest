@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "Pie Radio", 
+    "slug": "pie-radio",
     "version": "1.0.0",
     "scheme": "pieradio",
     "orientation": "portrait",
@@ -16,10 +16,12 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.pieradio.mobile",
+      "buildNumber": "1",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio"
-        ]
+        ],
+        "NSUserTrackingUsageDescription": "Pie Radio does not use tracking or advertising SDKs."
       }
     },
     "android": {
@@ -29,7 +31,14 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.pieradio.mobile"
+      "package": "com.pieradio.mobile",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE",
+        "android.permission.POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -41,7 +50,22 @@
         {
           "microphonePermission": false
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#334aff",
+          "defaultChannel": "default",
+          "sounds": []
+        }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "682f5632-9589-4210-9266-696a172e8e4b"
+      }
+    },
+    "owner": "efem200"
   }
 }

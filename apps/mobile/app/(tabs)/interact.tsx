@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, TextInput, FlatList, KeyboardAvoidingView, Platform, TouchableOpacity, ActivityIndicator, StyleSheet } from "react-native";
+import { View, Text, TextInput, FlatList, KeyboardAvoidingView, Platform, TouchableOpacity, ActivityIndicator, StyleSheet, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
@@ -66,7 +66,7 @@ export default function InteractScreen() {
         if (!newMessage.trim() || !user) return;
 
         if (filter.isProfane(newMessage)) {
-            alert("Please keep the chat clean!");
+            Alert.alert("Notice", "Please keep the chat clean!");
             return;
         }
 
@@ -80,7 +80,7 @@ export default function InteractScreen() {
 
         if (error) {
             console.error(error);
-            alert("Failed to send");
+            Alert.alert("Error", "Failed to send");
         }
     };
 

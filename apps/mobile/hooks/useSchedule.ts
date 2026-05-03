@@ -11,8 +11,11 @@ export interface ScheduleItem {
     presenter_id: string | null;
     is_live: boolean;
     presenter?: {
+        id?: string;
         full_name?: string | null;
         username?: string | null;
+        slug?: string | null;
+        avatar_url?: string | null;
     } | null;
 }
 
@@ -54,8 +57,11 @@ export function useSchedule(date: Date) {
                     .select(`
                         *,
                         presenter:presenter_id (
+                            id,
                             full_name,
-                            username
+                            username,
+                            slug,
+                            avatar_url
                         )
                     `)
                     .lt('start_time', endOfDay.toISOString())

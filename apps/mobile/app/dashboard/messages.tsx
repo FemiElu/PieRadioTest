@@ -73,7 +73,7 @@ export default function PresenterMessagesScreen() {
                     <View className="flex-row justify-between items-start mb-2">
                         <View className="flex-1">
                             <View className="flex-row items-center gap-2 mb-1">
-                                <Text className={`text-base ${!item.is_read ? 'font-bold text-white' : 'font-medium text-zinc-300'}`}>
+                                <Text className={`text-base ${!item.is_read ? 'font-bold text-foreground' : 'font-medium text-muted-foreground'}`}>
                                     {item.sender_name}
                                 </Text>
                                 {!item.is_read && (
@@ -88,7 +88,7 @@ export default function PresenterMessagesScreen() {
                     </View>
 
                     <Text
-                        className="text-zinc-300 leading-relaxed"
+                        className="text-foreground leading-relaxed"
                         numberOfLines={isExpanded ? undefined : 2}
                     >
                         {item.message}
@@ -100,8 +100,8 @@ export default function PresenterMessagesScreen() {
                                 onPress={() => Linking.openURL(`mailto:${item.sender_email}?subject=Re: Message from Pie Radio listener`)}
                                 className="bg-white/5 px-4 py-2 rounded-lg flex-row items-center gap-2 border border-white/10"
                             >
-                                <Ionicons name="arrow-undo" size={16} color="white" />
-                                <Text className="text-white font-medium text-sm">Reply</Text>
+                                <Ionicons name="arrow-undo" size={16} color="#141827" />
+                                <Text className="text-foreground font-medium text-sm">Reply</Text>
                             </TouchableOpacity>
                         </View>
                     )}
@@ -122,8 +122,8 @@ export default function PresenterMessagesScreen() {
         <SafeAreaView className="flex-1 bg-background" edges={['top']}>
             <Stack.Screen options={{
                 headerShown: true,
-                headerStyle: { backgroundColor: '#000' },
-                headerTintColor: '#fff',
+                headerStyle: { backgroundColor: '#ffffff' },
+                headerTintColor: '#18181b',
                 headerTitle: "My Messages",
                 headerBackTitle: "Back",
             }} />

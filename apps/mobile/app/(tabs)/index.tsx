@@ -167,15 +167,16 @@ export default function HomeScreen() {
                                 subtitle="Partnership"
                                 description="The ultimate combo: crispy chicken meets the freshest beats."
                                 imageSource={require("../../assets/popeye-3.jpeg")}
-                                onPress={() => { }}
+                                onPress={() => router.push('/popeyesuk')}
                                 badge="Featured"
                             />
+                            {/* Artist Spotlight — interactive when content is ready */}
                             <HomeFeaturedCard
                                 title="Artist Spotlight"
                                 subtitle="Spotlight"
                                 description="Discover this month's featured artist breaking through the scene."
                                 imageSource={require("../../assets/abstract-avatar.png")}
-                                onPress={() => { }}
+                                onPress={undefined}
                             />
                         </ScrollView>
                     </View>

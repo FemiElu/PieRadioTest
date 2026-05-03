@@ -178,35 +178,35 @@ export default function TrackUploadScreen() {
     return (
         <SafeAreaView className="flex-1 bg-background" edges={['top']}>
             {/* Header */}
-            <View className="flex-row items-center p-6 border-b border-white/5">
+            <View className="flex-row items-center p-6 border-b border-border/50">
                 <TouchableOpacity onPress={() => router.back()} className="mr-4">
-                    <Ionicons name="arrow-back" size={24} color="white" />
+                    <Ionicons name="arrow-back" size={24} color="#141827" />
                 </TouchableOpacity>
-                <Text className="text-white text-xl font-bold">Submit Track</Text>
+                <Text className="text-foreground text-xl font-bold">Submit Track</Text>
             </View>
 
             <ScrollView className="flex-1 p-6">
                 <View className="space-y-6 pb-12">
                     {/* Audio Picker */}
                     <View>
-                        <Text className="text-zinc-400 text-sm font-bold uppercase mb-3">Audio Track *</Text>
+                        <Text className="text-muted-foreground text-sm font-bold uppercase mb-3">Audio Track *</Text>
                         <TouchableOpacity
                             onPress={pickAudio}
-                            className={`h-32 border-2 border-dashed rounded-2xl items-center justify-center ${audioFile ? 'border-primary bg-primary/5' : 'border-zinc-800 bg-card'}`}
+                            className={`h-32 border-2 border-dashed rounded-2xl items-center justify-center ${audioFile ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}
                         >
                             {audioFile ? (
                                 <View className="items-center px-4">
                                     <Ionicons name="musical-notes" size={32} color="#E11D48" />
-                                    <Text className="text-white font-medium mt-2 text-center" numberOfLines={1}>{audioFile.name}</Text>
-                                    <Text className="text-zinc-500 text-xs mt-1">Change file</Text>
+                                    <Text className="text-foreground font-medium mt-2 text-center" numberOfLines={1}>{audioFile.name}</Text>
+                                    <Text className="text-muted-foreground text-xs mt-1">Change file</Text>
                                 </View>
                             ) : (
                                 <View className="items-center">
-                                    <View className="w-12 h-12 bg-zinc-800 rounded-full items-center justify-center mb-2">
+                                    <View className="w-12 h-12 bg-muted rounded-full items-center justify-center mb-2">
                                         <Ionicons name="add" size={24} color="#E11D48" />
                                     </View>
-                                    <Text className="text-zinc-400 font-medium text-center">Tap to select audio file</Text>
-                                    <Text className="text-zinc-600 text-xs mt-1">MP3, WAV, AAC (Max 50MB)</Text>
+                                    <Text className="text-muted-foreground font-medium text-center">Tap to select audio file</Text>
+                                    <Text className="text-muted-foreground text-xs mt-1">MP3, WAV, AAC (Max 50MB)</Text>
                                 </View>
                             )}
                         </TouchableOpacity>
@@ -215,37 +215,37 @@ export default function TrackUploadScreen() {
                     {/* Metadata Form */}
                     <View className="space-y-4">
                         <View>
-                            <Text className="text-zinc-400 text-sm font-bold uppercase mb-2">Track Title *</Text>
+                            <Text className="text-muted-foreground text-sm font-bold uppercase mb-2">Track Title *</Text>
                             <TextInput
                                 value={title}
                                 onChangeText={setTitle}
                                 placeholder="Enter track title"
-                                placeholderTextColor="#52525b"
-                                className="bg-card border border-white/10 rounded-xl p-4 text-white text-lg font-bold"
+                                placeholderTextColor="#a1a1aa"
+                                className="bg-card border border-border/50 rounded-xl p-4 text-foreground text-lg font-bold"
                             />
                         </View>
 
                         <View>
-                            <Text className="text-zinc-400 text-sm font-bold uppercase mb-2">Genre *</Text>
+                            <Text className="text-muted-foreground text-sm font-bold uppercase mb-2">Genre *</Text>
                             <TextInput
                                 value={genre}
                                 onChangeText={setGenre}
                                 placeholder="e.g. Afrobeat, Hip Hop, Jazz"
-                                placeholderTextColor="#52525b"
-                                className="bg-card border border-white/10 rounded-xl p-4 text-white"
+                                placeholderTextColor="#a1a1aa"
+                                className="bg-card border border-border/50 rounded-xl p-4 text-foreground"
                             />
                         </View>
 
                         <View>
-                            <Text className="text-zinc-400 text-sm font-bold uppercase mb-2">Pitch Notes</Text>
+                            <Text className="text-muted-foreground text-sm font-bold uppercase mb-2">Pitch Notes</Text>
                             <TextInput
                                 value={pitchNotes}
                                 onChangeText={setPitchNotes}
                                 placeholder="Tell our A&R team about this track..."
-                                placeholderTextColor="#52525b"
+                                placeholderTextColor="#a1a1aa"
                                 multiline
                                 numberOfLines={4}
-                                className="bg-card border border-white/10 rounded-xl p-4 text-white min-h-[120px]"
+                                className="bg-card border border-border/50 rounded-xl p-4 text-foreground min-h-[120px]"
                                 textAlignVertical="top"
                             />
                         </View>
@@ -253,19 +253,19 @@ export default function TrackUploadScreen() {
 
                     {/* Artwork Picker */}
                     <View>
-                        <Text className="text-zinc-400 text-sm font-bold uppercase mb-3">Cover Artwork (Optional)</Text>
+                        <Text className="text-muted-foreground text-sm font-bold uppercase mb-3">Cover Artwork (Optional)</Text>
                         <TouchableOpacity
                             onPress={pickImage}
-                            className={`flex-row items-center p-4 border rounded-xl ${coverFile ? 'border-primary bg-primary/5' : 'border-zinc-800 bg-card'}`}
+                            className={`flex-row items-center p-4 border rounded-xl ${coverFile ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}
                         >
-                            <View className="w-12 h-12 bg-zinc-800 rounded-lg items-center justify-center mr-4">
-                                <Ionicons name={coverFile ? "image" : "add"} size={20} color={coverFile ? "#E11D48" : "#52525b"} />
+                            <View className="w-12 h-12 bg-muted rounded-lg items-center justify-center mr-4">
+                                <Ionicons name={coverFile ? "image" : "add"} size={20} color={coverFile ? "#E11D48" : "#a1a1aa"} />
                             </View>
                             <View className="flex-1">
-                                <Text className="text-white font-medium" numberOfLines={1}>
+                                <Text className="text-foreground font-medium" numberOfLines={1}>
                                     {coverFile ? coverFile.name : 'Choose an image'}
                                 </Text>
-                                <Text className="text-zinc-500 text-xs">JPG, PNG (Square preferred)</Text>
+                                <Text className="text-muted-foreground text-xs">JPG, PNG (Square preferred)</Text>
                             </View>
                         </TouchableOpacity>
                     </View>
@@ -273,22 +273,22 @@ export default function TrackUploadScreen() {
                     {/* Show Preferences */}
                     <View>
                         <View className="flex-row items-center justify-between mb-2">
-                            <Text className="text-zinc-400 text-sm font-bold uppercase">Preferred Shows</Text>
+                            <Text className="text-muted-foreground text-sm font-bold uppercase">Preferred Shows</Text>
                             {selectedShows.length > 0 && (
                                 <TouchableOpacity onPress={() => setSelectedShows([])}>
                                     <Text className="text-primary text-xs font-bold">CLEAR</Text>
                                 </TouchableOpacity>
                             )}
                         </View>
-                        <Text className="text-zinc-500 text-xs mb-3">
+                        <Text className="text-muted-foreground text-xs mb-3">
                             Select up to 2 shows where you'd love your track to be played.
                         </Text>
                         
                         {showsLoading ? (
                             <ActivityIndicator color="#E11D48" className="my-4" />
                         ) : shows.length === 0 ? (
-                            <View className="py-4 items-center bg-zinc-800/50 rounded-xl border border-dashed border-zinc-700">
-                                <Text className="text-zinc-500 text-sm">No shows available.</Text>
+                            <View className="py-4 items-center bg-muted/50 rounded-xl border border-dashed border-border/50">
+                                <Text className="text-muted-foreground text-sm">No shows available.</Text>
                             </View>
                         ) : (
                             <View className="flex-row flex-wrap gap-2">
@@ -301,7 +301,7 @@ export default function TrackUploadScreen() {
                                             className={`flex-row items-center p-2 px-3 rounded-lg border-2 ${
                                                 isSelected 
                                                     ? 'border-primary bg-primary/10' 
-                                                    : 'border-zinc-800 bg-card'
+                                                    : 'border-border bg-card'
                                             }`}
                                         >
                                             <Ionicons 
@@ -311,7 +311,7 @@ export default function TrackUploadScreen() {
                                                 className="mr-2"
                                             />
                                             <View>
-                                                <Text className={`font-semibold text-sm ${isSelected ? 'text-primary' : 'text-zinc-300'}`}>
+                                                <Text className={`font-semibold text-sm ${isSelected ? 'text-primary' : 'text-muted-foreground'}`}>
                                                     {show.title}
                                                 </Text>
                                             </View>
@@ -326,7 +326,7 @@ export default function TrackUploadScreen() {
                     <TouchableOpacity
                         onPress={handleSubmit}
                         disabled={isUploading}
-                        className={`w-full py-5 rounded-2xl items-center flex-row justify-center ${isUploading ? 'bg-zinc-800' : 'bg-primary shadow-lg shadow-primary/20'}`}
+                        className={`w-full py-5 rounded-2xl items-center flex-row justify-center ${isUploading ? 'bg-muted' : 'bg-primary shadow-lg shadow-primary/20'}`}
                     >
                         {isUploading ? (
                             <>

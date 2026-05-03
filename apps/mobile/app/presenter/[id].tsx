@@ -115,7 +115,7 @@ export default function PresenterDetailScreen() {
     if (!presenter) {
         return (
             <SafeAreaView className="flex-1 bg-background items-center justify-center p-6">
-                <Text className="text-white text-lg">Presenter not found</Text>
+                <Text className="text-foreground text-lg">Presenter not found</Text>
                 <TouchableOpacity onPress={() => router.back()} className="mt-4 p-2">
                     <Text className="text-primary font-bold">Go Back</Text>
                 </TouchableOpacity>
