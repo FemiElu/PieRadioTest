@@ -463,14 +463,20 @@ export default function Home() {
             Available for iOS and Android.
           </p>
           <div className="flex justify-center gap-4 pt-4">
-            <Button
-              variant="secondary"
-              size="lg"
-              className="h-14 px-8 rounded-full font-bold shadow-2xl"
-              asChild
-            >
-              <a href="#" target="_blank" rel="noopener noreferrer">Download App</a>
-            </Button>
+            <div className="relative group">
+              <Button
+                variant="secondary"
+                size="lg"
+                className="h-14 px-8 rounded-full font-bold shadow-2xl opacity-60"
+                disabled
+              >
+                Download App
+              </Button>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-4 py-2 bg-zinc-900/90 backdrop-blur-md text-white text-xs font-bold rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap pointer-events-none border border-white/10 shadow-2xl translate-y-2 group-hover:translate-y-0">
+                Mobile App Coming Soon
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-zinc-900/90" />
+              </div>
+            </div>
             <Button
               variant="outline"
               size="lg"
