@@ -35,17 +35,21 @@ export function PersistentPlayer() {
     seekTo,
     volume,
     setVolume,
+    isLiveStream,
+    switchToLive,
   } = useAudio();
   const { currentShow } = useCurrentShow();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const isGenericMetadata =
     !currentTrack ||
-    currentTrack.title === "Pie Radio Live" ||
-    currentTrack.title === "Pie Radio" ||
-    currentTrack.title === "Live Stream";
+    (isLiveStream && (
+      currentTrack.title === "Pie Radio Live" ||
+      currentTrack.title === "Pie Radio" ||
+      currentTrack.title === "Live Stream"
+    ));
 
-  const isLive = currentTrack?.url === "https://stream.aiir.com/dnjp99nozxavv";
+  const isLive = isLiveStream;
 
   const title = !isGenericMetadata
     ? currentTrack.title
@@ -166,6 +170,17 @@ export function PersistentPlayer() {
                   Live
                 </div>
               )}
+              {!isLive && !isExpanded && (
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={switchToLive}
+                    className="h-6 text-[9px] font-black uppercase tracking-widest border-primary/30 hover:bg-primary/10 hover:text-primary transition-all rounded-full px-3"
+                >
+                    <Radio className="w-3 h-3 mr-1" />
+                    Return to Live
+                </Button>
+              )}
             </div>
             <span
               className={cn(
@@ -223,7 +238,7 @@ export function PersistentPlayer() {
                 "rounded-full shadow-[0_0_20px_rgba(51,74,255,0.3)] hover:scale-105 active:scale-95 transition-all bg-primary hover:bg-primary/90 text-white border-0",
                 isExpanded ? "h-20 w-20" : "h-12 w-12 md:h-14 md:w-14",
               )}
-              onClick={togglePlay}
+              onClick={isLiveStream ? togglePlay : togglePlay}
             >
               {isLoading ? (
                 <Loader2 className="h-8 w-8 animate-spin" />

@@ -7,7 +7,8 @@ interface HomeFeaturedCardProps {
     subtitle: string;
     description: string;
     imageSource: any;
-    onPress: () => void;
+    /** When undefined the card is non-interactive (no press feedback). */
+    onPress?: () => void;
     badge?: string;
     badgeColor?: string;
 }
@@ -21,13 +22,13 @@ export function HomeFeaturedCard({
     badge,
     badgeColor = "#F96D00"
 }: HomeFeaturedCardProps) {
-    return (
-        <TouchableOpacity
-            onPress={onPress}
-            activeOpacity={0.9}
-            className="w-[280px] mr-4 rounded-2xl overflow-hidden bg-zinc-900 border border-white/5"
-            style={styles.cardShadow}
-        >
+    const cardStyle = [
+        styles.card,
+        styles.cardShadow,
+    ];
+
+    const inner = (
+        <>
             <View className="h-40 relative">
                 <Image
                     source={typeof imageSource === 'string' ? { uri: imageSource } : imageSource}
@@ -53,11 +54,36 @@ export function HomeFeaturedCard({
                     {description}
                 </Text>
             </View>
+        </>
+    );
+
+    if (!onPress) {
+        return <View style={cardStyle}>{inner}</View>;
+    }
+
+    return (
+        <TouchableOpacity
+            onPress={onPress}
+            activeOpacity={0.9}
+            style={cardStyle}
+            accessibilityRole="button"
+            accessibilityLabel={title}
+        >
+            {inner}
         </TouchableOpacity>
     );
 }
 
 const styles = StyleSheet.create({
+    card: {
+        width: 280,
+        marginRight: 16,
+        borderRadius: 16,
+        overflow: 'hidden',
+        backgroundColor: '#18181b',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.05)',
+    },
     cardShadow: {
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
@@ -66,3 +92,4 @@ const styles = StyleSheet.create({
         elevation: 5,
     }
 });
+

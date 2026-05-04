@@ -21,6 +21,8 @@ const CATEGORIES = [
   { id: "rnb", label: "R&B" },
   { id: "house", label: "House" },
   { id: "sports", label: "Sports" },
+  { id: "alternative", label: "Alternative" },
+  { id: "dancehall", label: "Dancehall" }
 ];
 
 // Executive Leadership Team Data
@@ -61,7 +63,7 @@ const EXECUTIVES_DATA = [
 const SENIOR_LEADERSHIP_DATA = [
   {
     id: "s1",
-    full_name: "Jason Da Costa",
+    full_name: "Jason The Costa",
     username: "jason-da-costa",
     slug: "jason-da-costa",
     avatar_url: null,
@@ -290,11 +292,11 @@ export default function PresentersScreen() {
     selectedCategory === "all"
       ? presenters
       : presenters.filter((p) => {
-          const cat = Array.isArray(p.presenter_meta)
-            ? p.presenter_meta[0]?.category
-            : p.presenter_meta?.category;
-          return cat?.toLowerCase() === selectedCategory;
-        });
+        const cat = Array.isArray(p.presenter_meta)
+          ? p.presenter_meta[0]?.category
+          : p.presenter_meta?.category;
+        return cat?.toLowerCase() === selectedCategory;
+      });
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
@@ -326,18 +328,16 @@ export default function PresentersScreen() {
                   <TouchableOpacity
                     key={cat.id}
                     onPress={() => setSelectedCategory(cat.id)}
-                    className={`px-4 py-2 rounded-full border-2 ${
-                      selectedCategory === cat.id
-                        ? "bg-primary border-primary"
-                        : "bg-white border-zinc-200"
-                    }`}
+                    className={`px-4 py-2 rounded-full border-2 ${selectedCategory === cat.id
+                      ? "bg-primary border-primary"
+                      : "bg-white border-zinc-200"
+                      }`}
                   >
                     <Text
-                      className={`text-sm font-bold ${
-                        selectedCategory === cat.id
-                          ? "text-white"
-                          : "text-zinc-600"
-                      }`}
+                      className={`text-sm font-bold ${selectedCategory === cat.id
+                        ? "text-white"
+                        : "text-zinc-600"
+                        }`}
                     >
                       {cat.label}
                     </Text>

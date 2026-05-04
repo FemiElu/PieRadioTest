@@ -11,8 +11,15 @@ interface Track {
 interface MobileAudioContextType {
     isPlaying: boolean;
     isLoading: boolean;
+    hasError: boolean;
+    errorMessage: string;
     currentTrack: Track | null;
+    isLiveStream: boolean;
+    clipUrl: string | null;
     togglePlay: () => Promise<void>;
+    playClip: (url: string, title: string, artist: string, artwork?: string) => Promise<void>;
+    switchToLive: () => Promise<void>;
+    retry: () => Promise<void>;
 }
 
 const MobileAudioContext = createContext<MobileAudioContextType | undefined>(undefined);
@@ -23,11 +30,19 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
     const [sound, setSound] = useState<Audio.Sound | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [hasError, setHasError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const [currentTrack, setCurrentTrack] = useState<Track | null>({
         title: "Pie Radio Live",
         artist: "The Number One Station",
         artwork: undefined
     });
+    const [isLiveStream, setIsLiveStream] = useState(true);
+    const [clipUrl, setClipUrl] = useState<string | null>(null);
+
+    const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const retryCountRef = useRef(0);
+    const MAX_RETRIES = 3;
 
     useEffect(() => {
         // Configure Audio Mode for Background Playback
@@ -43,7 +58,7 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
                     interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
                 });
             } catch (e) {
-                console.error("Error configuring audio mode", e);
+                console.warn("Error configuring audio mode", e);
             }
         };
         configureAudio();
@@ -51,9 +66,11 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
 
     // Realtime Metadata
     useEffect(() => {
+        if (!isLiveStream) return;
+
         const fetchInitial = async () => {
             const { data } = await supabase.from('station_metadata').select('*').eq('id', 1 as any).single();
-            if (data) {
+            if (data && isLiveStream) {
                 const metadata = data as any;
                 setCurrentTrack({
                     title: metadata.title || "Pie Radio Live",
@@ -76,6 +93,7 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
                     filter: 'id=eq.1'
                 },
                 (payload) => {
+                    if (!isLiveStream) return;
                     const newData = payload.new as any;
                     setCurrentTrack({
                         title: newData.title || "Pie Radio Live",
@@ -89,11 +107,130 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
         return () => {
             supabase.removeChannel(channel);
         };
-    }, []);
+    }, [isLiveStream]); 
+
+    const initAudio = async (attempt = 1) => {
+        setIsLoading(true);
+        setHasError(false);
+        setErrorMessage("");
+
+        try {
+            if (sound) {
+                await sound.unloadAsync();
+                setSound(null);
+            }
+
+            const { sound: newSound } = await Audio.Sound.createAsync(
+                { uri: STREAM_URL },
+                { shouldPlay: true }
+            );
+            
+            setSound(newSound);
+            setIsPlaying(true);
+            retryCountRef.current = 0; // reset on success
+
+            newSound.setOnPlaybackStatusUpdate((status) => {
+                if (status.isLoaded) {
+                    setIsPlaying(status.isPlaying);
+                    // If live stream finishes unexpectedly, it's often a network interrupt
+                    if (status.didJustFinish) {
+                        setIsPlaying(false);
+                        scheduleReconnect();
+                    }
+                } else {
+                    if (status.error) {
+                        setHasError(true);
+                        setErrorMessage("Playback dropped. Trying to reconnect...");
+                        scheduleReconnect();
+                    }
+                }
+            });
+
+        } catch (error: any) {
+            setHasError(true);
+            setIsPlaying(false);
+            
+            if (attempt <= MAX_RETRIES) {
+                setErrorMessage(`Connection failed. Retrying... (${attempt}/${MAX_RETRIES})`);
+                scheduleReconnect(attempt);
+            } else {
+                setErrorMessage(error.message || "Unable to connect to the live stream.");
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const initClip = async (url: string) => {
+        setIsLoading(true);
+        setHasError(false);
+        setErrorMessage("");
+
+        try {
+            if (sound) {
+                await sound.unloadAsync();
+                setSound(null);
+            }
+
+            const { sound: newSound } = await Audio.Sound.createAsync(
+                { uri: url },
+                { shouldPlay: true }
+            );
+
+            setSound(newSound);
+            setIsPlaying(true);
+
+            newSound.setOnPlaybackStatusUpdate((status) => {
+                if (status.isLoaded) {
+                    setIsPlaying(status.isPlaying);
+                    if (status.didJustFinish) {
+                        setIsPlaying(false);
+                    }
+                } else if (status.error) {
+                    setHasError(true);
+                    setErrorMessage("Playback error. Please try again.");
+                }
+            });
+
+        } catch (error: any) {
+            setHasError(true);
+            setIsPlaying(false);
+            setErrorMessage(error.message || "Unable to play audio.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const scheduleReconnect = (attempt = retryCountRef.current + 1) => {
+        if (attempt > MAX_RETRIES) {
+            setErrorMessage("Stream disconnected. Please try playing again.");
+            return;
+        }
+
+        retryCountRef.current = attempt;
+        if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+        
+        // Exponential backoff: 2s, 4s, 8s
+        const backoffMs = Math.pow(2, attempt) * 1000;
+        
+        retryTimeoutRef.current = setTimeout(() => {
+            initAudio(attempt + 1);
+        }, backoffMs);
+    };
 
     const togglePlay = async () => {
         if (isLoading) return;
-        setIsLoading(true);
+
+        if (hasError) {
+            if (isLiveStream) {
+                retryCountRef.current = 0;
+                if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+                await initAudio(1);
+            } else if (clipUrl) {
+                await initClip(clipUrl);
+            }
+            return;
+        }
 
         try {
             if (sound) {
@@ -105,48 +242,69 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
                     setIsPlaying(true);
                 }
             } else {
-                // First load
-                console.log("Loading Sound");
-                const { sound: newSound } = await Audio.Sound.createAsync(
-                    { uri: STREAM_URL },
-                    { shouldPlay: true }
-                );
-                setSound(newSound);
-                setIsPlaying(true);
-
-                // Handle playback status updates if needed
-                newSound.setOnPlaybackStatusUpdate((status) => {
-                    if (status.isLoaded) {
-                        setIsPlaying(status.isPlaying);
-                        if (status.didJustFinish) {
-                            setIsPlaying(false);
-                        }
-                    } else {
-                        if (status.error) {
-                            console.error(`Playback Error: ${status.error}`);
-                        }
-                    }
-                });
+                if (isLiveStream) {
+                    await initAudio(1);
+                } else if (clipUrl) {
+                    await initClip(clipUrl);
+                }
             }
         } catch (error) {
-            console.error("Error toggling audio", error);
-        } finally {
-            setIsLoading(false);
+            setHasError(true);
+            setErrorMessage("Playback failed. Please try again.");
+            setIsPlaying(false);
         }
     };
 
-    // Cleanup on unmount
+    const playClip = async (url: string, title: string, artist: string, artwork?: string) => {
+        setIsLiveStream(false);
+        setClipUrl(url);
+        setCurrentTrack({ title, artist, artwork });
+        
+        if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+        await initClip(url);
+    };
+
+    const switchToLive = async () => {
+        setIsLiveStream(true);
+        setClipUrl(null);
+        // Metadata will be updated by the useEffect
+        if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+        await initAudio(1);
+    };
+
+    const retry = async () => {
+        retryCountRef.current = 0;
+        if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+        if (isLiveStream) {
+            await initAudio(1);
+        } else if (clipUrl) {
+            await initClip(clipUrl);
+        }
+    };
+
     useEffect(() => {
         return () => {
+            if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
             if (sound) {
-                console.log("Unloading Sound");
                 sound.unloadAsync();
             }
         };
     }, [sound]);
 
     return (
-        <MobileAudioContext.Provider value={{ isPlaying, isLoading, currentTrack, togglePlay }}>
+        <MobileAudioContext.Provider value={{ 
+            isPlaying, 
+            isLoading, 
+            hasError, 
+            errorMessage, 
+            currentTrack, 
+            isLiveStream,
+            clipUrl,
+            togglePlay, 
+            playClip, 
+            switchToLive,
+            retry 
+        }}>
             {children}
         </MobileAudioContext.Provider>
     );

@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 import { parse } from 'csv-parse/sync';
-import { addWeeks, format, startOfDay, addDays } from 'date-fns';
+import { addWeeks, format, startOfDay, addDays, getISOWeek } from 'date-fns';
 import { fromZonedTime } from 'date-fns-tz';
 import { createHash } from 'crypto';
 
@@ -11,6 +11,10 @@ export const dynamic = 'force-dynamic'; // Ensure this route is never cached
 const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const TIMEZONE = 'Europe/London';
 const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTlnWi9K6mC3dCzIhi5RcjOPjWbqFQUXfG8kWJpqR22gIXyiMRMBzPtxkeQt7m7etKC9hZ70RJATDrW/pub?output=csv';
+
+// Minimum number of schedule entries expected in the next 7 days.
+// If the count drops below this, a warning is logged.
+const MIN_UPCOMING_ENTRIES_THRESHOLD = 20;
 
 export async function GET(request: Request) {
     try {
@@ -47,7 +51,11 @@ export async function GET(request: Request) {
         const content = response.data;
 
         // 3. Content-Hash Check (CPU Optimization)
-        const contentHash = createHash('sha256').update(content).digest('hex');
+        // Include the current ISO week in the hash so entries are regenerated
+        // each week, even when the Google Sheet template content is unchanged.
+        const now = new Date();
+        const weekId = `${now.getUTCFullYear()}-W${getISOWeek(now)}`;
+        const contentHash = createHash('sha256').update(content + weekId).digest('hex');
         
         // Fetch existing hash from sync_metadata
         const { data: existingMeta } = await supabase
@@ -57,10 +65,14 @@ export async function GET(request: Request) {
             .single();
 
         if (existingMeta?.value === contentHash) {
-            console.log('[Cron Sync] Content hash matches previous sync. Skipping execution to save CPU.');
+            console.log('[Cron Sync] Content hash matches previous sync for this week. Skipping execution to save CPU.');
+
+            // Monitoring: verify upcoming entries exist even when skipping
+            await checkUpcomingEntries(supabase);
+
             return NextResponse.json({
                 success: true,
-                message: 'No changes detected in Google Sheet. Sync skipped.',
+                message: 'No changes detected in Google Sheet for this week. Sync skipped.',
                 hash: contentHash
             });
         }
@@ -189,8 +201,8 @@ export async function GET(request: Request) {
                 const now = new Date();
                 const startOfThisWeek = startOfDay(addDays(now, -now.getDay()));
 
-                // Reduced to 2 weeks for CPU optimization
-                for (let weekOffset = 0; weekOffset < 2; weekOffset++) {
+                // Generate 4 weeks of entries for sufficient schedule coverage
+                for (let weekOffset = 0; weekOffset < 4; weekOffset++) {
                     const dayOffset = DAYS_OF_WEEK.indexOf(dayName);
                     const showDate = addDays(startOfThisWeek, dayOffset + (weekOffset * 7));
                     const yyyyMmDd = format(showDate, 'yyyy-MM-dd');
@@ -215,13 +227,13 @@ export async function GET(request: Request) {
 
         // 7. Replace data in Supabase
         const startOfThisWeek = startOfDay(addDays(new Date(), -new Date().getDay()));
-        const twoWeeksAhead = addWeeks(new Date(), 2);
+        const fourWeeksAhead = addWeeks(new Date(), 4);
 
         const { error: delError } = await supabase
             .from('schedules')
             .delete()
             .gte('start_time', startOfThisWeek.toISOString())
-            .lte('start_time', twoWeeksAhead.toISOString());
+            .lte('start_time', fourWeeksAhead.toISOString());
 
         if (delError) throw new Error(`Delete failed: ${delError.message}`);
 
@@ -237,9 +249,12 @@ export async function GET(request: Request) {
 
         console.log('[Cron Sync] Completed Successfully!');
 
+        // Monitoring: verify upcoming entry count after a full sync
+        await checkUpcomingEntries(supabase);
+
         return NextResponse.json({
             success: true,
-            message: `Synched ${scheduleEntries.length} entries. Hash updated.`,
+            message: `Synced ${scheduleEntries.length} entries for 4 weeks. Hash updated.`,
             hash: contentHash
         });
 
@@ -249,5 +264,45 @@ export async function GET(request: Request) {
             { success: false, error: err.message },
             { status: 500 }
         );
+    }
+}
+
+/**
+ * Monitoring helper: counts schedule entries for the next 7 days
+ * and logs a warning if the count is below the threshold.
+ */
+// eslint-disable-next-line
+async function checkUpcomingEntries(
+    supabase: ReturnType<typeof createClient<any>>
+): Promise<void> {
+    try {
+        const now = new Date();
+        const sevenDaysAhead = addDays(now, 7);
+
+        const { count, error } = await supabase
+            .from('schedules')
+            .select('id', { count: 'exact', head: true })
+            .gte('start_time', now.toISOString())
+            .lte('start_time', sevenDaysAhead.toISOString());
+
+        if (error) {
+            console.error('[Cron Sync] Monitoring query failed:', error.message);
+            return;
+        }
+
+        const entryCount = count ?? 0;
+
+        if (entryCount < MIN_UPCOMING_ENTRIES_THRESHOLD) {
+            console.warn(
+                `[Cron Sync] WARNING: Only ${entryCount} schedule entries found for the next 7 days ` +
+                `(threshold: ${MIN_UPCOMING_ENTRIES_THRESHOLD}). The schedule page may appear empty.`
+            );
+        } else {
+            console.log(
+                `[Cron Sync] Monitoring OK: ${entryCount} entries for the next 7 days.`
+            );
+        }
+    } catch (err: any) {
+        console.error('[Cron Sync] Monitoring check failed:', err.message);
     }
 }

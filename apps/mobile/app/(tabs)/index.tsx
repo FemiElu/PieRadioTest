@@ -14,7 +14,7 @@ import { RequestSongModal } from "../../components/RequestSongModal";
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
-    const { isPlaying, isLoading: audioLoading, togglePlay, currentTrack } = useMobileAudio();
+    const { isPlaying, isLoading: audioLoading, togglePlay, currentTrack, isLiveStream, switchToLive } = useMobileAudio();
     const { currentShow, loading: showLoading } = useCurrentShow();
     const { recentlyPlayed, loading: recentLoading } = useRecentlyPlayed();
     const router = useRouter();
@@ -118,7 +118,7 @@ export default function HomeScreen() {
 
                         <View className="flex-row space-x-3">
                             <TouchableOpacity
-                                onPress={togglePlay}
+                                onPress={isLiveStream ? togglePlay : switchToLive}
                                 disabled={audioLoading}
                                 className="flex-1 flex-row items-center justify-center bg-primary py-4 rounded-full shadow-lg active:opacity-80"
                             >
@@ -127,13 +127,15 @@ export default function HomeScreen() {
                                 ) : (
                                     <>
                                         <Ionicons
-                                            name={isPlaying ? "pause" : "play"}
+                                            name={(isLiveStream && isPlaying) ? "pause" : "radio"}
                                             size={20}
                                             color="white"
                                             style={{ marginRight: 8 }}
                                         />
                                         <Text className="text-white font-bold text-base">
-                                            {isPlaying ? "Pause Live" : "Listen Live"}
+                                            {isLiveStream 
+                                                ? (isPlaying ? "Pause Live" : "Listen Live")
+                                                : "Return to Live"}
                                         </Text>
                                     </>
                                 )}
@@ -167,15 +169,16 @@ export default function HomeScreen() {
                                 subtitle="Partnership"
                                 description="The ultimate combo: crispy chicken meets the freshest beats."
                                 imageSource={require("../../assets/popeye-3.jpeg")}
-                                onPress={() => { }}
+                                onPress={() => router.push('/popeyesuk')}
                                 badge="Featured"
                             />
+                            {/* Artist Spotlight — interactive when content is ready */}
                             <HomeFeaturedCard
                                 title="Artist Spotlight"
                                 subtitle="Spotlight"
                                 description="Discover this month's featured artist breaking through the scene."
                                 imageSource={require("../../assets/abstract-avatar.png")}
-                                onPress={() => { }}
+                                onPress={undefined}
                             />
                         </ScrollView>
                     </View>

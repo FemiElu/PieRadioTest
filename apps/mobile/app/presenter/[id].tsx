@@ -5,12 +5,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { supabase } from "@/lib/supabase";
 import { LinearGradient } from "expo-linear-gradient";
+import { useMobileAudio } from "@/context/mobile-audio-context";
+import { format } from "date-fns";
 
 export default function PresenterDetailScreen() {
     const { id } = useLocalSearchParams(); // This can be slug or UUID
     const router = useRouter();
+    const { isPlaying, togglePlay, playClip, isLiveStream, clipUrl } = useMobileAudio();
     const [presenter, setPresenter] = useState<any>(null);
     const [shows, setShows] = useState<any[]>([]);
+    const [episodes, setEpisodes] = useState<any[]>([]);
+    const [similarPresenters, setSimilarPresenters] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     // Form state
@@ -29,7 +34,12 @@ export default function PresenterDetailScreen() {
             // Try fetching by slug first
             let { data, error } = await supabase
                 .from('profiles')
-                .select('*')
+                .select(`
+                    *,
+                    presenter_meta (
+                        category
+                    )
+                `)
                 .eq('slug', id)
                 .single();
 
@@ -39,7 +49,12 @@ export default function PresenterDetailScreen() {
                 if (isUuid) {
                     const { data: byId, error: byIdError } = await supabase
                         .from('profiles')
-                        .select('*')
+                        .select(`
+                            *,
+                            presenter_meta (
+                                category
+                            )
+                        `)
                         .eq('id', id)
                         .single();
                     if (!byIdError) data = byId;
@@ -49,6 +64,9 @@ export default function PresenterDetailScreen() {
             if (data) {
                 setPresenter(data);
                 fetchShows(data.id);
+                fetchEpisodes(data.id);
+                const category = (data.presenter_meta as any)?.category;
+                if (category) fetchSimilarPresenters(category, data.id);
             }
         } catch (error) {
             console.error(error);
@@ -68,6 +86,46 @@ export default function PresenterDetailScreen() {
             setShows(data || []);
         } catch (error) {
             console.error("Error fetching presenter shows:", error);
+        }
+    };
+
+    const fetchEpisodes = async (presenterId: string) => {
+        try {
+            const { data, error } = await (supabase.from('episodes') as any)
+                .select('id, title, description, file_key, cover_image_url, aired_at, duration_seconds')
+                .eq('presenter_id', presenterId)
+                .order('aired_at', { ascending: false });
+
+            if (error) throw error;
+            setEpisodes(data || []);
+        } catch (error) {
+            console.error("Error fetching presenter episodes:", error);
+        }
+    };
+
+    const fetchSimilarPresenters = async (category: string, currentPresenterId: string) => {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select(`
+                    id,
+                    full_name,
+                    slug,
+                    username,
+                    avatar_url,
+                    presenter_meta!inner (
+                        category
+                    )
+                `)
+                .eq('role', 'presenter')
+                .eq('presenter_meta.category', category)
+                .neq('id', currentPresenterId)
+                .limit(10);
+
+            if (error) throw error;
+            setSimilarPresenters(data || []);
+        } catch (error) {
+            console.error("Error fetching similar presenters:", error);
         }
     };
 
@@ -115,7 +173,7 @@ export default function PresenterDetailScreen() {
     if (!presenter) {
         return (
             <SafeAreaView className="flex-1 bg-background items-center justify-center p-6">
-                <Text className="text-white text-lg">Presenter not found</Text>
+                <Text className="text-foreground text-lg">Presenter not found</Text>
                 <TouchableOpacity onPress={() => router.back()} className="mt-4 p-2">
                     <Text className="text-primary font-bold">Go Back</Text>
                 </TouchableOpacity>
@@ -176,6 +234,91 @@ export default function PresenterDetailScreen() {
                         </View>
                     )}
 
+                    {/* Episodes (Recent Shows) Section */}
+                    {episodes.length > 0 && (
+                        <View className="px-6 mb-8">
+                            <View className="bg-card border border-border p-6 rounded-3xl">
+                                <View className="flex-row items-center gap-3 mb-6">
+                                    <View className="w-10 h-10 bg-primary/10 rounded-full items-center justify-center">
+                                        <Ionicons name="headset" size={20} color="#334aff" />
+                                    </View>
+                                    <Text className="text-foreground text-xl font-bold font-display">
+                                        Recent Shows
+                                    </Text>
+                                </View>
+
+                                <View className="space-y-4">
+                                    {episodes.map((episode) => {
+                                        const audioUrl = `https://eybfcekeksdcnimfkgkc.supabase.co/storage/v1/object/public/pie-episodes/${episode.file_key}`;
+                                        const isThisEpisode = clipUrl === audioUrl && !isLiveStream;
+                                        const isThisPlaying = isThisEpisode && isPlaying;
+
+                                        return (
+                                            <TouchableOpacity
+                                                key={episode.id}
+                                                onPress={() => {
+                                                    if (isThisEpisode) {
+                                                        togglePlay();
+                                                    } else {
+                                                        playClip(
+                                                            audioUrl,
+                                                            episode.title,
+                                                            presenter.full_name,
+                                                            episode.cover_image_url || undefined
+                                                        );
+                                                    }
+                                                }}
+                                                className={`border rounded-2xl p-4 flex-row items-center gap-4 transition-colors ${isThisEpisode ? 'bg-primary/5 border-primary/20' : 'bg-muted/30 border-border'}`}
+                                            >
+                                            {/* Episode Image / Play Icon */}
+                                            <View className="w-16 h-16 rounded-xl overflow-hidden bg-muted items-center justify-center">
+                                                {episode.cover_image_url ? (
+                                                    <Image
+                                                        source={{ uri: episode.cover_image_url }}
+                                                        className="w-full h-full"
+                                                        resizeMode="cover"
+                                                    />
+                                                ) : (
+                                                    <Ionicons name="play" size={24} color="#334aff" />
+                                                )}
+                                            </View>
+
+                                            <View className="flex-1">
+                                                <Text className="text-foreground font-bold text-base" numberOfLines={1}>
+                                                    {episode.title}
+                                                </Text>
+                                                <View className="flex-row items-center gap-4 mt-1">
+                                                    {episode.aired_at && (
+                                                        <View className="flex-row items-center gap-1">
+                                                            <Ionicons name="calendar-outline" size={12} color="#5d6476" />
+                                                            <Text className="text-muted-foreground text-xs font-medium">
+                                                                {format(new Date(episode.aired_at), "MMM d, yyyy")}
+                                                            </Text>
+                                                        </View>
+                                                    )}
+                                                    {episode.duration_seconds && (
+                                                        <View className="flex-row items-center gap-1">
+                                                            <Ionicons name="time-outline" size={12} color="#5d6476" />
+                                                            <Text className="text-muted-foreground text-xs font-medium">
+                                                                {Math.floor(episode.duration_seconds / 60)}:{(episode.duration_seconds % 60).toString().padStart(2, '0')}
+                                                            </Text>
+                                                        </View>
+                                                    )}
+                                                </View>
+                                            </View>
+
+                                            <Ionicons 
+                                                name={isThisPlaying ? "pause-circle" : "play-circle"} 
+                                                size={32} 
+                                                color="#334aff" 
+                                            />
+                                        </TouchableOpacity>
+                                    );})}
+                                </View>
+                            </View>
+                        </View>
+                    )}
+
                     {/* Shows Section */}
                     {shows.length > 0 && (
                         <View className="px-6 mb-12">
@@ -232,6 +375,54 @@ export default function PresenterDetailScreen() {
                                         </View>
                                     ))}
                                 </View>
+                            </View>
+                        </View>
+                    )}
+
+                    {/* Similar Presenters Section */}
+                    {similarPresenters.length > 0 && (
+                        <View className="px-6 mb-12">
+                            <View className="bg-card border border-border p-6 rounded-3xl">
+                                <View className="flex-row items-center gap-3 mb-6">
+                                    <View className="w-10 h-10 bg-primary/10 rounded-full items-center justify-center">
+                                        <Ionicons name="people" size={20} color="#334aff" />
+                                    </View>
+                                    <Text className="text-foreground text-xl font-bold font-display">
+                                        Similar Presenters
+                                    </Text>
+                                </View>
+
+                                <ScrollView
+                                    horizontal
+                                    showsHorizontalScrollIndicator={false}
+                                    contentContainerStyle={{ gap: 16 }}
+                                >
+                                    {similarPresenters.map((p) => (
+                                        <TouchableOpacity
+                                            key={p.id}
+                                            onPress={() => router.push(`/presenter/${p.slug || p.id}`)}
+                                            className="items-center gap-2"
+                                            style={{ width: 80 }}
+                                        >
+                                            <View className="w-16 h-16 rounded-full overflow-hidden border-2 border-border bg-muted">
+                                                {p.avatar_url ? (
+                                                    <Image
+                                                        source={{ uri: p.avatar_url }}
+                                                        className="w-full h-full"
+                                                        resizeMode="cover"
+                                                    />
+                                                ) : (
+                                                    <View className="w-full h-full items-center justify-center">
+                                                        <Ionicons name="person" size={32} color="#5d6476" />
+                                                    </View>
+                                                )}
+                                            </View>
+                                            <Text className="text-foreground text-xs font-bold text-center" numberOfLines={1}>
+                                                {p.full_name || "Presenter"}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </ScrollView>
                             </View>
                         </View>
                     )}

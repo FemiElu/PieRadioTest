@@ -3,14 +3,14 @@
 import { useState } from "react";
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
-import { Radio, Mic, Calendar, Upload, Music, AlertCircle } from "lucide-react";
+import { Radio, Mic, Calendar, Upload, Music, AlertCircle, FlaskConical, Plus, Database } from "lucide-react";
 import { PresenterMessagesList } from "@/components/presenters/messages-list";
 import { SongRequestList } from "@/components/presenters/song-request-list";
 import { PresenterMessage } from "@/actions/presenter-messages";
 import { useCurrentShow } from "@/hooks/use-current-show";
 import { toast } from "sonner";
 import { createTestShow, seedTestRequests } from "@/app/actions/demo";
-import { Plus, Database, FlaskConical } from "lucide-react";
+import { UploadShowModal } from "@/components/presenters/upload-show-modal";
 
 interface DashboardClientProps {
     initialMessages: PresenterMessage[];
@@ -19,12 +19,13 @@ interface DashboardClientProps {
 export function DashboardClient({ initialMessages }: DashboardClientProps) {
     const { user, profile } = useAuth();
     const [isLive, setIsLive] = useState(false);
+    const [uploadModalOpen, setUploadModalOpen] = useState(false);
     const { currentShow, loading: showLoading } = useCurrentShow();
 
     // Determine if the current show belongs to this presenter
     // useCurrentShow maps the presenter's full_name to shows.host_id
     const isOurShow = currentShow?.shows?.host_id === profile?.full_name;
-    
+
     const activeShowId = isOurShow ? currentShow?.id : null;
 
     const toggleLiveStatus = async () => {
@@ -112,8 +113,8 @@ export function DashboardClient({ initialMessages }: DashboardClientProps) {
                                 Song Requests
                             </h2>
                             <p className="text-muted-foreground text-sm">
-                                {showLoading 
-                                    ? "Checking for active shows..." 
+                                {showLoading
+                                    ? "Checking for active shows..."
                                     : "You don't have an active show in the schedule right now. Requests will appear here when your show is live."}
                             </p>
                         </div>
@@ -129,8 +130,8 @@ export function DashboardClient({ initialMessages }: DashboardClientProps) {
                     <div className="rounded-xl border border-border/50 bg-card p-6 shadow-sm">
                         <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
                         <div className="space-y-2">
-                            <Button 
-                                variant="outline" 
+                            <Button
+                                variant="outline"
                                 className="w-full justify-start gap-2"
                                 onClick={() => {
                                     const el = document.getElementById('song-requests-section');
@@ -144,7 +145,11 @@ export function DashboardClient({ initialMessages }: DashboardClientProps) {
                                 <Calendar className="w-4 h-4" />
                                 Check Schedule
                             </Button>
-                            <Button variant="outline" className="w-full justify-start gap-2">
+                            <Button
+                                variant="outline"
+                                className="w-full justify-start gap-2"
+                                onClick={() => setUploadModalOpen(true)}
+                            >
                                 <Upload className="w-4 h-4" />
                                 Upload Show
                             </Button>
@@ -174,8 +179,8 @@ export function DashboardClient({ initialMessages }: DashboardClientProps) {
                                 Demo Mode
                             </h2>
                             <div className="space-y-3">
-                                <Button 
-                                    className="w-full justify-start gap-2" 
+                                <Button
+                                    className="w-full justify-start gap-2"
                                     onClick={async () => {
                                         try {
                                             toast.loading("Creating test show...", { id: "demo-show" });
@@ -192,9 +197,9 @@ export function DashboardClient({ initialMessages }: DashboardClientProps) {
                                     Start 1h Test Show
                                 </Button>
 
-                                <Button 
-                                    variant="outline" 
-                                    className="w-full justify-start gap-2" 
+                                <Button
+                                    variant="outline"
+                                    className="w-full justify-start gap-2"
                                     disabled={!activeShowId}
                                     onClick={async () => {
                                         if (!activeShowId) return;
@@ -210,7 +215,7 @@ export function DashboardClient({ initialMessages }: DashboardClientProps) {
                                     <Database className="w-4 h-4" />
                                     Simulate 3 Requests
                                 </Button>
-                                
+
                                 {!activeShowId && (
                                     <p className="text-[10px] text-muted-foreground mt-2 italic">
                                         * You must have an active show to simulate requests.
@@ -221,6 +226,11 @@ export function DashboardClient({ initialMessages }: DashboardClientProps) {
                     )}
                 </div>
             </div>
+
+            <UploadShowModal
+                open={uploadModalOpen}
+                onOpenChange={setUploadModalOpen}
+            />
         </div>
     );
 }

@@ -10,7 +10,7 @@ import * as FileSystem from 'expo-file-system';
 import { decode } from 'base64-arraybuffer';
 
 export default function EditProfileScreen() {
-    const { user, profile, fetchProfile } = useAuth();
+    const { user, profile, refreshProfile } = useAuth();
     
     const [isLoading, setIsLoading] = useState(false);
     
@@ -164,7 +164,7 @@ export default function EditProfileScreen() {
             }
 
             Alert.alert("Success", "Profile updated successfully!");
-            await fetchProfile(); // refresh context
+            await refreshProfile(); // refresh context
             router.back();
             
         } catch (error: any) {
