@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 interface FileUploaderProps {
-    bucket: "music" | "images" | "track-submissions";
+    bucket: "music" | "images" | "track-submissions" | "pie-episodes";
     folderPath?: string; // e.g. 'avatars/userId'
     acceptedFileTypes?: string[]; // e.g. ['image/*', 'audio/mpeg']
     maxSizeMB?: number;
@@ -123,7 +123,7 @@ export function FileUploader({
                 <div className="bg-background border border-border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center space-x-3 overflow-hidden">
-                            {bucket === 'music' || bucket === 'track-submissions' ? (
+                            {bucket === 'music' || bucket === 'track-submissions' || bucket === 'pie-episodes' ? (
                                 <FileAudio className="w-8 h-8 text-primary shrink-0" />
                             ) : (
                                 <FileImage className="w-8 h-8 text-blue-500 shrink-0" />

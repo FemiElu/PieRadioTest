@@ -271,7 +271,7 @@ export async function GET(request: Request) {
  * Monitoring helper: counts schedule entries for the next 7 days
  * and logs a warning if the count is below the threshold.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line
 async function checkUpcomingEntries(
     supabase: ReturnType<typeof createClient<any>>
 ): Promise<void> {

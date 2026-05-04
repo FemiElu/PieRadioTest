@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { 
     Plus, 
@@ -39,7 +39,7 @@ export default function AdminPartnershipsPage() {
     // We can expand this in the future
     const CATEGORY = "partnership:popeyes-heaters_show";
 
-    const fetchEpisodes = async () => {
+    const fetchEpisodes = useCallback(async () => {
         setLoading(true);
         try {
             const { data, error } = await supabase
@@ -49,18 +49,18 @@ export default function AdminPartnershipsPage() {
                 .order("aired_at", { ascending: false });
 
             if (error) throw error;
-            setEpisodes(data || []);
+            setEpisodes((data as any) || []);
         } catch (error: any) {
             toast.error("Failed to load partnership episodes");
             console.error(error);
         } finally {
             setLoading(false);
         }
-    };
+    }, [supabase, CATEGORY]);
 
     useEffect(() => {
         fetchEpisodes();
-    }, []);
+    }, [fetchEpisodes]);
 
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this show?")) return;
