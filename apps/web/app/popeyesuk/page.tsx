@@ -19,6 +19,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { joinWaitlist } from "../actions/waitlist";
 import { useFormStatus } from "react-dom";
+import { createClient } from "@/lib/supabase/client";
+import { ShowPreviewDialog } from "@/components/shared/show-preview-dialog";
+import { toast } from "sonner";
 
 const CAROUSEL_IMAGES = [
   {
@@ -198,6 +201,9 @@ export default function PopeyesUkPage() {
   const [formError, setFormError] = useState("");
   const [formSuccess, setFormSuccess] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [episodes, setEpisodes] = useState<any[]>([]);
+  const [episodesLoading, setEpisodesLoading] = useState(false);
 
   const carouselRef = useRef<HTMLDivElement>(null);
   const revealContainerRef = useScrollReveal();
@@ -206,6 +212,32 @@ export default function PopeyesUkPage() {
   useEffect(() => {
     pushEvent("partnership_page_view");
   }, []);
+
+  const fetchEpisodes = async () => {
+    setEpisodesLoading(true);
+    const supabase = createClient();
+    try {
+      const { data, error } = await supabase
+        .from("episodes")
+        .select("*")
+        .eq("category", "partnership:popeyes-heaters_show")
+        .order("aired_at", { ascending: false });
+
+      if (error) throw error;
+      setEpisodes(data || []);
+    } catch (error) {
+      console.error("Error fetching episodes:", error);
+      toast.error("Failed to load episodes. Please try again.");
+    } finally {
+      setEpisodesLoading(false);
+    }
+  };
+
+  const handlePreviewClick = () => {
+    setIsPreviewOpen(true);
+    fetchEpisodes();
+    pushEvent("preview_heaters_show_click");
+  };
 
   const scrollCarousel = useCallback((direction: "left" | "right") => {
     const el = carouselRef.current;
@@ -410,17 +442,15 @@ export default function PopeyesUkPage() {
               </Button>
             </Link>
 
-            <div className="coming-soon-tooltip hidden lg:inline-flex">
+            <div className="lg:inline-flex">
               <Button
                 id="hero-cta-preview"
                 variant="outline"
                 size="lg"
-                className="h-12 sm:h-14 px-8 rounded-full text-base sm:text-lg border-2 gap-3 bg-white/5 backdrop-blur-sm text-white border-white/20 cursor-not-allowed opacity-60"
-                disabled
-                aria-disabled="true"
-                title="Available on launch."
+                className="h-12 sm:h-14 px-8 rounded-full text-base sm:text-lg border-2 gap-3 bg-white/5 backdrop-blur-sm text-white border-white/20 hover:bg-white/10 hover:border-popeyes-orange transition-all font-bold"
+                onClick={handlePreviewClick}
               >
-                <Music className="w-5 h-5" />
+                <Music className="w-5 h-5 text-popeyes-orange" />
                 Preview Heaters Show
               </Button>
             </div>
@@ -752,6 +782,15 @@ export default function PopeyesUkPage() {
           </p>
         </div>
       </section>
+
+      <ShowPreviewDialog 
+        open={isPreviewOpen}
+        onOpenChange={setIsPreviewOpen}
+        episodes={episodes}
+        loading={episodesLoading}
+        showName="The Heaters Show"
+        brandName="Popeyes® UK"
+      />
     </div>
   );
 }

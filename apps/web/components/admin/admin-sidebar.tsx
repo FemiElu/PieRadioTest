@@ -34,8 +34,8 @@ const sidebarItems = [
     icon: Mic2,
   },
   {
-    title: "Schedule / Shows",
-    href: "/admin/schedule", // Future proofing
+    title: "Partnerships",
+    href: "/admin/partnerships",
     icon: Music,
   },
   {
