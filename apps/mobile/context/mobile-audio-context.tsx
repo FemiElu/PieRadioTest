@@ -14,7 +14,11 @@ interface MobileAudioContextType {
     hasError: boolean;
     errorMessage: string;
     currentTrack: Track | null;
+    isLiveStream: boolean;
+    clipUrl: string | null;
     togglePlay: () => Promise<void>;
+    playClip: (url: string, title: string, artist: string, artwork?: string) => Promise<void>;
+    switchToLive: () => Promise<void>;
     retry: () => Promise<void>;
 }
 
@@ -33,6 +37,8 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
         artist: "The Number One Station",
         artwork: undefined
     });
+    const [isLiveStream, setIsLiveStream] = useState(true);
+    const [clipUrl, setClipUrl] = useState<string | null>(null);
 
     const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const retryCountRef = useRef(0);
@@ -60,9 +66,11 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
 
     // Realtime Metadata
     useEffect(() => {
+        if (!isLiveStream) return;
+
         const fetchInitial = async () => {
             const { data } = await supabase.from('station_metadata').select('*').eq('id', 1 as any).single();
-            if (data) {
+            if (data && isLiveStream) {
                 const metadata = data as any;
                 setCurrentTrack({
                     title: metadata.title || "Pie Radio Live",
@@ -85,6 +93,7 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
                     filter: 'id=eq.1'
                 },
                 (payload) => {
+                    if (!isLiveStream) return;
                     const newData = payload.new as any;
                     setCurrentTrack({
                         title: newData.title || "Pie Radio Live",
@@ -98,7 +107,7 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
         return () => {
             supabase.removeChannel(channel);
         };
-    }, []);
+    }, [isLiveStream]); 
 
     const initAudio = async (attempt = 1) => {
         setIsLoading(true);
@@ -152,6 +161,46 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
         }
     };
 
+    const initClip = async (url: string) => {
+        setIsLoading(true);
+        setHasError(false);
+        setErrorMessage("");
+
+        try {
+            if (sound) {
+                await sound.unloadAsync();
+                setSound(null);
+            }
+
+            const { sound: newSound } = await Audio.Sound.createAsync(
+                { uri: url },
+                { shouldPlay: true }
+            );
+
+            setSound(newSound);
+            setIsPlaying(true);
+
+            newSound.setOnPlaybackStatusUpdate((status) => {
+                if (status.isLoaded) {
+                    setIsPlaying(status.isPlaying);
+                    if (status.didJustFinish) {
+                        setIsPlaying(false);
+                    }
+                } else if (status.error) {
+                    setHasError(true);
+                    setErrorMessage("Playback error. Please try again.");
+                }
+            });
+
+        } catch (error: any) {
+            setHasError(true);
+            setIsPlaying(false);
+            setErrorMessage(error.message || "Unable to play audio.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const scheduleReconnect = (attempt = retryCountRef.current + 1) => {
         if (attempt > MAX_RETRIES) {
             setErrorMessage("Stream disconnected. Please try playing again.");
@@ -173,10 +222,13 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
         if (isLoading) return;
 
         if (hasError) {
-            // Manual retry resets the flow
-            retryCountRef.current = 0;
-            if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
-            await initAudio(1);
+            if (isLiveStream) {
+                retryCountRef.current = 0;
+                if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+                await initAudio(1);
+            } else if (clipUrl) {
+                await initClip(clipUrl);
+            }
             return;
         }
 
@@ -190,7 +242,11 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
                     setIsPlaying(true);
                 }
             } else {
-                await initAudio(1);
+                if (isLiveStream) {
+                    await initAudio(1);
+                } else if (clipUrl) {
+                    await initClip(clipUrl);
+                }
             }
         } catch (error) {
             setHasError(true);
@@ -199,10 +255,31 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
         }
     };
 
+    const playClip = async (url: string, title: string, artist: string, artwork?: string) => {
+        setIsLiveStream(false);
+        setClipUrl(url);
+        setCurrentTrack({ title, artist, artwork });
+        
+        if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+        await initClip(url);
+    };
+
+    const switchToLive = async () => {
+        setIsLiveStream(true);
+        setClipUrl(null);
+        // Metadata will be updated by the useEffect
+        if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+        await initAudio(1);
+    };
+
     const retry = async () => {
         retryCountRef.current = 0;
         if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
-        await initAudio(1);
+        if (isLiveStream) {
+            await initAudio(1);
+        } else if (clipUrl) {
+            await initClip(clipUrl);
+        }
     };
 
     useEffect(() => {
@@ -215,7 +292,19 @@ export function MobileAudioProvider({ children }: { children: React.ReactNode })
     }, [sound]);
 
     return (
-        <MobileAudioContext.Provider value={{ isPlaying, isLoading, hasError, errorMessage, currentTrack, togglePlay, retry }}>
+        <MobileAudioContext.Provider value={{ 
+            isPlaying, 
+            isLoading, 
+            hasError, 
+            errorMessage, 
+            currentTrack, 
+            isLiveStream,
+            clipUrl,
+            togglePlay, 
+            playClip, 
+            switchToLive,
+            retry 
+        }}>
             {children}
         </MobileAudioContext.Provider>
     );

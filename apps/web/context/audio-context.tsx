@@ -10,7 +10,10 @@ interface AudioContextType {
     togglePlay: () => void;
     setVolume: (val: number) => void;
     isLoading: boolean;
+    isLiveStream: boolean;
+    clipUrl: string | null;
     playClip: (url: string, title: string, artist: string, artwork?: string) => void;
+    switchToLive: () => void;
     seekTo: (seconds: number) => void;
     currentTime: number;
     duration: number;
@@ -108,6 +111,11 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         setCurrentTrack({ title, artist, artwork, url });
     };
 
+    const switchToLive = () => {
+        stopClip();
+        playStream();
+    };
+
     const seekTo = (seconds: number) => {
         if (clipRef.current) {
             clipRef.current.currentTime = seconds;
@@ -201,7 +209,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             togglePlay,
             setVolume,
             isLoading,
+            isLiveStream: currentTrack?.url === STREAM_URL,
+            clipUrl: currentTrack?.url !== STREAM_URL ? currentTrack?.url || null : null,
             playClip,
+            switchToLive,
             seekTo,
             currentTime,
             duration

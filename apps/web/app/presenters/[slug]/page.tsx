@@ -7,7 +7,9 @@ import Link from "next/link";
 import { ArrowLeft, Clock, Play, Radio } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PresenterContactForm } from "@/components/presenters/presenter-contact-form";
+import { PresenterEpisodesList } from "@/components/presenters/presenter-episodes-list";
 import { PresenterShowDescription } from "@/components/presenters/presenter-show-description";
+import { SimilarPresenters } from "@/components/presenters/similar-presenters";
 
 interface PresenterPageProps {
   params: Promise<{ slug: string }>;
@@ -24,6 +26,24 @@ interface PresenterShow {
   cover_image_url: string | null;
   schedule: string | null;
   display_order: number;
+}
+
+interface Episode {
+  id: string;
+  title: string;
+  description: string | null;
+  file_key: string | null;
+  cover_image_url: string | null;
+  aired_at: string | null;
+  duration_seconds: number | null;
+}
+
+interface SimilarPresenter {
+    id: string;
+    full_name: string | null;
+    slug: string | null;
+    username: string | null;
+    avatar_url: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -71,6 +91,42 @@ async function fetchPresenterShows(
   return (data ?? []) as PresenterShow[];
 }
 
+/** Fetch episodes uploaded by the presenter. */
+async function fetchPresenterEpisodes(
+  presenterId: string,
+): Promise<Episode[]> {
+  const supabase = await createClient();
+  const { data } = await
+    (supabase.from("episodes") as any)
+      .select("id, title, description, file_key, cover_image_url, aired_at, duration_seconds")
+      .eq("presenter_id", presenterId)
+      .order("aired_at", { ascending: false });
+  return (data ?? []) as Episode[];
+}
+
+/** Fetch similar presenters based on category. */
+async function fetchSimilarPresenters(category: string, currentPresenterId: string): Promise<SimilarPresenter[]> {
+    const supabase = await createClient();
+    const { data } = await supabase
+        .from("profiles")
+        .select(`
+            id,
+            full_name,
+            slug,
+            username,
+            avatar_url,
+            presenter_meta!inner (
+                category
+            )
+        `)
+        .eq("role", "presenter")
+        .eq("presenter_meta.category", category)
+        .neq("id", currentPresenterId)
+        .limit(6);
+    
+    return (data ?? []) as unknown as SimilarPresenter[];
+}
+
 // ---------------------------------------------------------------------------
 // Metadata
 // ---------------------------------------------------------------------------
@@ -99,6 +155,10 @@ export default async function PresenterPage({ params }: PresenterPageProps) {
   if (!presenter) notFound();
 
   const shows = await fetchPresenterShows(presenter.id);
+  const episodes = await fetchPresenterEpisodes(presenter.id);
+
+  const category = (presenter.presenter_meta as any)?.category;
+  const similarPresenters = category ? await fetchSimilarPresenters(category, presenter.id) : [];
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-background">
@@ -188,7 +248,7 @@ export default async function PresenterPage({ params }: PresenterPageProps) {
       {/* ── Content Grid ── */}
       <section className="container px-4 md:px-8 max-w-screen-2xl mx-auto pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left — About + Shows */}
+          {/* Left — About + Shows + Episodes */}
           <div className="lg:col-span-2 space-y-8">
             {/* About */}
             <div className="bg-white rounded-3xl border border-border p-6 md:p-8">
@@ -212,6 +272,14 @@ export default async function PresenterPage({ params }: PresenterPageProps) {
                 </p>
               )}
             </div>
+
+            {/* Episodes (Recent Shows) */}
+            {episodes.length > 0 && (
+              <PresenterEpisodesList
+                episodes={episodes}
+                presenterName={presenter.full_name || "Presenter"}
+              />
+            )}
 
             {/* Shows */}
             <div className="bg-white rounded-3xl border border-border p-6 md:p-8">
@@ -277,12 +345,16 @@ export default async function PresenterPage({ params }: PresenterPageProps) {
             </div>
           </div>
 
-          {/* Right — Contact Form */}
+          {/* Right — Contact Form & Similar Presenters */}
           <div className="space-y-8">
             <PresenterContactForm
               presenterId={presenter.id}
               presenterName={presenter.full_name}
             />
+
+            {similarPresenters.length > 0 && (
+                <SimilarPresenters presenters={similarPresenters} />
+            )}
           </div>
         </div>
       </section>
