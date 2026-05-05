@@ -117,7 +117,7 @@ export function UploadShowModal({ open, onOpenChange, onSuccess, category }: Upl
                     </DialogTitle>
                     <DialogDescription>
                         Share your recently aired show with your listeners. 
-                        Max audio file size is 60MB.
+                        Max audio file size is 150MB.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -177,7 +177,7 @@ export function UploadShowModal({ open, onOpenChange, onSuccess, category }: Upl
                             <FileUploader 
                                 bucket="pie-episodes"
                                 acceptedFileTypes={["audio/mpeg", "audio/mp3"]}
-                                maxSizeMB={60}
+                                maxSizeMB={150}
                                 onUploadComplete={handleAudioUploadComplete}
                             />
                         </div>

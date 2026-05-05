@@ -99,7 +99,7 @@ export function ProfileTabs({ user, profile, artistProfile }: ProfileTabsProps) 
                             </Text>
                         </View>
                     </TouchableOpacity>
-                    
+
                     {/* Extra padding for proper scrolling bounds */}
                     <View className="w-8" />
                 </ScrollView>
@@ -294,9 +294,9 @@ export function ProfileTabs({ user, profile, artistProfile }: ProfileTabsProps) 
                                     </View>
                                 )}
 
-                                {!artistProfile && profile?.role === 'listener' && (
+                                {activeTab === 'tools' && (
                                     <View>
-                                        <Text className="text-muted-foreground text-xs font-bold uppercase tracking-widest mt-2 mb-3">
+                                        <Text className="text-muted-foreground text-xs font-bold uppercase tracking-widest mt-6 mb-3">
                                             Account Settings
                                         </Text>
                                         <TouchableOpacity
@@ -309,7 +309,7 @@ export function ProfileTabs({ user, profile, artistProfile }: ProfileTabsProps) 
                                                 </View>
                                                 <View>
                                                     <Text className="text-red-600 font-bold text-lg">Delete Account</Text>
-                                                    <Text className="text-muted-foreground text-xs">Permanently remove your data</Text>
+                                                    <Text className="text-muted-foreground text-xs mr-10">Permanently remove your data</Text>
                                                 </View>
                                             </View>
                                             <Ionicons name="chevron-forward" size={20} color="#5d6476" />
