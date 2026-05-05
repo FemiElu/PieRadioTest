@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 interface FileUploaderProps {
-    bucket: "music" | "images" | "track-submissions" | "pie-episodes";
+    bucket: "music" | "images" | "track-submissions" | "pie-episodes" | "news-images";
     folderPath?: string; // e.g. 'avatars/userId'
     acceptedFileTypes?: string[]; // e.g. ['image/*', 'audio/mpeg']
     maxSizeMB?: number;

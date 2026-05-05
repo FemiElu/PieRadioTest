@@ -37,6 +37,22 @@ export default function Home() {
   type PlayedTrack = { title: string; artist: string; time: string };
   const [recentlyPlayed, setRecentlyPlayed] = React.useState<PlayedTrack[]>([]);
   const [recentLoading, setRecentLoading] = React.useState(true);
+  const [spotlight, setSpotlight] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    async function fetchSpotlight() {
+      try {
+        const res = await fetch("/api/spotlight");
+        if (res.ok) {
+          const data = await res.json();
+          setSpotlight(data);
+        }
+      } catch (error) {
+        console.error("Error fetching spotlight:", error);
+      }
+    }
+    fetchSpotlight();
+  }, []);
 
   React.useEffect(() => {
     async function fetchRecentTracks() {
@@ -106,8 +122,8 @@ export default function Home() {
 
   const artwork =
     !isGenericMetadata &&
-    currentTrack.artwork &&
-    currentTrack.artwork !== "/placeholder-cover.jpg"
+      currentTrack.artwork &&
+      currentTrack.artwork !== "/placeholder-cover.jpg"
       ? currentTrack.artwork
       : currentShow?.shows?.cover_image_url || "/placeholder-cover.jpg";
 
@@ -230,7 +246,7 @@ export default function Home() {
               </p>
             </div>
             <Link
-              href="/press"
+              href="/news"
               className="text-primary font-semibold flex items-center gap-1 hover:underline group"
             >
               See All{" "}
@@ -278,8 +294,12 @@ export default function Home() {
             <div className="md:col-span-4 flex flex-col gap-6">
               <div className="flex-1 group relative overflow-hidden rounded-2xl border border-border/50 bg-card hover:border-primary/50 transition-all cursor-pointer shadow-sm hover:shadow-lg">
                 <Image
-                  src="/assets/abstract-avatar.png"
-                  alt="Artist Spotlight Placeholder"
+                  src={spotlight?.image_url || "/assets/abstract-avatar.png"}
+                  alt={
+                    spotlight?.artist_name
+                      ? `Spotlight: ${spotlight.artist_name}`
+                      : "Artist Spotlight Placeholder"
+                  }
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -287,12 +307,15 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-80" />
                 <div className="absolute bottom-0 p-6 space-y-2">
                   <div className="text-primary text-xs font-bold uppercase tracking-widest">
-                    Spotlight
+                    {spotlight?.title || "Spotlight"}
                   </div>
                   <h4 className="text-xl font-bold text-white font-display">
-                    Artist of the Month
+                    {spotlight?.artist_name || "Artist of the Month"}
                   </h4>
                 </div>
+                {spotlight?.link_url && (
+                  <Link href={spotlight.link_url} className="absolute inset-0" />
+                )}
               </div>
 
               <div
