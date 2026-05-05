@@ -52,8 +52,8 @@ export function NewsImageUploader({
                 throw new Error(data.error || "Failed to upload image");
             }
 
-            const { url } = await res.json();
-            onChange(url);
+            const { publicUrl } = await res.json();
+            onChange(publicUrl);
         } catch (err: any) {
             setError(err.message || "An error occurred during upload.");
         } finally {
