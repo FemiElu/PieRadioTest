@@ -165,7 +165,7 @@ export function AdminNewsClient() {
                         </div>
                         <div>
                             <h2 className="font-bold text-[#141827]">Home Page Spotlight</h2>
-                            <p className="text-xs text-zinc-500">Manage the "Artist of the Month" section</p>
+                            <p className="text-xs text-zinc-500">Manage the &quot;Artist of the Month&quot; section</p>
                         </div>
                     </div>
                     <Button
