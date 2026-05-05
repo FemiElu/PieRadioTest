@@ -192,7 +192,10 @@ export function UploadShowModal({ open, onOpenChange, onSuccess, category }: Upl
                                 bucket="images"
                                 acceptedFileTypes={["image/jpeg", "image/png", "image/webp"]}
                                 maxSizeMB={10}
-                                onUploadComplete={(path) => setImagePath(path)}
+                                onUploadComplete={(path) => {
+                                    const { data } = supabase.storage.from("images").getPublicUrl(path);
+                                    setImagePath(data.publicUrl);
+                                }}
                             />
                         </div>
                     </div>

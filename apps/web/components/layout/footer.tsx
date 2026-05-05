@@ -22,7 +22,7 @@ export function Footer() {
                             <li><Link href="/presenters" className="hover:text-primary transition-colors">Presenters</Link></li>
                             <li><Link href="/events" className="hover:text-primary transition-colors">Events</Link></li>
                             <li><Link href="/news" className="hover:text-primary transition-colors">News</Link></li>
-                            <li><Link href="/profile/upload" className="hover:text-primary transition-colors font-medium">Upload Track</Link></li>
+                            <li><Link href="/profile/upload" className="hover:text-primary transition-colors font-medium">Music Submission</Link></li>
                         </ul>
                     </div>
 
