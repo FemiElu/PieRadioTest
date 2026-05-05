@@ -1199,6 +1199,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      spotlights: {
+        Row: {
+          artist_name: string;
+          created_at: string | null;
+          id: string;
+          image_url: string;
+          is_active: boolean | null;
+          link_url: string | null;
+          title: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          artist_name: string;
+          created_at?: string | null;
+          id?: string;
+          image_url: string;
+          is_active?: boolean | null;
+          link_url?: string | null;
+          title: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          artist_name?: string;
+          created_at?: string | null;
+          id?: string;
+          image_url?: string;
+          is_active?: boolean | null;
+          link_url?: string | null;
+          title?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       role_change_audit_view: {
