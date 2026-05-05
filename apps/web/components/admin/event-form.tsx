@@ -37,6 +37,7 @@ export function EventForm({ initialData }: EventFormProps) {
         price_max: initialData?.price_max || null,
         ticket_url: initialData?.ticket_url || "",
         cover_image_url: initialData?.cover_image_url || "",
+        external_url: initialData?.external_url || "",
         is_featured: initialData?.is_featured || false,
     };
 
@@ -348,6 +349,22 @@ export function EventForm({ initialData }: EventFormProps) {
                                 )}
                             />
                             <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">Users will be redirected here when they click &quot;Get Tickets&quot;.</p>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-bold text-[#141827]">
+                                More Details URL (Optional)
+                            </label>
+                            <input
+                                type="url"
+                                {...register("external_url")}
+                                placeholder="https://example.com/more-info"
+                                className={cn(
+                                    "h-12 bg-zinc-50 border rounded-xl px-4 text-sm font-mono outline-none transition-all placeholder:text-zinc-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10",
+                                    errors.external_url ? "border-red-500" : "border-border/50 hover:border-zinc-300"
+                                )}
+                            />
+                            <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">A link for users to find more information about the event.</p>
                         </div>
                     </div>
 

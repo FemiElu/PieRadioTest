@@ -54,6 +54,14 @@ function formatSeconds(seconds: number): string {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
+/** Extracts YouTube Video ID from various URL formats */
+function getYouTubeId(url: string | null): string | null {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+}
+
 export function ArticleDetailClient({ article }: ArticleDetailClientProps) {
     const router = useRouter();
     const { playClip } = useAudio();
@@ -171,10 +179,36 @@ export function ArticleDetailClient({ article }: ArticleDetailClientProps) {
                         </p>
                     )}
 
-                    {/* Markdown body content */}
                     <div className="text-lg leading-relaxed text-zinc-800 space-y-6">
                         <ReactMarkdown>{article.content}</ReactMarkdown>
                     </div>
+
+                    {/* YouTube Embed */}
+                    {getYouTubeId(article.youtube_url) && (
+                        <div className="my-10 aspect-video w-full rounded-2xl md:rounded-3xl overflow-hidden shadow-xl border border-zinc-100">
+                            <iframe
+                                width="100%"
+                                height="100%"
+                                src={`https://www.youtube.com/embed/${getYouTubeId(article.youtube_url)}`}
+                                title="YouTube video player"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            />
+                        </div>
+                    )}
+
+                    {/* External Link */}
+                    {article.external_url && (
+                        <div className="my-8 flex justify-center">
+                            <Link href={article.external_url} target="_blank">
+                                <Button size="lg" className="rounded-full px-8 font-bold gap-2">
+                                    Read More
+                                    <ArrowLeft className="w-4 h-4 rotate-180" />
+                                </Button>
+                            </Link>
+                        </div>
+                    )}
 
                     {/* Inline Audio Moments */}
                     {article.audio_moments && article.audio_moments.length > 0 && (

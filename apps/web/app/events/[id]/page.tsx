@@ -192,6 +192,17 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                                     </Button>
                                 )}
 
+                                {event.external_url && (
+                                    <Link href={event.external_url} target="_blank" className="block">
+                                        <Button
+                                            variant="outline"
+                                            className="w-full h-12 rounded-2xl border-border/50 text-zinc-700 font-bold uppercase tracking-widest text-[10px] gap-2 hover:bg-zinc-50 transition-all"
+                                        >
+                                            <ExternalLink className="w-3 h-3" /> More Details
+                                        </Button>
+                                    </Link>
+                                )}
+
                                 <Button variant="outline" className="w-full h-12 rounded-2xl border-border/50 text-zinc-500 font-bold uppercase tracking-widest text-[10px] gap-2 hover:bg-zinc-50 transition-all">
                                     <Share2 className="w-3 h-3" /> Share Event
                                 </Button>

@@ -38,6 +38,8 @@ export const CreateArticleSchema = z.object({
     audio_preview_url: z.string().url('Must be a valid URL').nullable().optional(),
     audio_moments: z.array(AudioMomentSchema).max(10).nullable().optional(),
     author_name: z.string().max(100).nullable().optional(),
+    youtube_url: z.string().url('Must be a valid URL').nullable().optional().or(z.literal('')),
+    external_url: z.string().url('Must be a valid URL').nullable().optional().or(z.literal('')),
 });
 
 /**

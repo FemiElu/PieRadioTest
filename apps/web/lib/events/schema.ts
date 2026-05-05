@@ -68,6 +68,13 @@ const EventBaseObject = z.object({
     .nullable()
     .optional()
     .or(z.literal('')),
+  
+  external_url: z
+    .string()
+    .url('Must be a valid URL')
+    .nullable()
+    .optional()
+    .or(z.literal('')),
 
   // Media
   cover_image_url: z.string().url().nullable().optional().or(z.literal('')),
