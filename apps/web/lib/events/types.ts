@@ -68,6 +68,7 @@ export interface Event {
   price_max: number | null;
   currency: string; // default 'GBP'
   ticket_url: string | null;
+  external_url: string | null;
   capacity: number | null;
 
   // Flags

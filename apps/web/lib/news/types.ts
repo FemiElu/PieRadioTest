@@ -27,6 +27,8 @@ export interface NewsArticle {
     is_breaking: boolean;
     audio_preview_url: string | null;
     audio_moments: AudioMomentJson[] | null;
+    youtube_url: string | null;
+    external_url: string | null;
     options?: string[];
     results?: number[];
     likes_count: number;

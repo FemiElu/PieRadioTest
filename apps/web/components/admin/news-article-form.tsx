@@ -38,6 +38,8 @@ export function NewsArticleForm({ initialData }: NewsArticleFormProps) {
         cover_image_url: initialData?.cover_image_url || null,
         audio_preview_url: initialData?.audio_preview_url || null,
         audio_moments: initialData?.audio_moments || [],
+        youtube_url: initialData?.youtube_url || "",
+        external_url: initialData?.external_url || "",
     };
 
     const form = useForm<CreateArticleInput>({
@@ -358,6 +360,34 @@ export function NewsArticleForm({ initialData }: NewsArticleFormProps) {
                             placeholder="https://example.com/audio.mp3"
                             className="h-12 bg-zinc-50 border border-border/50 hover:border-zinc-300 rounded-xl px-4 text-sm font-mono outline-none transition-all placeholder:text-zinc-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
                         />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-bold text-[#141827]">
+                                YouTube Embed URL (Optional)
+                            </label>
+                            <input
+                                type="url"
+                                {...register("youtube_url")}
+                                placeholder="https://www.youtube.com/watch?v=..."
+                                className="h-12 bg-zinc-50 border border-border/50 hover:border-zinc-300 rounded-xl px-4 text-sm font-mono outline-none transition-all placeholder:text-zinc-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
+                            />
+                            <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">Will embed a video player on the article page.</p>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-bold text-[#141827]">
+                                External Link (Optional)
+                            </label>
+                            <input
+                                type="url"
+                                {...register("external_url")}
+                                placeholder="https://example.com"
+                                className="h-12 bg-zinc-50 border border-border/50 hover:border-zinc-300 rounded-xl px-4 text-sm font-mono outline-none transition-all placeholder:text-zinc-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
+                            />
+                            <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">A button for users to visit a related website.</p>
+                        </div>
                     </div>
 
                     {watchHasAudio && (
