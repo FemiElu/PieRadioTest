@@ -8,7 +8,7 @@ const SpotlightSchema = z.object({
     title: z.string().min(1),
     artist_name: z.string().min(1),
     image_url: z.string().url(),
-    link_url: z.string().url().optional().nullable(),
+    link_url: z.union([z.literal(""), z.string().url()]).optional().nullable(),
     is_active: z.boolean().default(true),
 });
 
