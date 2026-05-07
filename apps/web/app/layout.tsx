@@ -22,6 +22,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <meta name="google-site-verification" content="8lyajzxiCwOItwYMqTJKvR-L5TiQykkq3LvBa6xu9Sk" />
+      </head>
       <body className={cn(inter.variable, outfit.variable, "font-sans min-h-screen bg-background text-foreground antialiased")}>
         <ClientProviders>
           {children}
