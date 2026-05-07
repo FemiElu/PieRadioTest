@@ -1,8 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
-// Force dynamic to ensure it runs on every request
-export const dynamic = 'force-dynamic';
+// NOTE: force-dynamic was removed — the Vercel cron runner sends
+// Cache-Control: no-cache on every tick, guaranteeing fresh execution.
+// Removing this flag allows CDN deduplication for any non-cron callers.
 
 export async function GET(request: Request) {
     const authHeader = request.headers.get('authorization');
