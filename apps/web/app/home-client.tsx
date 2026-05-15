@@ -26,6 +26,7 @@ import {
   Radio,
   ChevronRight,
   Mic2,
+  CloudCog,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAudio } from "@/context/audio-context";
@@ -43,6 +44,7 @@ export type SpotlightData = {
 interface HomeClientProps {
   initialSpotlight: SpotlightData | null;
 }
+
 
 export default function HomeClient({ initialSpotlight }: HomeClientProps) {
   const { isPlaying, togglePlay, isLoading, currentTrack } = useAudio();
@@ -141,6 +143,8 @@ export default function HomeClient({ initialSpotlight }: HomeClientProps) {
 
   const formattedTitle = formatTitleCase(title);
   const formattedArtist = formatTitleCase(artist);
+
+  console.log(spotlight, "spotlight data")
 
   return (
     <div className="flex flex-col w-full">
@@ -316,7 +320,18 @@ export default function HomeClient({ initialSpotlight }: HomeClientProps) {
                   </h4>
                 </div>
                 {spotlight?.link_url && (
-                  <Link href={spotlight.link_url} className="absolute inset-0" />
+                  <Link 
+                    href={
+                      spotlight.link_url.startsWith("http") || spotlight.link_url.startsWith("/")
+                        ? spotlight.link_url
+                        : `https://${spotlight.link_url}`
+                    }
+                    target={spotlight.link_url.startsWith("/") ? "_self" : "_blank"}
+                    rel={spotlight.link_url.startsWith("/") ? undefined : "noopener noreferrer"}
+                    className="absolute inset-0 z-20" 
+                  >
+                    <span className="sr-only">View Spotlight</span>
+                  </Link>
                 )}
               </div>
 
