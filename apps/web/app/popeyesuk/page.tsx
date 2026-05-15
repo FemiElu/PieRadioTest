@@ -525,19 +525,19 @@ export default function PopeyesUkPage() {
             {/* Left Column: Event Flyer */}
             <div className="lg:col-span-5 flex justify-center scroll-reveal lg:order-1">
               <div className="relative group perspective-1000 w-full max-w-[450px]">
-                <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-700 group-hover:shadow-[0_40px_80px_rgba(0,0,0,0.25)] group-hover:scale-[1.02] bg-white">
+                <div className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-700 group-hover:shadow-[0_40px_80px_rgba(0,0,0,0.25)] group-hover:scale-[1.02] bg-white">
                   <Image
-                    src="/assets/Pie Radio Main Flyer upload.webp"
+                    src="/assets/POPEYES STREET FLYER.webp"
                     alt="Feel The Heat Event Flyer - Pie Radio x Popeyes"
                     fill
                     className="object-contain"
-                    sizes="(max-width: 1024px) 90vw, 500px"
+                    sizes="(max-width: 1024px) 90vw, 700px"
                     priority
                   />
                   {/* Subtle glass overlay on hover */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 </div>
-                
+
                 {/* Decorative background element */}
                 <div className="absolute -inset-4 bg-popeyes-orange/5 blur-3xl -z-10 rounded-full scale-150 animate-pulse" />
               </div>
@@ -783,7 +783,7 @@ export default function PopeyesUkPage() {
         </div>
       </section>
 
-      <ShowPreviewDialog 
+      <ShowPreviewDialog
         open={isPreviewOpen}
         onOpenChange={setIsPreviewOpen}
         episodes={episodes}
