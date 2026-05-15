@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Pie Radio", 
+    "name": "Pie Radio",
     "slug": "pie-radio",
     "version": "1.0.0",
     "scheme": "pieradio",
@@ -19,9 +19,11 @@
       "buildNumber": "1",
       "infoPlist": {
         "UIBackgroundModes": [
+          "audio",
           "audio"
         ],
-        "NSUserTrackingUsageDescription": "Pie Radio does not use tracking or advertising SDKs."
+        "NSUserTrackingUsageDescription": "Pie Radio does not use tracking or advertising SDKs.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
