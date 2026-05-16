@@ -1,9 +1,10 @@
-import { View, Text, TouchableOpacity, ActivityIndicator, Image, Dimensions, ScrollView, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator, Image, Dimensions, ScrollView, StyleSheet, Linking } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMobileAudio } from "../../context/mobile-audio-context";
 import { useSchedule } from "../../hooks/useSchedule";
 import { useCurrentShow } from "../../hooks/useCurrentShow";
 import { useRecentlyPlayed } from "../../hooks/useRecentlyPlayed";
+import { useSpotlight } from "../../hooks/useSpotlight";
 import { Ionicons } from "@expo/vector-icons";
 import { MobileHeader } from "../../components/mobile-header";
 import { HomeFeaturedCard } from "../../components/HomeFeaturedCard";
@@ -17,6 +18,7 @@ export default function HomeScreen() {
     const { isPlaying, isLoading: audioLoading, togglePlay, currentTrack, isLiveStream, switchToLive } = useMobileAudio();
     const { currentShow, loading: showLoading } = useCurrentShow();
     const { recentlyPlayed, loading: recentLoading } = useRecentlyPlayed();
+    const { spotlight } = useSpotlight();
     const router = useRouter();
 
     // Get today's schedule for "Coming Up Next"
@@ -50,6 +52,17 @@ export default function HomeScreen() {
         : currentShow?.presenter_name || "The Number One Station";
 
     const heroImage = currentTrack?.artwork || currentShow?.image_url || null;
+
+    const handleSpotlightPress = () => {
+        if (!spotlight?.link_url) return;
+        
+        if (spotlight.link_url.startsWith('http')) {
+            Linking.openURL(spotlight.link_url);
+        } else {
+            // Internal path
+            router.push(spotlight.link_url as any);
+        }
+    };
 
     return (
         <View style={{ flex: 1, backgroundColor: '#fff' }}>
@@ -174,11 +187,11 @@ export default function HomeScreen() {
                             />
                             {/* Artist Spotlight — interactive when content is ready */}
                             <HomeFeaturedCard
-                                title="Artist Spotlight"
+                                title={spotlight?.title || "Artist Spotlight"}
                                 subtitle="Spotlight"
-                                description="Discover this month's featured artist breaking through the scene."
-                                imageSource={require("../../assets/abstract-avatar.png")}
-                                onPress={undefined}
+                                description={spotlight?.artist_name ? spotlight.artist_name : "Discover this month's featured artist breaking through the scene."}
+                                imageSource={spotlight?.image_url ? { uri: spotlight.image_url } : require("../../assets/abstract-avatar.png")}
+                                onPress={spotlight?.link_url ? handleSpotlightPress : undefined}
                             />
                         </ScrollView>
                     </View>
