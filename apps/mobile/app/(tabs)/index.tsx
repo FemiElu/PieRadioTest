@@ -55,7 +55,7 @@ export default function HomeScreen() {
 
     const handleSpotlightPress = () => {
         if (!spotlight?.link_url) return;
-        
+
         if (spotlight.link_url.startsWith('http')) {
             Linking.openURL(spotlight.link_url);
         } else {
@@ -146,7 +146,7 @@ export default function HomeScreen() {
                                             style={{ marginRight: 8 }}
                                         />
                                         <Text className="text-white font-bold text-base">
-                                            {isLiveStream 
+                                            {isLiveStream
                                                 ? (isPlaying ? "Pause Live" : "Listen Live")
                                                 : "Return to Live"}
                                         </Text>
