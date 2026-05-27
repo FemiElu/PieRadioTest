@@ -11,7 +11,7 @@ import type { Event, EventCategory, EventStatus } from './types';
 
 // ─── Column selector (single source of truth) ──────────────────────────
 const EVENT_COLUMNS = `
-  id, title, description, artist_name, category, status,
+  id, slug, title, description, artist_name, category, status,
   start_time, end_time,
   location, venue_name, venue_address, venue_city,
   cover_image_url,
@@ -140,6 +140,27 @@ export async function getEventById(supabase: SupabaseClient, id: string) {
 }
 
 /**
+ * Fetch a single event by its URL slug.
+ */
+export async function getEventBySlug(supabase: SupabaseClient, slug: string) {
+  const { data, error } = await supabase
+    .from('events')
+    .select(EVENT_COLUMNS)
+    .eq('slug', slug)
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') return null; // Not found
+    console.error('[getEventBySlug] Query error:', error.message);
+    throw error;
+  }
+
+  return data as Event;
+}
+
+import { getDerivedEventStatus } from './types';
+
+/**
  * Fetch related events — same category or same city, excluding current.
  */
 export async function getRelatedEvents(
@@ -160,14 +181,19 @@ export async function getRelatedEvents(
     .eq('status', 'upcoming')
     .or(orFilter)
     .order('start_time', { ascending: true })
-    .limit(limit);
+    .limit(limit * 3); // Fetch more so we can filter out past events
 
   if (error) {
     console.error('[getRelatedEvents] Query error:', error.message);
     return [];
   }
 
-  return (data ?? []) as Event[];
+  const events = (data ?? []) as Event[];
+  
+  // Filter out any events that have actually passed
+  return events
+    .filter(e => getDerivedEventStatus(e.status, e.start_time, e.end_time) === 'upcoming')
+    .slice(0, limit);
 }
 
 // ─── Admin Queries ──────────────────────────────────────────────────────

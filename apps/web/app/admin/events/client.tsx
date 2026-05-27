@@ -255,7 +255,7 @@ export function AdminEventsClient() {
                                                 <Edit2 className="w-4 h-4" />
                                             </Link>
                                             <Link
-                                                href={`/events/${event.id}`}
+                                                href={`/events/${event.slug}`}
                                                 target="_blank"
                                                 className="p-2 text-zinc-400 hover:bg-primary/10 hover:text-primary rounded-xl transition-all"
                                             >

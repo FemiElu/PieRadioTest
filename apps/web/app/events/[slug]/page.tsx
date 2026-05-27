@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { getEventById, getRelatedEvents } from "@/lib/events/queries";
+import { getEventBySlug, getEventById, getRelatedEvents } from "@/lib/events/queries";
 import { formatEventPrice, EVENT_CATEGORY_LABELS } from "@/lib/events/types";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -21,15 +21,28 @@ import { EventStatusBadge } from "@/components/events/EventStatusBadge";
 import { FeaturedCarousel } from "@/components/events/FeaturedCarousel";
 
 interface EventDetailPageProps {
-    params: Promise<{ id: string }>;
+    params: Promise<{ slug: string }>;
 }
 
 export const revalidate = 3600;
 
+/**
+ * Helper to detect if a string looks like a UUID.
+ * Used to support legacy UUID-based URLs with a 301 redirect.
+ */
+function isUUID(value: string): boolean {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+}
+
 export async function generateMetadata({ params }: EventDetailPageProps) {
     const supabase = await createClient();
-    const { id } = await params;
-    const event = await getEventById(supabase, id);
+    const { slug } = await params;
+    
+    // Try slug first, then UUID fallback for metadata
+    let event = await getEventBySlug(supabase, slug);
+    if (!event && isUUID(slug)) {
+        event = await getEventById(supabase, slug);
+    }
     
     if (!event) return { title: "Event Not Found | Pie Radio" };
     
@@ -41,8 +54,18 @@ export async function generateMetadata({ params }: EventDetailPageProps) {
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
     const supabase = await createClient();
-    const { id } = await params;
-    const event = await getEventById(supabase, id);
+    const { slug } = await params;
+    
+    // Primary lookup: by slug
+    let event = await getEventBySlug(supabase, slug);
+    
+    // Fallback: if param looks like a UUID, look up by ID and redirect to slug URL
+    if (!event && isUUID(slug)) {
+        const eventById = await getEventById(supabase, slug);
+        if (eventById) {
+            redirect(`/events/${eventById.slug}`);
+        }
+    }
 
     if (!event) {
         notFound();
@@ -92,7 +115,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                 <div className="absolute bottom-0 left-0 right-0 container pb-8 md:pb-16">
                     <div className="max-w-4xl space-y-6">
                         <div className="flex items-center gap-3">
-                            <EventStatusBadge status={event.status} />
+                            <EventStatusBadge status={event.status} startTime={event.start_time} endTime={event.end_time} />
                             <Badge variant="outline" className="bg-white/10 backdrop-blur text-white border-white/20 uppercase tracking-widest text-[10px] font-black py-1">
                                 {EVENT_CATEGORY_LABELS[event.category]}
                             </Badge>
