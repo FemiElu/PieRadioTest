@@ -45,7 +45,23 @@ export async function generateMetadata({ params }: EventDetailPageProps): Promis
         event = await getEventById(supabase, slug);
     }
     
-    if (!event) return { title: "Event Not Found | Pie Radio" };
+    const defaultOgImage = "/assets/logo.png";
+
+    if (!event) {
+        return {
+            title: "Event Not Found | Pie Radio",
+            openGraph: {
+                title: "Event Not Found | Pie Radio",
+                type: "website",
+                images: [{ url: defaultOgImage, width: 1200, height: 630 }],
+            },
+            twitter: {
+                card: "summary_large_image",
+                title: "Event Not Found | Pie Radio",
+                images: [defaultOgImage],
+            },
+        };
+    }
     
     return {
         title: `${event.title} | Pie Radio Events`,
@@ -55,14 +71,14 @@ export async function generateMetadata({ params }: EventDetailPageProps): Promis
             description: event.description?.slice(0, 160) || `Catch ${event.artist_name} at ${event.venue_name} on Pie Radio.`,
             images: event.cover_image_url
                 ? [{ url: event.cover_image_url, width: 1200, height: 630 }]
-                : [],
+                : [{ url: defaultOgImage, width: 1200, height: 630 }],
             type: "website",
         },
         twitter: {
             card: "summary_large_image",
             title: event.title,
             description: event.description?.slice(0, 160) || `Catch ${event.artist_name} at ${event.venue_name} on Pie Radio.`,
-            images: event.cover_image_url ? [event.cover_image_url] : [],
+            images: event.cover_image_url ? [event.cover_image_url] : [defaultOgImage],
         },
     };
 }
