@@ -33,6 +33,8 @@ export async function joinWaitlist(
     const fullName = formData.get('fullName')?.toString().trim();
     const email = formData.get('email')?.toString().trim();
     const marketingConsent = formData.get('marketingConsent') === 'true';
+    const source =
+        formData.get('source')?.toString().trim() || 'partnership_page';
 
     // 1. Validation
     const validatedFields = waitlistSchema.safeParse({ 
@@ -64,7 +66,7 @@ export async function joinWaitlist(
                 full_name: validatedName,
                 email: validatedEmail,
                 marketing_consent: validatedConsent,
-                source: 'partnership_page'
+                source,
             });
 
         if (dbError) {
@@ -85,7 +87,7 @@ export async function joinWaitlist(
                         fullName: validatedName, 
                         email: validatedEmail,
                         marketingConsent: validatedConsent,
-                        source: 'partnership_page',
+                        source,
                         timestamp: new Date().toISOString()
                     }),
                     redirect: 'follow',
