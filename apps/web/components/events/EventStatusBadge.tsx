@@ -1,14 +1,16 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { EventStatus } from "@/lib/events/types";
-import { EVENT_STATUS_LABELS } from "@/lib/events/types";
+import { EVENT_STATUS_LABELS, getDerivedEventStatus } from "@/lib/events/types";
 
 interface EventStatusBadgeProps {
     status: EventStatus;
+    startTime?: string;
+    endTime?: string | null;
     className?: string;
 }
 
-export function EventStatusBadge({ status, className }: EventStatusBadgeProps) {
+export function EventStatusBadge({ status, startTime, endTime, className }: EventStatusBadgeProps) {
     const getStatusStyles = (status: EventStatus) => {
         switch (status) {
             case "upcoming":
@@ -22,9 +24,11 @@ export function EventStatusBadge({ status, className }: EventStatusBadgeProps) {
         }
     };
 
+    const currentStatus = startTime ? getDerivedEventStatus(status, startTime, endTime || null) : status;
+
     return (
-        <Badge className={cn("uppercase tracking-widest text-[10px] py-0.5 px-2 font-black", getStatusStyles(status), className)}>
-            {EVENT_STATUS_LABELS[status] || status}
+        <Badge className={cn("uppercase tracking-widest text-[10px] py-0.5 px-2 font-black", getStatusStyles(currentStatus), className)}>
+            {EVENT_STATUS_LABELS[currentStatus] || currentStatus}
         </Badge>
     );
 }

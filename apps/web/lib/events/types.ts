@@ -44,6 +44,7 @@ export const EVENT_STATUS_LABELS: Record<EventStatus, string> = {
  */
 export interface Event {
   id: string;
+  slug: string;
   title: string;
   description: string | null;
   artist_name: string | null;
@@ -97,4 +98,33 @@ export function formatEventPrice(event: Pick<Event, 'price_min' | 'price_max' | 
   }
 
   return `${symbol}${event.price_min} – ${symbol}${event.price_max}`;
+}
+
+/**
+ * Computes the derived status of an event based on its time.
+ * If the event is marked as 'upcoming' but its end_time has passed, it returns 'past'.
+ */
+export function getDerivedEventStatus(
+  status: EventStatus,
+  startTime: string,
+  endTime: string | null
+): EventStatus {
+  if (status !== 'upcoming') return status;
+
+  const now = new Date();
+  let endDate: Date;
+
+  if (endTime) {
+    endDate = new Date(endTime);
+  } else {
+    endDate = new Date(startTime);
+    // Add a 12-hour buffer if no end time is provided
+    endDate.setHours(endDate.getHours() + 12);
+  }
+
+  if (endDate < now) {
+    return 'past';
+  }
+  
+  return 'upcoming';
 }

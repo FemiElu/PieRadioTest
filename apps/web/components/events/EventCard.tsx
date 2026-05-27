@@ -17,7 +17,7 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
     const formattedDate = format(new Date(event.start_time), "EEE, MMM d");
 
     return (
-        <Link href={`/events/${event.id}`} className="group block h-full">
+        <Link href={`/events/${event.slug}`} className="group block h-full">
             <Card className="h-full overflow-hidden border-border/50 bg-card hover:border-primary/50 transition-colors duration-300 shadow-sm hover:shadow-md">
                 <div className="relative aspect-[16/9] w-full overflow-hidden">
                     {event.cover_image_url ? (
@@ -33,7 +33,7 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
                         </div>
                     )}
                     <div className="absolute top-3 right-3">
-                        <EventStatusBadge status={event.status} />
+                        <EventStatusBadge status={event.status} startTime={event.start_time} endTime={event.end_time} />
                     </div>
                 </div>
 
