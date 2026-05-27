@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getEventBySlug, getEventById, getRelatedEvents } from "@/lib/events/queries";
 import { formatEventPrice, EVENT_CATEGORY_LABELS } from "@/lib/events/types";
 import { notFound, redirect } from "next/navigation";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -34,7 +35,7 @@ function isUUID(value: string): boolean {
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 }
 
-export async function generateMetadata({ params }: EventDetailPageProps) {
+export async function generateMetadata({ params }: EventDetailPageProps): Promise<Metadata> {
     const supabase = await createClient();
     const { slug } = await params;
     
@@ -44,11 +45,41 @@ export async function generateMetadata({ params }: EventDetailPageProps) {
         event = await getEventById(supabase, slug);
     }
     
-    if (!event) return { title: "Event Not Found | Pie Radio" };
+    const defaultOgImage = "/assets/logo.png";
+
+    if (!event) {
+        return {
+            title: "Event Not Found | Pie Radio",
+            openGraph: {
+                title: "Event Not Found | Pie Radio",
+                type: "website",
+                images: [{ url: defaultOgImage, width: 1200, height: 630 }],
+            },
+            twitter: {
+                card: "summary_large_image",
+                title: "Event Not Found | Pie Radio",
+                images: [defaultOgImage],
+            },
+        };
+    }
     
     return {
         title: `${event.title} | Pie Radio Events`,
         description: event.description?.slice(0, 160) || `Catch ${event.artist_name} at ${event.venue_name} on Pie Radio.`,
+        openGraph: {
+            title: event.title,
+            description: event.description?.slice(0, 160) || `Catch ${event.artist_name} at ${event.venue_name} on Pie Radio.`,
+            images: event.cover_image_url
+                ? [{ url: event.cover_image_url, width: 1200, height: 630 }]
+                : [{ url: defaultOgImage, width: 1200, height: 630 }],
+            type: "website",
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: event.title,
+            description: event.description?.slice(0, 160) || `Catch ${event.artist_name} at ${event.venue_name} on Pie Radio.`,
+            images: event.cover_image_url ? [event.cover_image_url] : [defaultOgImage],
+        },
     };
 }
 
