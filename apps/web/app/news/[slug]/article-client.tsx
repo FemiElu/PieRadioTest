@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import {
@@ -16,7 +15,6 @@ import {
     Bookmark,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Header } from "@/components/layout/header";
 import { cn } from "@/lib/utils";
 import { useAudio } from "@/context/audio-context";
 import { PopeyesPressRelease } from "@/components/news/PopeyesPressRelease";
@@ -60,6 +58,35 @@ function getYouTubeId(url: string | null): string | null {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
+}
+
+/**
+ * Splits markdown content into text segments and YouTube shortcode segments.
+ * Shortcode syntax: ::youtube[VIDEO_ID_OR_FULL_URL]
+ * Returns an array of { type: 'text' | 'youtube', value: string }
+ */
+function parseYouTubeShortcodes(
+    content: string,
+): Array<{ type: "text"; value: string } | { type: "youtube"; videoId: string }> {
+    const SHORTCODE_RE = /::youtube\[([^\]]+)\]/g;
+    const segments: Array<{ type: "text"; value: string } | { type: "youtube"; videoId: string }> = [];
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = SHORTCODE_RE.exec(content)) !== null) {
+        if (match.index > lastIndex) {
+            segments.push({ type: "text", value: content.slice(lastIndex, match.index) });
+        }
+        const videoId = getYouTubeId(match[1]) ?? match[1]; // accept raw ID or full URL
+        segments.push({ type: "youtube", videoId });
+        lastIndex = match.index + match[0].length;
+    }
+
+    if (lastIndex < content.length) {
+        segments.push({ type: "text", value: content.slice(lastIndex) });
+    }
+
+    return segments.length > 0 ? segments : [{ type: "text", value: content }];
 }
 
 export function ArticleDetailClient({ article }: ArticleDetailClientProps) {
@@ -179,13 +206,54 @@ export function ArticleDetailClient({ article }: ArticleDetailClientProps) {
                         </p>
                     )}
 
+                    {/*
+                     * Article content — supports ::youtube[VIDEO_ID_OR_URL] shortcodes
+                     * embedded anywhere in the markdown body. Each shortcode is lifted
+                     * out of the text and rendered as a responsive iframe.
+                     */}
                     <div className="text-lg leading-relaxed text-zinc-800 space-y-6">
-                        <ReactMarkdown>{article.content}</ReactMarkdown>
+                        {parseYouTubeShortcodes(article.content).map((segment, i) =>
+                            segment.type === "youtube" ? (
+                                <div
+                                    key={i}
+                                    className="not-prose my-8 aspect-video w-full rounded-2xl md:rounded-3xl overflow-hidden shadow-xl border border-zinc-100"
+                                >
+                                    <iframe
+                                        width="100%"
+                                        height="100%"
+                                        src={`https://www.youtube.com/embed/${segment.videoId}`}
+                                        title="YouTube video player"
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                    />
+                                </div>
+                            ) : (
+                                <ReactMarkdown
+                                    key={i}
+                                    components={{
+                                        // Ensure all links open safely in a new tab
+                                        a: ({ href, children }) => (
+                                            <a
+                                                href={href}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-primary underline underline-offset-2 hover:text-primary/80 transition-colors"
+                                            >
+                                                {children}
+                                            </a>
+                                        ),
+                                    }}
+                                >
+                                    {segment.value}
+                                </ReactMarkdown>
+                            )
+                        )}
                     </div>
 
-                    {/* YouTube Embed */}
+                    {/* Article-level YouTube embed (set via the YouTube URL field) */}
                     {getYouTubeId(article.youtube_url) && (
-                        <div className="my-10 aspect-video w-full rounded-2xl md:rounded-3xl overflow-hidden shadow-xl border border-zinc-100">
+                        <div className="not-prose my-10 aspect-video w-full rounded-2xl md:rounded-3xl overflow-hidden shadow-xl border border-zinc-100">
                             <iframe
                                 width="100%"
                                 height="100%"
@@ -198,21 +266,25 @@ export function ArticleDetailClient({ article }: ArticleDetailClientProps) {
                         </div>
                     )}
 
-                    {/* External Link */}
+                    {/* External Link — Button asChild renders a single <a>, avoiding invalid button-in-anchor HTML */}
                     {article.external_url && (
-                        <div className="my-8 flex justify-center">
-                            <Link href={article.external_url} target="_blank">
-                                <Button size="lg" className="rounded-full px-8 font-bold gap-2">
+                        <div className="not-prose my-8 flex justify-center">
+                            <Button asChild size="lg" className="rounded-full px-8 font-bold gap-2">
+                                <a
+                                    href={article.external_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
                                     Read More
                                     <ArrowLeft className="w-4 h-4 rotate-180" />
-                                </Button>
-                            </Link>
+                                </a>
+                            </Button>
                         </div>
                     )}
 
                     {/* Inline Audio Moments */}
                     {article.audio_moments && article.audio_moments.length > 0 && (
-                        <div className="my-10 p-6 rounded-3xl bg-zinc-900 text-white flex flex-col gap-4">
+                        <div className="not-prose my-10 p-6 rounded-3xl bg-zinc-900 text-white flex flex-col gap-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Play className="w-4 h-4 text-primary fill-current" />
