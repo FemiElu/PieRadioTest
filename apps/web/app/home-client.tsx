@@ -26,7 +26,6 @@ import {
   Radio,
   ChevronRight,
   Mic2,
-  CloudCog,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAudio } from "@/context/audio-context";
@@ -502,28 +501,96 @@ export default function HomeClient({ initialSpotlight }: HomeClientProps) {
             Download our mobile app for the best streaming experience on the go.
             Available for iOS and Android.
           </p>
-          <div className="flex justify-center gap-4 pt-4">
-            <div className="relative group">
-              <Button
-                variant="secondary"
-                size="lg"
-                className="h-14 px-8 rounded-full font-bold shadow-2xl opacity-60"
-                disabled
+          {/* Download badges */}
+          <div className="flex flex-col items-center gap-6 pt-4">
+            <p className="text-sm font-semibold uppercase tracking-widest text-white/60">
+              Download the app
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              {/* App Store */}
+              <a
+                id="cta-app-store-btn"
+                href="https://apps.apple.com/app/pie-radio-live/id6771355572"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Download Pie Radio on the App Store"
+                className="inline-flex items-center gap-3 h-14 px-6 rounded-2xl bg-white text-zinc-900 font-bold shadow-2xl hover:bg-zinc-100 active:scale-95 transition-all duration-200 group min-w-[180px]"
               >
-                Download App
-              </Button>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-4 py-2 bg-zinc-900/90 backdrop-blur-md text-white text-xs font-bold rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap pointer-events-none border border-white/10 shadow-2xl translate-y-2 group-hover:translate-y-0">
-                Mobile App Coming Soon
-                <div className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-zinc-900/90" />
-              </div>
+                {/* Apple logo */}
+                <svg
+                  className="w-7 h-7 shrink-0 fill-current"
+                  viewBox="0 0 814 1000"
+                  aria-hidden="true"
+                >
+                  <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-37.3-155.8-109.8c-48.3-68.5-89.2-172.5-89.2-271.4 0-149.5 97.7-228.6 194.5-228.6 64.2 0 117.4 42.1 157.6 42.1 38.4 0 98.4-44.8 170.3-44.8 27.5 0 108.2 2.6 164.4 96.1zm-234.5-168c31.3-37.9 53.5-90.8 53.5-143.7 0-7.1-.6-14.3-1.9-20.1-50.6 1.9-110.8 33.7-147.1 75.8-28.5 32.4-55.1 85.3-55.1 139.5 0 7.8 1.3 15.6 1.9 18.1 3.2.6 8.4 1.3 13.6 1.3 45.4 0 102.5-30.4 135.1-70.9z" />
+                </svg>
+                <div className="flex flex-col items-start leading-none">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+                    Download on the
+                  </span>
+                  <span className="text-lg font-extrabold tracking-tight">
+                    App Store
+                  </span>
+                </div>
+              </a>
+
+              {/* Google Play */}
+              <a
+                id="cta-google-play-btn"
+                href="https://play.google.com/store/apps/details?id=com.pieradio.mobile"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Get Pie Radio on Google Play"
+                className="inline-flex items-center gap-3 h-14 px-6 rounded-2xl bg-white text-zinc-900 font-bold shadow-2xl hover:bg-zinc-100 active:scale-95 transition-all duration-200 group min-w-[180px]"
+              >
+                {/* Play Store logo (coloured triangle) */}
+                <svg
+                  className="w-7 h-7 shrink-0"
+                  viewBox="0 0 512 512"
+                  aria-hidden="true"
+                >
+                  <linearGradient id="pg1" x1="91.1" y1="-59" x2="234.5" y2="83.9" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stopColor="#00a0ff" />
+                    <stop offset="1" stopColor="#00beff" />
+                  </linearGradient>
+                  <path fill="url(#pg1)" d="M27 18.9C20.8 25.4 17 35.4 17 48.5v415c0 13.1 3.8 23.1 10 29.6L28 494l232.6-232.6v-5.5L27 18.9z" />
+                  <linearGradient id="pg2" x1="316" y1="255.9" x2="395.2" y2="255.9" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stopColor="#ffe000" />
+                    <stop offset="1" stopColor="#ffbd00" />
+                  </linearGradient>
+                  <path fill="url(#pg2)" d="M337.9 334.8 260.6 257.5v-5.5l77.3-77.3 1.8 1L428 228.8c24 13.6 24 35.9 0 49.5l-88.3 55.6-1.8 1z" />
+                  <linearGradient id="pg3" x1="44.7" y1="284.3" x2="297.1" y2="536.5" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stopColor="#ff3a44" />
+                    <stop offset="1" stopColor="#c31162" />
+                  </linearGradient>
+                  <path fill="url(#pg3)" d="M339.7 333.8 260.6 254.7 27 487.1c7.9 8.4 21 9.4 35.6 1.1l277.1-154.4" />
+                  <linearGradient id="pg4" x1="21" y1="-11" x2="168.4" y2="136.1" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stopColor="#32a071" />
+                    <stop offset=".1" stopColor="#2da771" />
+                    <stop offset=".5" stopColor="#15cf74" />
+                    <stop offset=".8" stopColor="#06e775" />
+                    <stop offset="1" stopColor="#00f076" />
+                  </linearGradient>
+                  <path fill="url(#pg4)" d="M339.7 175.9 62.6 21.6C48 13.3 34.9 14.2 27 22.6l233.6 233.1 79.1-79.8z" />
+                </svg>
+                <div className="flex flex-col items-start leading-none">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+                    Get it on
+                  </span>
+                  <span className="text-lg font-extrabold tracking-tight">
+                    Google Play
+                  </span>
+                </div>
+              </a>
             </div>
-            <Button
-              variant="outline"
-              size="lg"
-              className="h-14 px-8 rounded-full font-bold border-2 bg-transparent text-white border-white hover:bg-white hover:text-primary transition-colors"
+
+            <Link
+              href="/contact"
+              id="cta-contact-us-btn"
+              className="text-white/70 text-sm font-semibold hover:text-white underline underline-offset-4 transition-colors"
             >
               Contact Us
-            </Button>
+            </Link>
           </div>
         </div>
       </section>
