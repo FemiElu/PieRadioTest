@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useFieldArray, Controller, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Save, Loader2, Image as ImageIcon, Headphones, Trash2, Plus } from "lucide-react";
+import { Save, Loader2, Image as ImageIcon, Headphones, Trash2, Plus, Youtube } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { NewsImageUploader } from "./news-image-uploader";
@@ -23,6 +23,9 @@ export function NewsArticleForm({ initialData }: NewsArticleFormProps) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [serverError, setServerError] = useState<string | null>(null);
+    // State for the inline YouTube embed helper in the article body editor
+    const [youtubeInsertUrl, setYoutubeInsertUrl] = useState("");
+    const contentRef = useRef<HTMLTextAreaElement | null>(null);
 
     const isEditing = !!initialData;
 
@@ -47,7 +50,42 @@ export function NewsArticleForm({ initialData }: NewsArticleFormProps) {
         defaultValues,
     });
 
-    const { control, handleSubmit, watch, register, formState: { errors } } = form;
+    const { control, handleSubmit, watch, register, setValue, formState: { errors } } = form;
+
+    // Merges react-hook-form's ref with our local contentRef so we can read cursor position
+    const contentRhfProps = register("content");
+    const mergedContentRef = (el: HTMLTextAreaElement | null) => {
+        contentRhfProps.ref(el);
+        contentRef.current = el;
+    };
+
+    /**
+     * Inserts a ::youtube[...] shortcode at the cursor position (or appends
+     * on a new line if no selection). Keeps the textarea focused afterwards.
+     */
+    const insertYoutubeShortcode = () => {
+        const url = youtubeInsertUrl.trim();
+        if (!url) return;
+        const ta = contentRef.current;
+        const shortcode = `\n\n::youtube[${url}]\n\n`;
+        if (ta) {
+            const start = ta.selectionStart ?? ta.value.length;
+            const before = ta.value.slice(0, start);
+            const after = ta.value.slice(ta.selectionEnd ?? start);
+            const next = before + shortcode + after;
+            setValue("content", next, { shouldValidate: true });
+            // Restore cursor position after the inserted shortcode
+            requestAnimationFrame(() => {
+                ta.focus();
+                const pos = start + shortcode.length;
+                ta.setSelectionRange(pos, pos);
+            });
+        } else {
+            const current = watch("content");
+            setValue("content", current + shortcode, { shouldValidate: true });
+        }
+        setYoutubeInsertUrl("");
+    };
 
     const { fields: audioMoments, append: appendMoment, remove: removeMoment } = useFieldArray({
         control,
@@ -300,9 +338,35 @@ export function NewsArticleForm({ initialData }: NewsArticleFormProps) {
                                 Markdown Guide
                             </a>
                         </div>
+
+                        {/* YouTube embed shortcode helper */}
+                        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-100 rounded-xl">
+                            <Youtube className="w-4 h-4 text-red-500 flex-shrink-0" />
+                            <span className="text-xs font-bold text-red-700 whitespace-nowrap">Embed YouTube</span>
+                            <input
+                                type="url"
+                                value={youtubeInsertUrl}
+                                onChange={(e) => setYoutubeInsertUrl(e.target.value)}
+                                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); insertYoutubeShortcode(); } }}
+                                placeholder="Paste a YouTube URL..."
+                                className="flex-1 h-8 bg-white border border-red-200 rounded-lg px-3 text-xs font-mono outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 placeholder:text-zinc-400"
+                            />
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={insertYoutubeShortcode}
+                                disabled={!youtubeInsertUrl.trim()}
+                                className="h-8 text-xs font-bold border-red-200 text-red-600 hover:bg-red-50 hover:border-red-400 whitespace-nowrap"
+                            >
+                                Insert at Cursor
+                            </Button>
+                        </div>
+
                         <textarea
-                            {...register("content")}
-                            placeholder="# Introduction\n\nStart writing your article here..."
+                            {...contentRhfProps}
+                            ref={mergedContentRef}
+                            placeholder="# Introduction\n\nStart writing your article here...\n\nTo embed a YouTube video at any point, use the helper above."
                             rows={15}
                             className={cn(
                                 "bg-zinc-50 border rounded-xl p-4 text-sm font-mono outline-none transition-all placeholder:text-zinc-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 resize-y",
@@ -314,6 +378,9 @@ export function NewsArticleForm({ initialData }: NewsArticleFormProps) {
                                 {errors.content.message}
                             </span>
                         )}
+                        <p className="text-[10px] text-zinc-500">
+                            Tip: Use <code className="bg-zinc-100 px-1 rounded font-mono">{'::youtube[https://youtu.be/VIDEO_ID]'}</code> anywhere in the body to embed a video at that position.
+                        </p>
                     </div>
 
                     <div className="flex flex-col gap-2">

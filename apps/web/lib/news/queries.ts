@@ -19,6 +19,7 @@ const CARD_SELECT = `
   id, slug, title, summary, cover_image_url,
   author_id, author_name, tier, category, status, is_breaking,
   audio_preview_url, audio_moments,
+  youtube_url, external_url,
   likes_count, comments_count, shares_count,
   published_at, created_at, updated_at
 `.trim();
