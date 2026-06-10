@@ -2,32 +2,23 @@
 
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
-import { Loader2, Music, Lock, Eye, EyeOff, CheckCircle2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Loader2, Music, Lock, Eye, EyeOff, CheckCircle2, ShieldAlert } from "lucide-react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function ResetPasswordPage() {
-    const { updatePassword, session } = useAuth();
+    const { updatePassword, session, isLoading: authLoading } = useAuth();
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
-    // Check if we have a session (should be ensured by the recovery flow redirect)
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            if (!session) {
-                // If no session after a brief delay, might be an invalid/expired link
-                setError("Invalid or expired session. Please request a new password reset link.");
-            }
-        }, 1000);
-        return () => clearTimeout(timeout);
-    }, [session]);
+    const hasInvalidSession = !authLoading && !session && !isSuccess;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -43,7 +34,7 @@ export default function ResetPasswordPage() {
             return;
         }
 
-        setIsLoading(true);
+        setIsSubmitting(true);
         try {
             await updatePassword(password);
             setIsSuccess(true);
@@ -54,9 +45,47 @@ export default function ResetPasswordPage() {
         } catch (error: any) {
             console.error("Update password error:", error);
             setError(error.message || "Failed to update password. Please try again.");
-            setIsLoading(false);
+            setIsSubmitting(false);
         }
     };
+
+    if (authLoading) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-[#fcfcfd]">
+                <div className="flex flex-col items-center gap-4 text-center">
+                    <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                    <p className="text-lg font-medium text-zinc-500">Verifying your reset link...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (hasInvalidSession) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-[#fcfcfd] p-8">
+                <div className="w-full max-w-md space-y-6 rounded-2xl border border-zinc-100 bg-white p-8 text-center shadow-xl">
+                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                        <ShieldAlert className="h-8 w-8 text-red-600" />
+                    </div>
+                    <div className="space-y-2">
+                        <h1 className="text-2xl font-black font-display tracking-tight text-[#141827]">
+                            Invalid or Expired Link
+                        </h1>
+                        <p className="text-zinc-500 font-medium leading-relaxed">
+                            Your password reset link may have expired or is invalid. Please request a new one.
+                        </p>
+                    </div>
+                    <Button
+                        size="lg"
+                        className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold"
+                        asChild
+                    >
+                        <Link href="/forgot-password">Request New Link</Link>
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex min-h-screen bg-white">
@@ -184,9 +213,9 @@ export default function ResetPasswordPage() {
                                 type="submit"
                                 size="lg"
                                 className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-lg shadow-primary/25"
-                                disabled={isLoading}
+                                disabled={isSubmitting}
                             >
-                                {isLoading ? (
+                                {isSubmitting ? (
                                     <Loader2 className="h-5 w-5 animate-spin" />
                                 ) : (
                                     "Reset Password"
