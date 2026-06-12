@@ -17,7 +17,7 @@ import type { NewsArticle, NewsArticleCard } from './types';
 // ─────────────────────────────────────────────────────────────────────────────
 const CARD_SELECT = `
   id, slug, title, summary, cover_image_url,
-  author_id, author_name, tier, category, status, is_breaking,
+  author_id, author_name, tier, category, status, is_breaking, is_featured,
   audio_preview_url, audio_moments,
   youtube_url, external_url,
   likes_count, comments_count, shares_count,
@@ -156,6 +156,42 @@ export async function getArticleBySlug(
         return null;
     }
     return data as unknown as NewsArticle;
+}
+
+/**
+ * Fetch the most recent published article that is marked as featured,
+ * falling back to the most recent published article overall if none is featured.
+ */
+export async function getFeaturedArticle(
+    supabase: SupabaseClient<Database>,
+): Promise<NewsArticleCard | null> {
+    // 1. Try to get the latest published featured article
+    const { data: featuredData, error: featuredError } = await supabase
+        .from('news_articles')
+        .select(CARD_SELECT)
+        .eq('status', 'published')
+        .eq('is_featured', true)
+        .order('published_at', { ascending: false })
+        .limit(1);
+
+    if (!featuredError && featuredData && featuredData.length > 0) {
+        return featuredData[0] as unknown as NewsArticleCard;
+    }
+
+    // 2. Fallback to the latest published article overall
+    const { data: latestData, error: latestError } = await supabase
+        .from('news_articles')
+        .select(CARD_SELECT)
+        .eq('status', 'published')
+        .order('published_at', { ascending: false })
+        .limit(1);
+
+    if (latestError) {
+        console.error('[news/queries] getFeaturedArticle error:', latestError.message);
+        return null;
+    }
+
+    return (latestData?.[0] as unknown as NewsArticleCard) ?? null;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

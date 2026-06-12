@@ -21,6 +21,8 @@
 
 import { createClient } from "@supabase/supabase-js";
 import HomeClient, { type SpotlightData } from "./home-client";
+import { getFeaturedArticle } from "@/lib/news/queries";
+import type { NewsArticleCard } from "@/lib/news/types";
 
 // ISR: Vercel regenerates the cached page at most every 5 minutes.
 // Spotlight data rarely changes, so 5 min is a safe, conservative window.
@@ -59,7 +61,33 @@ async function getSpotlight(): Promise<SpotlightData | null> {
   }
 }
 
+async function getFeaturedArticleData(): Promise<NewsArticleCard | null> {
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+
+    if (!url || !key) {
+      console.warn("[Home] Supabase credentials missing — skipping featured article fetch.");
+      return null;
+    }
+
+    const supabase = createClient(url, key);
+    return await getFeaturedArticle(supabase);
+  } catch (err) {
+    console.error("[Home] Unexpected error fetching featured article:", err);
+    return null;
+  }
+}
+
 export default async function Home() {
-  const spotlight = await getSpotlight();
-  return <HomeClient initialSpotlight={spotlight} />;
+  const [spotlight, featuredArticle] = await Promise.all([
+    getSpotlight(),
+    getFeaturedArticleData(),
+  ]);
+  return (
+    <HomeClient
+      initialSpotlight={spotlight}
+      initialFeaturedArticle={featuredArticle}
+    />
+  );
 }
