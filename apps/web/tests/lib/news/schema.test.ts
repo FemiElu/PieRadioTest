@@ -11,6 +11,7 @@ describe('News Schema Validation', () => {
                 tier: 'update',
                 status: 'draft',
                 is_breaking: false,
+                is_featured: false,
             };
 
             const result = CreateArticleSchema.safeParse(validData);

@@ -367,6 +367,11 @@ export function AdminNewsClient() {
                                                                 Breaking
                                                             </span>
                                                         )}
+                                                        {article.is_featured && (
+                                                            <span className="px-2 py-0.5 bg-amber-100 text-amber-700 font-bold uppercase tracking-wider text-[10px] rounded leading-none shrink-0">
+                                                                Featured
+                                                            </span>
+                                                        )}
                                                         <p className="font-bold font-display text-base text-[#141827] line-clamp-2">
                                                             {article.title}
                                                         </p>

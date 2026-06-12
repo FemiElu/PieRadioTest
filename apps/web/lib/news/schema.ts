@@ -35,6 +35,7 @@ export const CreateArticleSchema = z.object({
     tier: NewsTierEnum.default('update'),
     status: NewsStatusEnum.default('draft'),
     is_breaking: z.boolean().default(false),
+    is_featured: z.boolean().default(false),
     audio_preview_url: z.string().url('Must be a valid URL').nullable().optional(),
     audio_moments: z.array(AudioMomentSchema).max(10).nullable().optional(),
     author_name: z.string().max(100).nullable().optional(),

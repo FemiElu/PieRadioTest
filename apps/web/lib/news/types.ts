@@ -25,6 +25,7 @@ export interface NewsArticle {
     category: string | null;
     status: NewsStatus;
     is_breaking: boolean;
+    is_featured: boolean;
     audio_preview_url: string | null;
     audio_moments: AudioMomentJson[] | null;
     youtube_url: string | null;

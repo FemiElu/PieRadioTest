@@ -4,8 +4,10 @@
  * HomeClient — interactive shell for the Pie Radio homepage.
  *
  * The server component (app/page.tsx) fetches spotlight data at build/ISR time
- * and passes it as `initialSpotlight`. All client-side interactivity (audio
- * controls, schedule hook, recently-played AIIR polling) lives here.
+ * and passes it as `initialSpotlight`. The latest featured news article is
+ * also passed in as `initialFeaturedArticle` so the home page card stays
+ * driven by admin/news. All client-side interactivity (audio controls,
+ * schedule hook, recently-played AIIR polling) lives here.
  *
  * WHY this split exists:
  *   The homepage was previously a pure "use client" component, which prevented
@@ -32,6 +34,7 @@ import { useAudio } from "@/context/audio-context";
 import { useCurrentShow } from "@/hooks/use-current-show";
 import { useSchedule } from "@/hooks/use-schedule";
 import { format } from "date-fns";
+import type { NewsArticleCard } from "@/lib/news/types";
 
 export type SpotlightData = {
   title: string | null;
@@ -42,10 +45,11 @@ export type SpotlightData = {
 
 interface HomeClientProps {
   initialSpotlight: SpotlightData | null;
+  initialFeaturedArticle: NewsArticleCard | null;
 }
 
 
-export default function HomeClient({ initialSpotlight }: HomeClientProps) {
+export default function HomeClient({ initialSpotlight, initialFeaturedArticle }: HomeClientProps) {
   const { isPlaying, togglePlay, isLoading, currentTrack } = useAudio();
   const { currentShow } = useCurrentShow();
 
@@ -142,8 +146,6 @@ export default function HomeClient({ initialSpotlight }: HomeClientProps) {
 
   const formattedTitle = formatTitleCase(title);
   const formattedArtist = formatTitleCase(artist);
-
-  console.log(spotlight, "spotlight data")
 
   return (
     <div className="flex flex-col w-full">
@@ -262,38 +264,73 @@ export default function HomeClient({ initialSpotlight }: HomeClientProps) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            {/* Main Featured Card - Partnership */}
-            <div className="md:col-span-8 relative group cursor-pointer block mt-4 md:mt-0">
-              {/* Glowing Ambient Background Core */}
-              <div className="absolute -inset-2 bg-gradient-to-r from-[#F96D00] via-primary to-[#F96D00] rounded-[2rem] blur-xl opacity-80 animate-pulse" />
+            {/* Main Featured Card - Latest published featured article */}
+            {initialFeaturedArticle ? (
+              <div className="md:col-span-8 relative group cursor-default block mt-4 md:mt-0">
+                {/* Glowing Ambient Background Core */}
+                <div className="absolute -inset-2 bg-gradient-to-r from-[#F96D00] via-primary to-[#F96D00] rounded-[2rem] blur-xl opacity-80 animate-pulse" />
 
-              <Link
-                href="/popeyesuk"
-                className="relative h-full w-full aspect-video md:aspect-auto md:h-[450px] overflow-hidden rounded-2xl border border-[#F96D00] bg-card transition-all duration-500 hover:-translate-y-2 block shadow-[0_0_50px_rgba(249,109,0,0.4)] hover:shadow-[0_0_80px_rgba(249,109,0,0.6)]"
-              >
-                <Image
-                  src="/assets/popeye-3.jpeg"
-                  alt="Pie Radio x Popeyes Partnership"
-                  fill
-                  sizes="(max-width: 768px) 100vw, 66vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                <div className="absolute bottom-0 p-8 space-y-3 z-10">
-                  <div className="px-3 py-1 hidden md:block bg-[#F96D00] text-white text-xs font-bold rounded-full w-fit uppercase tracking-wider backdrop-blur-md shadow-[0_0_15px_rgba(249,109,0,0.5)]">
-                    Partnership
+                <Link
+                  href={`/news/${initialFeaturedArticle.slug}`}
+                  className="relative h-full w-full aspect-video md:aspect-auto md:h-[450px] overflow-hidden rounded-2xl border border-[#F96D00] bg-card transition-all duration-500 hover:-translate-y-2 block shadow-[0_0_50px_rgba(249,109,0,0.4)] hover:shadow-[0_0_80px_rgba(249,109,0,0.6)]"
+                >
+                  {initialFeaturedArticle.cover_image_url ? (
+                    <Image
+                      src={initialFeaturedArticle.cover_image_url}
+                      alt={initialFeaturedArticle.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 66vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-zinc-900 flex items-center justify-center">
+                      <Mic2 className="w-16 h-16 text-zinc-700" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  <div className="absolute bottom-0 p-8 space-y-3 z-10 w-full">
+                    <div className="px-3 py-1 hidden md:block bg-[#F96D00] text-white text-xs font-bold rounded-full w-fit uppercase tracking-wider backdrop-blur-md shadow-[0_0_15px_rgba(249,109,0,0.5)]">
+                      {initialFeaturedArticle.category || "Featured"}
+                    </div>
+                    <h3 className="text-3xl font-bold text-white leading-tight max-w-xl transition-colors line-clamp-2">
+                      {initialFeaturedArticle.title}
+                    </h3>
+                    {initialFeaturedArticle.summary && (
+                      <p className="text-zinc-300 text-sm max-w-md line-clamp-2">
+                        {initialFeaturedArticle.summary}
+                      </p>
+                    )}
                   </div>
-                  <h3 className="text-3xl font-bold text-white leading-tight max-w-xl transition-colors">
-                    Pie Radio Collabs with Popeyes
-                  </h3>
-                  <p className="text-zinc-300 text-sm max-w-md line-clamp-2">
-                    The ultimate combo: crispy chicken meets the freshest beats.
-                    Check out what we&apos;re cooking up with Louisiana&apos;s
-                    finest. 🍗🎶
-                  </p>
+                </Link>
+              </div>
+            ) : (
+              <div className="md:col-span-8 relative group cursor-default block mt-4 md:mt-0">
+                {/* Glowing Ambient Background Core */}
+                <div className="absolute -inset-2 bg-gradient-to-r from-[#F96D00] via-primary to-[#F96D00] rounded-[2rem] blur-xl opacity-80 animate-pulse" />
+
+                <div className="relative h-full w-full aspect-video md:aspect-auto md:h-[450px] overflow-hidden rounded-2xl border border-dashed border-zinc-300 bg-zinc-950/95 transition-all duration-500 block shadow-[0_0_50px_rgba(249,109,0,0.12)]">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="max-w-md px-8 text-center space-y-4">
+                      <div className="mx-auto w-16 h-16 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                        <Mic2 className="w-8 h-8 text-primary" />
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-primary text-xs font-bold uppercase tracking-[0.2em]">
+                          Latest from Pie Radio
+                        </p>
+                        <h3 className="text-2xl md:text-3xl font-bold text-white leading-tight">
+                          No featured news yet
+                        </h3>
+                        <p className="text-zinc-400 text-sm md:text-base">
+                          Publish an article in admin/news and mark it as featured
+                          to populate this card.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </Link>
-            </div>
+              </div>
+            )}
 
             {/* Sidebar Cards */}
             <div className="md:col-span-4 flex flex-col gap-6">

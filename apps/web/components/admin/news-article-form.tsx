@@ -38,6 +38,7 @@ export function NewsArticleForm({ initialData }: NewsArticleFormProps) {
         tier: initialData?.tier || "update",
         status: initialData?.status || "draft",
         is_breaking: initialData?.is_breaking || false,
+        is_featured: initialData?.is_featured || false,
         cover_image_url: initialData?.cover_image_url || null,
         audio_preview_url: initialData?.audio_preview_url || null,
         audio_moments: initialData?.audio_moments || [],
@@ -296,6 +297,27 @@ export function NewsArticleForm({ initialData }: NewsArticleFormProps) {
                             <div className="flex flex-col">
                                 <span className="text-sm font-bold text-[#141827]">Mark as Breaking News</span>
                                 <span className="text-xs text-zinc-500">Will display prominently at the top of the news feed.</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div className="flex flex-col gap-2 mt-2">
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                            <div className={cn(
+                                "w-12 h-6 rounded-full transition-colors relative flex items-center px-1 shadow-inner",
+                                watch("is_featured") ? "bg-[#F96D00]" : "bg-zinc-300"
+                            )}>
+                                <div className={cn(
+                                    "w-4 h-4 rounded-full bg-white shadow-md transition-transform",
+                                    watch("is_featured") ? "translate-x-6" : "translate-x-0"
+                                )} />
+                            </div>
+                            <input type="checkbox" {...register("is_featured")} className="hidden" />
+                            <div className="flex flex-col">
+                                <span className="text-sm font-bold text-[#141827]">Feature on Home Page</span>
+                                <span className="text-xs text-zinc-500">
+                                    The latest published article marked here becomes the primary card on the home page.
+                                </span>
                             </div>
                         </label>
                     </div>
