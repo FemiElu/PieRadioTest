@@ -21,7 +21,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import HomeClient, { type SpotlightData } from "./home-client";
-import { getFeaturedArticle } from "@/lib/news/queries";
+import { getFeaturedArticle, getPublishedArticles } from "@/lib/news/queries";
 import type { NewsArticleCard } from "@/lib/news/types";
 
 // ISR: Vercel regenerates the cached page at most every 5 minutes.
@@ -34,7 +34,9 @@ async function getSpotlight(): Promise<SpotlightData | null> {
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
 
     if (!url || !key) {
-      console.warn("[Home] Supabase credentials missing — skipping spotlight fetch.");
+      console.warn(
+        "[Home] Supabase credentials missing — skipping spotlight fetch.",
+      );
       return null;
     }
 
@@ -67,7 +69,9 @@ async function getFeaturedArticleData(): Promise<NewsArticleCard | null> {
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
 
     if (!url || !key) {
-      console.warn("[Home] Supabase credentials missing — skipping featured article fetch.");
+      console.warn(
+        "[Home] Supabase credentials missing — skipping featured article fetch.",
+      );
       return null;
     }
 
@@ -79,15 +83,46 @@ async function getFeaturedArticleData(): Promise<NewsArticleCard | null> {
   }
 }
 
+async function getRecentHomepageArticles(): Promise<NewsArticleCard[]> {
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+
+    if (!url || !key) {
+      console.warn(
+        "[Home] Supabase credentials missing — skipping recent article fetch.",
+      );
+      return [];
+    }
+
+    const supabase = createClient(url, key);
+    const { articles } = await getPublishedArticles(supabase, { limit: 3 });
+    return articles;
+  } catch (err) {
+    console.error(
+      "[Home] Unexpected error fetching recent homepage articles:",
+      err,
+    );
+    return [];
+  }
+}
+
 export default async function Home() {
-  const [spotlight, featuredArticle] = await Promise.all([
+  const [spotlight, featuredArticle, recentArticles] = await Promise.all([
     getSpotlight(),
     getFeaturedArticleData(),
+    getRecentHomepageArticles(),
   ]);
+
+  const homepageRecentArticles = recentArticles
+    .filter((article) => article.id !== featuredArticle?.id)
+    .slice(0, 2);
+
   return (
     <HomeClient
       initialSpotlight={spotlight}
       initialFeaturedArticle={featuredArticle}
+      initialRecentArticles={homepageRecentArticles}
     />
   );
 }

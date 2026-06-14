@@ -46,10 +46,14 @@ export type SpotlightData = {
 interface HomeClientProps {
   initialSpotlight: SpotlightData | null;
   initialFeaturedArticle: NewsArticleCard | null;
+  initialRecentArticles: NewsArticleCard[];
 }
 
-
-export default function HomeClient({ initialSpotlight, initialFeaturedArticle }: HomeClientProps) {
+export default function HomeClient({
+  initialSpotlight,
+  initialFeaturedArticle,
+  initialRecentArticles,
+}: HomeClientProps) {
   const { isPlaying, togglePlay, isLoading, currentTrack } = useAudio();
   const { currentShow } = useCurrentShow();
 
@@ -132,8 +136,8 @@ export default function HomeClient({ initialSpotlight, initialFeaturedArticle }:
 
   const artwork =
     !isGenericMetadata &&
-      currentTrack.artwork &&
-      currentTrack.artwork !== "/placeholder-cover.jpg"
+    currentTrack.artwork &&
+    currentTrack.artwork !== "/placeholder-cover.jpg"
       ? currentTrack.artwork
       : currentShow?.shows?.cover_image_url || "/placeholder-cover.jpg";
 
@@ -264,73 +268,122 @@ export default function HomeClient({ initialSpotlight, initialFeaturedArticle }:
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            {/* Main Featured Card - Latest published featured article */}
-            {initialFeaturedArticle ? (
-              <div className="md:col-span-8 relative group cursor-default block mt-4 md:mt-0">
-                {/* Glowing Ambient Background Core */}
-                <div className="absolute -inset-2 bg-gradient-to-r from-[#F96D00] via-primary to-[#F96D00] rounded-[2rem] blur-xl opacity-80 animate-pulse" />
+            <div className="md:col-span-8 space-y-4">
+              {/* Main Featured Card - Latest published featured article */}
+              {initialFeaturedArticle ? (
+                <div className="relative group cursor-default block mt-4 md:mt-0">
+                  {/* Glowing Ambient Background Core */}
+                  {/* <div className="absolute -inset-2 bg-gradient-to-r from-[#F96D00] via-primary to-[#F96D00] rounded-[2rem] blur-xl opacity-80 animate-pulse" /> */}
 
-                <Link
-                  href={`/news/${initialFeaturedArticle.slug}`}
-                  className="relative h-full w-full aspect-video md:aspect-auto md:h-[450px] overflow-hidden rounded-2xl border border-[#F96D00] bg-card transition-all duration-500 hover:-translate-y-2 block shadow-[0_0_50px_rgba(249,109,0,0.4)] hover:shadow-[0_0_80px_rgba(249,109,0,0.6)]"
-                >
-                  {initialFeaturedArticle.cover_image_url ? (
-                    <Image
-                      src={initialFeaturedArticle.cover_image_url}
-                      alt={initialFeaturedArticle.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 66vw"
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-zinc-900 flex items-center justify-center">
-                      <Mic2 className="w-16 h-16 text-zinc-700" />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                  <div className="absolute bottom-0 p-8 space-y-3 z-10 w-full">
-                    <div className="px-3 py-1 hidden md:block bg-[#F96D00] text-white text-xs font-bold rounded-full w-fit uppercase tracking-wider backdrop-blur-md shadow-[0_0_15px_rgba(249,109,0,0.5)]">
-                      {initialFeaturedArticle.category || "Featured"}
-                    </div>
-                    <h3 className="text-3xl font-bold text-white leading-tight max-w-xl transition-colors line-clamp-2">
-                      {initialFeaturedArticle.title}
-                    </h3>
-                    {initialFeaturedArticle.summary && (
-                      <p className="text-zinc-300 text-sm max-w-md line-clamp-2">
-                        {initialFeaturedArticle.summary}
-                      </p>
-                    )}
-                  </div>
-                </Link>
-              </div>
-            ) : (
-              <div className="md:col-span-8 relative group cursor-default block mt-4 md:mt-0">
-                {/* Glowing Ambient Background Core */}
-                <div className="absolute -inset-2 bg-gradient-to-r from-[#F96D00] via-primary to-[#F96D00] rounded-[2rem] blur-xl opacity-80 animate-pulse" />
-
-                <div className="relative h-full w-full aspect-video md:aspect-auto md:h-[450px] overflow-hidden rounded-2xl border border-dashed border-zinc-300 bg-zinc-950/95 transition-all duration-500 block shadow-[0_0_50px_rgba(249,109,0,0.12)]">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="max-w-md px-8 text-center space-y-4">
-                      <div className="mx-auto w-16 h-16 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                        <Mic2 className="w-8 h-8 text-primary" />
+                  <Link
+                    href={`/news/${initialFeaturedArticle.slug}?from=home`}
+                    className="relative h-full w-full aspect-video md:aspect-auto md:h-[450px] overflow-hidden rounded-2xl border-primary  bg-card transition-all duration-500 hover:-translate-y-2 block shadow-[0_0_50px_rgba(249,109,0,0.4)] hover:shadow-[0_0_80px_rgba(249,109,0,0.6)] hover:rounded-[2rem]"
+                  >
+                    {initialFeaturedArticle.cover_image_url ? (
+                      <Image
+                        src={initialFeaturedArticle.cover_image_url}
+                        alt={initialFeaturedArticle.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 66vw"
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-zinc-900 flex items-center justify-center">
+                        <Mic2 className="w-16 h-16 text-zinc-700" />
                       </div>
-                      <div className="space-y-2">
-                        <p className="text-primary text-xs font-bold uppercase tracking-[0.2em]">
-                          Latest from Pie Radio
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                    <div className="absolute bottom-0 p-8 space-y-3 z-10 w-full">
+                      <div className="px-3 py-1 hidden md:block bg-[#F96D00] text-white text-xs font-bold rounded-full w-fit uppercase tracking-wider backdrop-blur-md shadow-[0_0_15px_rgba(249,109,0,0.5)]">
+                        {initialFeaturedArticle.category || "Featured"}
+                      </div>
+                      <h3 className="text-3xl font-bold text-white leading-tight max-w-xl transition-colors line-clamp-2">
+                        {initialFeaturedArticle.title}
+                      </h3>
+                      {initialFeaturedArticle.summary && (
+                        <p className="text-zinc-300 text-sm max-w-md line-clamp-2">
+                          {initialFeaturedArticle.summary}
                         </p>
-                        <h3 className="text-2xl md:text-3xl font-bold text-white leading-tight">
-                          No featured news yet
-                        </h3>
-                        <p className="text-zinc-400 text-sm md:text-base">
-                          Publish an article in admin/news and mark it as featured
-                          to populate this card.
-                        </p>
+                      )}
+                    </div>
+                  </Link>
+                </div>
+              ) : (
+                <div className="relative group cursor-default block mt-4 md:mt-0">
+                  {/* Glowing Ambient Background Core */}
+                  <div className="absolute -inset-2 bg-gradient-to-r from-[#F96D00] via-primary to-[#F96D00] rounded-[2rem] blur-xl opacity-80 animate-pulse" />
+
+                  <div className="relative h-full w-full aspect-video md:aspect-auto md:h-[450px] overflow-hidden rounded-2xl border border-dashed border-zinc-300 bg-zinc-950/95 transition-all duration-500 block shadow-[0_0_50px_rgba(249,109,0,0.12)]">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="max-w-md px-8 text-center space-y-4">
+                        <div className="mx-auto w-16 h-16 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                          <Mic2 className="w-8 h-8 text-primary" />
+                        </div>
+                        <div className="space-y-2">
+                          <p className="text-primary text-xs font-bold uppercase tracking-[0.2em]">
+                            Latest from Pie Radio
+                          </p>
+                          <h3 className="text-2xl md:text-3xl font-bold text-white leading-tight">
+                            No featured news yet
+                          </h3>
+                          <p className="text-zinc-400 text-sm md:text-base">
+                            Publish an article in admin/news and mark it as
+                            featured to populate this card.
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              )}
+
+              <div className="hidden lg:block">
+                <div className="flex items-center gap-3 pb-4 border-b border-zinc-200">
+                  <span className="h-px flex-1 bg-zinc-200" />
+                  <span className="text-xs uppercase tracking-[0.35em] text-zinc-500 font-semibold">
+                    More stories
+                  </span>
+                  <span className="h-px flex-1 bg-zinc-200" />
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-4">
+                  {initialRecentArticles.map((article) => (
+                    <Link
+                      key={article.id}
+                      href={`/news/${article.slug}?from=home`}
+                      className="group block overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+                    >
+                      <div className="relative aspect-[4/3] w-full overflow-hidden">
+                        {article.cover_image_url ? (
+                          <Image
+                            src={article.cover_image_url}
+                            alt={article.title}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center bg-zinc-950 text-zinc-500">
+                            <Mic2 className="w-10 h-10" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-5 space-y-3">
+                        <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-primary">
+                          {article.category || "News"}
+                        </span>
+                        <h3 className="text-lg font-bold text-zinc-900 line-clamp-2">
+                          {article.title}
+                        </h3>
+                        {article.summary && (
+                          <p className="text-sm text-zinc-500 line-clamp-2">
+                            {article.summary}
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               </div>
-            )}
+            </div>
 
             {/* Sidebar Cards */}
             <div className="md:col-span-4 flex flex-col gap-6">
@@ -358,12 +411,19 @@ export default function HomeClient({ initialSpotlight, initialFeaturedArticle }:
                 {spotlight?.link_url && (
                   <Link
                     href={
-                      spotlight.link_url.startsWith("http") || spotlight.link_url.startsWith("/")
+                      spotlight.link_url.startsWith("http") ||
+                      spotlight.link_url.startsWith("/")
                         ? spotlight.link_url
                         : `https://${spotlight.link_url}`
                     }
-                    target={spotlight.link_url.startsWith("/") ? "_self" : "_blank"}
-                    rel={spotlight.link_url.startsWith("/") ? undefined : "noopener noreferrer"}
+                    target={
+                      spotlight.link_url.startsWith("/") ? "_self" : "_blank"
+                    }
+                    rel={
+                      spotlight.link_url.startsWith("/")
+                        ? undefined
+                        : "noopener noreferrer"
+                    }
                     className="absolute inset-0 z-20"
                   >
                     <span className="sr-only">View Spotlight</span>
@@ -586,29 +646,69 @@ export default function HomeClient({ initialSpotlight, initialFeaturedArticle }:
                   viewBox="0 0 512 512"
                   aria-hidden="true"
                 >
-                  <linearGradient id="pg1" x1="91.1" y1="-59" x2="234.5" y2="83.9" gradientUnits="userSpaceOnUse">
+                  <linearGradient
+                    id="pg1"
+                    x1="91.1"
+                    y1="-59"
+                    x2="234.5"
+                    y2="83.9"
+                    gradientUnits="userSpaceOnUse"
+                  >
                     <stop offset="0" stopColor="#00a0ff" />
                     <stop offset="1" stopColor="#00beff" />
                   </linearGradient>
-                  <path fill="url(#pg1)" d="M27 18.9C20.8 25.4 17 35.4 17 48.5v415c0 13.1 3.8 23.1 10 29.6L28 494l232.6-232.6v-5.5L27 18.9z" />
-                  <linearGradient id="pg2" x1="316" y1="255.9" x2="395.2" y2="255.9" gradientUnits="userSpaceOnUse">
+                  <path
+                    fill="url(#pg1)"
+                    d="M27 18.9C20.8 25.4 17 35.4 17 48.5v415c0 13.1 3.8 23.1 10 29.6L28 494l232.6-232.6v-5.5L27 18.9z"
+                  />
+                  <linearGradient
+                    id="pg2"
+                    x1="316"
+                    y1="255.9"
+                    x2="395.2"
+                    y2="255.9"
+                    gradientUnits="userSpaceOnUse"
+                  >
                     <stop offset="0" stopColor="#ffe000" />
                     <stop offset="1" stopColor="#ffbd00" />
                   </linearGradient>
-                  <path fill="url(#pg2)" d="M337.9 334.8 260.6 257.5v-5.5l77.3-77.3 1.8 1L428 228.8c24 13.6 24 35.9 0 49.5l-88.3 55.6-1.8 1z" />
-                  <linearGradient id="pg3" x1="44.7" y1="284.3" x2="297.1" y2="536.5" gradientUnits="userSpaceOnUse">
+                  <path
+                    fill="url(#pg2)"
+                    d="M337.9 334.8 260.6 257.5v-5.5l77.3-77.3 1.8 1L428 228.8c24 13.6 24 35.9 0 49.5l-88.3 55.6-1.8 1z"
+                  />
+                  <linearGradient
+                    id="pg3"
+                    x1="44.7"
+                    y1="284.3"
+                    x2="297.1"
+                    y2="536.5"
+                    gradientUnits="userSpaceOnUse"
+                  >
                     <stop offset="0" stopColor="#ff3a44" />
                     <stop offset="1" stopColor="#c31162" />
                   </linearGradient>
-                  <path fill="url(#pg3)" d="M339.7 333.8 260.6 254.7 27 487.1c7.9 8.4 21 9.4 35.6 1.1l277.1-154.4" />
-                  <linearGradient id="pg4" x1="21" y1="-11" x2="168.4" y2="136.1" gradientUnits="userSpaceOnUse">
+                  <path
+                    fill="url(#pg3)"
+                    d="M339.7 333.8 260.6 254.7 27 487.1c7.9 8.4 21 9.4 35.6 1.1l277.1-154.4"
+                  />
+                  <linearGradient
+                    id="pg4"
+                    x1="21"
+                    y1="-11"
+                    x2="168.4"
+                    y2="136.1"
+                    gradientUnits="userSpaceOnUse"
+                  >
                     <stop offset="0" stopColor="#32a071" />
                     <stop offset=".1" stopColor="#2da771" />
                     <stop offset=".5" stopColor="#15cf74" />
                     <stop offset=".8" stopColor="#06e775" />
                     <stop offset="1" stopColor="#00f076" />
                   </linearGradient>
-                  <path fill="url(#pg4)" d="M339.7 175.9 62.6 21.6C48 13.3 34.9 14.2 27 22.6l233.6 233.1 79.1-79.8z" />
+                  <path
+                    fill="url(#pg4)"
+                    d="M339.7 175.9 62.6 21.6C48 13.3 34.9 14.2 27 22.6l233.6 233.1 79.1-79.8z"
+                  />
                 </svg>
                 <div className="flex flex-col items-start leading-none">
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
