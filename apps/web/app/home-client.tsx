@@ -284,6 +284,7 @@ export default function HomeClient({
                         src={initialFeaturedArticle.cover_image_url}
                         alt={initialFeaturedArticle.title}
                         fill
+                        quality={90}
                         sizes="(max-width: 768px) 100vw, 66vw"
                         className="object-cover transition-transform duration-700 group-hover:scale-105"
                       />
@@ -358,6 +359,7 @@ export default function HomeClient({
                             src={article.cover_image_url}
                             alt={article.title}
                             fill
+                            quality={90}
                             className="object-cover transition-transform duration-500 group-hover:scale-105"
                           />
                         ) : (
