@@ -242,6 +242,7 @@ export function ArticleDetailClient({ article }: ArticleDetailClientProps) {
               src={article.cover_image_url}
               alt={article.title}
               fill
+              quality={90}
               className="object-cover"
               priority
             />
