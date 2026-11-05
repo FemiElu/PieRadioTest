@@ -79,11 +79,11 @@ export function AdminSidebar() {
         </div>
 
         {sidebarItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(`${item.href}/`));
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={item.title === "Partnerships" ? "/admin/partnerships/drafts" : item.href}
               className={cn(
                 "group flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200",
                 isActive

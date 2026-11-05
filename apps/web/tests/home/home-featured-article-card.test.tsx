@@ -24,7 +24,7 @@ describe("Home Featured Article Card", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
-        ok: false,
+        ok: true,
         json: async () => [],
       }),
     );
@@ -34,10 +34,11 @@ describe("Home Featured Article Card", () => {
     vi.unstubAllGlobals();
   });
 
-  it("links the featured card to the latest featured news article", () => {
+  it("links the featured card to the latest featured news article", async () => {
     render(
       <HomeClient
         initialSpotlight={null}
+        initialRecentArticles={[]}
         initialFeaturedArticle={{
           id: "article-1",
           slug: "daily-headline",
@@ -65,10 +66,11 @@ describe("Home Featured Article Card", () => {
       />
     );
 
+    await screen.findByText("No recent tracks");
     const link = screen.getByRole("link", {
       name: /daily headline/i,
     });
 
-    expect(link).toHaveAttribute("href", "/news/daily-headline");
+    expect(link).toHaveAttribute("href", "/news/daily-headline?from=home");
   });
 });

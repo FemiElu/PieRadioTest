@@ -22,6 +22,7 @@ interface Episode {
     cover_image_url: string | null;
     aired_at: string | null;
     duration_seconds: number | null;
+    audio_url?: string | null;
 }
 
 interface ShowPreviewDialogProps {
@@ -31,6 +32,9 @@ interface ShowPreviewDialogProps {
     loading?: boolean;
     showName: string;
     brandName?: string;
+    description?: string;
+    eyebrow?: string;
+    footer?: string;
 }
 
 export function ShowPreviewDialog({
@@ -39,14 +43,18 @@ export function ShowPreviewDialog({
     episodes,
     loading,
     showName,
-    brandName = "Pie Radio"
+    brandName = "Pie Radio",
+    description = "Listen back to the latest episodes of our sponsored show.",
+    eyebrow = "Partner Spotlight",
+    footer = "Powered by Pie Radio",
 }: ShowPreviewDialogProps) {
     const { playClip, currentTrack, isPlaying } = useAudio();
 
     const handlePlay = (episode: Episode) => {
         if (!episode.file_key) return;
+        if (episode.file_key.startsWith("partnerships/") && !episode.audio_url) return;
 
-        const audioUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/pie-episodes/${episode.file_key}`;
+        const audioUrl = episode.audio_url || `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/pie-episodes/${episode.file_key}`;
 
         playClip(
             audioUrl,
@@ -72,14 +80,14 @@ export function ShowPreviewDialog({
                             <Music className="w-5 h-5 text-white" />
                         </div>
                         <span className="text-xs font-bold uppercase tracking-widest opacity-80">
-                            Partner Spotlight
+                            {eyebrow}
                         </span>
                     </div>
                     <DialogTitle className="text-3xl font-black font-display tracking-tight leading-none uppercase italic">
                         {showName}
                     </DialogTitle>
                     <DialogDescription className="text-white/80 font-medium mt-2">
-                        Listen back to the latest episodes of our sponsored show.
+                        {description}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -194,7 +202,7 @@ export function ShowPreviewDialog({
 
                 <div className="p-4 bg-zinc-50 border-t border-zinc-100 text-center">
                     <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                        Powered by Pie Radio
+                        {footer}
                     </p>
                 </div>
             </DialogContent>

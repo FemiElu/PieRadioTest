@@ -2,15 +2,12 @@
 
 import dynamic from "next/dynamic";
 import { AuthProvider } from "@/context/auth-context";
+import { AudioProvider } from "@/context/audio-context";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 
-// Load AudioProvider dynamically to avoid SSR of icecast-metadata-player
-// which uses Web Workers not available on the server.
-const AudioProvider = dynamic(
-    () => import("@/context/audio-context").then((mod) => mod.AudioProvider),
-    { ssr: false }
-);
+// The audio engine loads in AudioProvider's browser effect. Rendering the
+// provider normally lets page content reach the browser in the server HTML.
 
 const PersistentPlayer = dynamic(
     () => import("@/components/player/persistent-player").then((mod) => mod.PersistentPlayer),

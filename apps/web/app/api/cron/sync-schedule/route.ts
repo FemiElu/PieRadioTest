@@ -5,6 +5,7 @@ import { parse } from 'csv-parse/sync';
 import { addWeeks, format, startOfDay, addDays, getISOWeek } from 'date-fns';
 import { fromZonedTime } from 'date-fns-tz';
 import { createHash } from 'crypto';
+import { runPartnershipCleanup } from '@/lib/partnerships/cleanup';
 
 export const dynamic = 'force-dynamic'; // Ensure this route is never cached
 
@@ -17,6 +18,7 @@ const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT
 const MIN_UPCOMING_ENTRIES_THRESHOLD = 20;
 
 export async function GET(request: Request) {
+    let cleanupTask: Promise<unknown> | undefined;
     try {
         console.log('[Cron Sync] Starting Google Sheets Schedule Sync...');
 
@@ -27,10 +29,11 @@ export async function GET(request: Request) {
         const url = new URL(request.url);
         const secretParam = url.searchParams.get('secret');
 
-        const isAuthorized =
+        const isCronAuthenticated = Boolean(
             (cronSecret && authHeader === `Bearer ${cronSecret}`) ||
-            (cronSecret && secretParam === cronSecret) ||
-            process.env.NODE_ENV === 'development';
+            (cronSecret && secretParam === cronSecret)
+        );
+        const isAuthorized = isCronAuthenticated || process.env.NODE_ENV === 'development';
 
         if (!isAuthorized) {
             console.error('[Cron Sync] Unauthorized attempt to sync schedule');
@@ -45,6 +48,12 @@ export async function GET(request: Request) {
         }
 
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+        // Start independently: a failed CSV fetch or a skipped schedule sync
+        // must not prevent retrying already-deleted drafts' storage cleanup.
+        cleanupTask = isCronAuthenticated ? runPartnershipCleanup(supabase, { limit: 3 })
+            .then(result => console.log('[Partnership Cleanup]', { completed: result.completed, pending: result.pending }))
+            .catch(error => console.error('[Partnership Cleanup] Retry failed:', error instanceof Error ? error.message : 'Unknown cleanup error')) : undefined;
 
         // 2. Fetch CSV
         const response = await axios.get(GOOGLE_SHEET_CSV_URL);
@@ -264,6 +273,8 @@ export async function GET(request: Request) {
             { success: false, error: err.message },
             { status: 500 }
         );
+    } finally {
+        await cleanupTask;
     }
 }
 
