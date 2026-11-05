@@ -266,11 +266,16 @@ export type Database = {
       };
       episodes: {
         Row: {
+          aired_at: string | null;
+          category: string | null;
+          cover_image_url: string | null;
           created_at: string | null;
           description: string | null;
           duration_seconds: number | null;
           file_key: string | null;
           id: string;
+          partnership_page_id: string | null;
+          presenter_id: string | null;
           published_at: string | null;
           show_id: string | null;
           title: string;
@@ -278,11 +283,16 @@ export type Database = {
           vod_hls_url: string | null;
         };
         Insert: {
+          aired_at?: string | null;
+          category?: string | null;
+          cover_image_url?: string | null;
           created_at?: string | null;
           description?: string | null;
           duration_seconds?: number | null;
           file_key?: string | null;
           id?: string;
+          partnership_page_id?: string | null;
+          presenter_id?: string | null;
           published_at?: string | null;
           show_id?: string | null;
           title: string;
@@ -290,11 +300,16 @@ export type Database = {
           vod_hls_url?: string | null;
         };
         Update: {
+          aired_at?: string | null;
+          category?: string | null;
+          cover_image_url?: string | null;
           created_at?: string | null;
           description?: string | null;
           duration_seconds?: number | null;
           file_key?: string | null;
           id?: string;
+          partnership_page_id?: string | null;
+          presenter_id?: string | null;
           published_at?: string | null;
           show_id?: string | null;
           title?: string;
@@ -303,10 +318,121 @@ export type Database = {
         };
         Relationships: [
           {
+            foreignKeyName: "episodes_partnership_page_id_fkey";
+            columns: ["partnership_page_id"];
+            isOneToOne: false;
+            referencedRelation: "partnership_pages";
+            referencedColumns: ["id"];
+          },
+          {
             foreignKeyName: "episodes_show_id_fkey";
             columns: ["show_id"];
             isOneToOne: false;
             referencedRelation: "shows";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      partnership_cleanup_jobs: {
+        Row: {
+          id: string;
+          page_id: string;
+          requested_by: string | null;
+          objects: Json;
+          status: "pending" | "processing" | "completed";
+          attempts: number;
+          last_error: string | null;
+          next_attempt_at: string;
+          locked_at: string | null;
+          lock_token: string | null;
+          created_at: string;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          page_id: string;
+          requested_by?: string | null;
+          objects?: Json;
+          status?: "pending" | "processing" | "completed";
+          attempts?: number;
+          last_error?: string | null;
+          next_attempt_at?: string;
+          locked_at?: string | null;
+          lock_token?: string | null;
+          created_at?: string;
+          completed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          page_id?: string;
+          requested_by?: string | null;
+          objects?: Json;
+          status?: "pending" | "processing" | "completed";
+          attempts?: number;
+          last_error?: string | null;
+          next_attempt_at?: string;
+          locked_at?: string | null;
+          lock_token?: string | null;
+          created_at?: string;
+          completed_at?: string | null;
+        };
+        Relationships: [{
+          foreignKeyName: "partnership_cleanup_jobs_requested_by_fkey";
+          columns: ["requested_by"];
+          isOneToOne: false;
+          referencedRelation: "profiles";
+          referencedColumns: ["id"];
+        }];
+      };
+      partnership_pages: {
+        Row: {
+          brand_name: string;
+          content: Json;
+          created_at: string;
+          created_by: string | null;
+          description: string;
+          id: string;
+          published_at: string | null;
+          slug: string;
+          social_image_url: string;
+          status: "draft" | "published" | "archived";
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          brand_name: string;
+          content: Json;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string;
+          id?: string;
+          published_at?: string | null;
+          slug: string;
+          social_image_url?: string;
+          status?: "draft" | "published" | "archived";
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          brand_name?: string;
+          content?: Json;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string;
+          id?: string;
+          published_at?: string | null;
+          slug?: string;
+          social_image_url?: string;
+          status?: "draft" | "published" | "archived";
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "partnership_pages_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -1266,6 +1392,10 @@ export type Database = {
       };
     };
     Functions: {
+      delete_partnership_draft: { Args: { p_id: string; p_updated_at: string }; Returns: Json };
+      claim_partnership_cleanup_job: { Args: { p_job_id: string; p_force?: boolean }; Returns: Json };
+      get_partnership_cleanup_manifest: { Args: { p_job_id: string; p_existing_only?: boolean; p_lock_token?: string | null }; Returns: Json };
+      partnership_storage_object_referenced: { Args: { p_name: string; p_ignore_page?: string | null }; Returns: boolean };
       current_user_role: { Args: never; Returns: string };
       get_user_role: { Args: never; Returns: string };
       has_any_role: { Args: { required_roles: string[] }; Returns: boolean };

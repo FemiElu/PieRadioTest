@@ -119,3 +119,45 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* Shared typography for partnership editing, previews and published copy. */
+@layer components {
+  .partnership-rich-text { overflow-wrap: anywhere; }
+  .partnership-rich-text p { margin-block: .75em; }
+  .partnership-rich-text h1,
+  .partnership-rich-text h2,
+  .partnership-rich-text h3,
+  .partnership-rich-text h4,
+  .partnership-rich-text h5,
+  .partnership-rich-text h6 { margin-block: 1em .45em; font-weight: 700; line-height: 1.3; }
+  .partnership-rich-text h1 { font-size: 2em; }
+  .partnership-rich-text h2 { font-size: 1.5em; }
+  .partnership-rich-text h3 { font-size: 1.25em; }
+  .partnership-rich-text h4 { font-size: 1.1em; }
+  .partnership-rich-text strong { font-weight: 700; }
+  .partnership-rich-text em { font-style: italic; }
+  .partnership-rich-text s,
+  .partnership-rich-text del { text-decoration: line-through; }
+  .partnership-rich-text ul { list-style: disc; }
+  .partnership-rich-text ol { list-style: decimal; }
+  .partnership-rich-text ul,
+  .partnership-rich-text ol { margin-block: .75em; padding-inline-start: 1.5em; }
+  .partnership-rich-text li { margin-block: .25em; }
+  .partnership-rich-text li > p { margin-block: .25em; }
+  .partnership-rich-text blockquote { margin-block: 1em; border-inline-start: 3px solid rgb(127 127 127 / .5); padding-inline-start: 1em; }
+  .partnership-rich-text a { text-decoration: underline; text-underline-offset: 3px; }
+  .partnership-rich-text a:hover { text-decoration-thickness: 2px; }
+  .partnership-rich-text code { border-radius: .25rem; background: rgb(127 127 127 / .12); padding: .1em .25em; font-family: ui-monospace, monospace; font-size: .9em; }
+  .partnership-rich-text pre { overflow-x: auto; margin-block: 1em; border-radius: .5rem; background: rgb(127 127 127 / .12); padding: .75em; }
+  .partnership-rich-text pre code { background: transparent; padding: 0; white-space: pre; }
+  .partnership-rich-text hr { margin-block: 1.25em; border-color: rgb(127 127 127 / .4); }
+  .partnership-rich-text img { max-width: 100%; height: auto; margin-block: .75em; border-radius: .5rem; }
+  .partnership-rich-text table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin-block: 1em; }
+  .partnership-rich-text th,
+  .partnership-rich-text td { border: 1px solid rgb(127 127 127 / .35); padding: .4em .65em; text-align: start; }
+  .partnership-rich-text th { font-weight: 700; }
+  .partnership-rich-text .contains-task-list { list-style: none; padding-inline-start: 0; }
+  .partnership-rich-text input[type="checkbox"] { margin-inline-end: .45em; }
+  .partnership-rich-text > :first-child { margin-block-start: 0; }
+  .partnership-rich-text > :last-child { margin-block-end: 0; }
+}
