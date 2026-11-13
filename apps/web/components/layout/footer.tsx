@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { PartnershipFooterLinks } from "@/components/layout/partnership-footer-links";
 
 export function Footer() {
     return (
         <footer className="w-full border-t border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-12">
             <div className="container px-4 md:px-8 max-w-screen-2xl">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
                     <div className="space-y-4">
                         <h3 className="font-bold font-display text-lg tracking-tight">
                             <span className="text-primary">PIE</span> RADIO
@@ -25,6 +25,8 @@ export function Footer() {
                             <li><Link href="/profile/upload" className="hover:text-primary transition-colors font-medium">Music Submission</Link></li>
                         </ul>
                     </div>
+
+                    <PartnershipFooterLinks />
 
                     <div className="space-y-4">
                         <h4 className="font-semibold text-sm tracking-wide uppercase text-foreground/80">Legal</h4>

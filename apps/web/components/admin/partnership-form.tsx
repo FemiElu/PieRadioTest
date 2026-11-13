@@ -16,6 +16,7 @@ import { PartnershipEpisodeManager } from "@/components/partnerships/episode-man
 import { isPartnershipReadyToPublish } from "@/components/partnerships/default-content";
 import { CreatePartnershipSchema, type CreatePartnershipInput } from "@/lib/partnerships/schema";
 import type { PartnershipPage } from "@/lib/partnerships/queries";
+import { notifyPartnershipsUpdated } from "@/lib/partnerships/navigation";
 
 type PartnershipFormProps = { initialData?: PartnershipPage };
 
@@ -150,6 +151,7 @@ export function PartnershipForm({ initialData }: PartnershipFormProps) {
                 throw new Error(detail ? `${result.error}: ${detail}` : result.error || "Failed to save partnership page");
             }
 
+            notifyPartnershipsUpdated();
             setSavedSnapshot(JSON.stringify(submittedValues));
             setSavedStatus(submittedValues.status);
             if (result.updated_at) setLastSavedAt(result.updated_at);
