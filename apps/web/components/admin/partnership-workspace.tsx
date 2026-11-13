@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { PartnershipActionResult, PartnershipStatus, PartnershipSummary, PartnershipWorkspaceResponse } from "@/lib/partnerships/admin-types";
+import { notifyPartnershipsUpdated } from "@/lib/partnerships/navigation";
 
 type PendingAction = { type: "publish" | "delete_drafts"; pages: PartnershipSummary[]; viewKey: string };
 const folders = [
@@ -109,6 +110,7 @@ export function PartnershipWorkspace({ status, page = 1 }: { status: Partnership
                 setNotice(message);
             }
             if (success.length) toast.success(message); else toast.error("No drafts changed. Review the reasons below.");
+            if (pendingAction.type === "publish" && success.length) notifyPartnershipsUpdated();
             setSelected([]); setPendingAction(null);
             await load();
         } catch (failure) {
