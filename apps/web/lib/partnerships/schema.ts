@@ -17,7 +17,37 @@ const assetSchema = z.object({
 
 const textSchema = (max = 5_000) => z.string().max(max);
 
+export const DEFAULT_PARTNERSHIP_THEME = {
+    pageBackground: "#F7EFE6",
+    galleryBackground: "#222222",
+    galleryHeadingColor: "#FFFFFF",
+    galleryBodyColor: "#FFFFFF",
+    surfaceBackground: "#FFFFFF",
+    headingColor: "#222222",
+    bodyColor: "#222222",
+    brandColor: "#FF6A00",
+    accentColor: "#A31919",
+    ctaBackground: "#FF6A00",
+    ctaText: "#FFFFFF",
+} as const;
+
+const themeColorSchema = z.string().regex(/^#[\da-fA-F]{6}$/, "Enter a six-digit hex color, such as #FF6A00");
+const PartnershipThemeSchema = z.object({
+    pageBackground: themeColorSchema.default(DEFAULT_PARTNERSHIP_THEME.pageBackground),
+    galleryBackground: themeColorSchema.default(DEFAULT_PARTNERSHIP_THEME.galleryBackground),
+    galleryHeadingColor: themeColorSchema.default(DEFAULT_PARTNERSHIP_THEME.galleryHeadingColor),
+    galleryBodyColor: themeColorSchema.default(DEFAULT_PARTNERSHIP_THEME.galleryBodyColor),
+    surfaceBackground: themeColorSchema.default(DEFAULT_PARTNERSHIP_THEME.surfaceBackground),
+    headingColor: themeColorSchema.default(DEFAULT_PARTNERSHIP_THEME.headingColor),
+    bodyColor: themeColorSchema.default(DEFAULT_PARTNERSHIP_THEME.bodyColor),
+    brandColor: themeColorSchema.default(DEFAULT_PARTNERSHIP_THEME.brandColor),
+    accentColor: themeColorSchema.default(DEFAULT_PARTNERSHIP_THEME.accentColor),
+    ctaBackground: themeColorSchema.default(DEFAULT_PARTNERSHIP_THEME.ctaBackground),
+    ctaText: themeColorSchema.default(DEFAULT_PARTNERSHIP_THEME.ctaText),
+}).default(DEFAULT_PARTNERSHIP_THEME);
+
 export const PartnershipContentSchema = z.object({
+    theme: PartnershipThemeSchema,
     hero: z.object({
         background: assetSchema,
         stationLogo: assetSchema,

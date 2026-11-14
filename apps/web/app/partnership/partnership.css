@@ -2,6 +2,43 @@
    Partnership Page — Scoped Styles
    ============================================================ */
 
+.partnership-page {
+    --partnership-page-background: #F7EFE6;
+    --partnership-gallery-background: #222222;
+    --partnership-gallery-heading-color: #FFFFFF;
+    --partnership-gallery-body-color: #FFFFFF;
+    --partnership-surface-background: #FFFFFF;
+    --partnership-heading-color: #222222;
+    --partnership-body-color: #222222;
+    --partnership-brand-color: #FF6A00;
+    --partnership-accent-color: #A31919;
+    --partnership-cta-background: #FF6A00;
+    --partnership-cta-text: #FFFFFF;
+    background-color: var(--partnership-page-background);
+    color: var(--partnership-body-color);
+}
+
+.partnership-page .partnership-cta {
+    background-color: var(--partnership-cta-background);
+    color: var(--partnership-cta-text);
+    transition: filter 150ms ease;
+}
+
+.partnership-page .partnership-cta:hover:not(:disabled) {
+    filter: brightness(0.92);
+}
+
+.partnership-page .partnership-closing-banner {
+    background: linear-gradient(90deg, var(--partnership-brand-color), var(--partnership-accent-color), var(--partnership-brand-color));
+}
+
+.partnership-page .partnership-social-link:hover,
+.partnership-page .partnership-social-link:focus-visible {
+    border-color: var(--partnership-brand-color);
+    background-color: var(--partnership-brand-color);
+    color: var(--partnership-cta-text);
+}
+
 /* ------ Equalizer bars (5-bar music visualizer) ------ */
 .equalizer {
     display: flex;
@@ -13,7 +50,7 @@
 .equalizer-bar {
     width: 4px;
     border-radius: 2px;
-    background: #FF6A00;
+    background: var(--partnership-brand-color, #FF6A00);
     animation: equalizer-bar 1s ease-in-out infinite;
     will-change: height;
 }
@@ -140,7 +177,7 @@
     appearance: none;
     height: 4px;
     border-radius: 2px;
-    background: rgba(255, 106, 0, 0.25);
+    background: color-mix(in srgb, var(--partnership-brand-color, #FF6A00) 25%, transparent);
     outline: none;
     cursor: pointer;
 }
@@ -151,7 +188,7 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #FF6A00;
+    background: var(--partnership-brand-color, #FF6A00);
     cursor: pointer;
     border: 2px solid white;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
@@ -161,7 +198,7 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #FF6A00;
+    background: var(--partnership-brand-color, #FF6A00);
     cursor: pointer;
     border: 2px solid white;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);

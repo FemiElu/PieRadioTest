@@ -11,10 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageField } from "@/components/partnerships/image-field";
+import { PartnershipThemeEditor } from "@/components/partnerships/theme-editor";
 import { MarkdownEditor } from "@/components/partnerships/markdown-editor";
 import { PartnershipEpisodeManager } from "@/components/partnerships/episode-manager";
 import { isPartnershipReadyToPublish } from "@/components/partnerships/default-content";
-import { CreatePartnershipSchema, type CreatePartnershipInput } from "@/lib/partnerships/schema";
+import { CreatePartnershipSchema, DEFAULT_PARTNERSHIP_THEME, type CreatePartnershipInput } from "@/lib/partnerships/schema";
 import type { PartnershipPage } from "@/lib/partnerships/queries";
 import { notifyPartnershipsUpdated } from "@/lib/partnerships/navigation";
 
@@ -88,6 +89,7 @@ export function PartnershipForm({ initialData }: PartnershipFormProps) {
             social_image_url: "",
             status: "draft",
             content: {
+                theme: { ...DEFAULT_PARTNERSHIP_THEME },
                 hero: { background: { src: "", alt: "" }, stationLogo: { src: "/assets/logo.png", alt: "Pie Radio logo" }, partnerLogo: { src: "", alt: "" }, title: "A Pie Radio partnership", accentTitle: "Brand collaboration", intro: "Add the partnership introduction here.", showHeading: "Featured radio show", showDetails: "Add the show schedule, presenters and details here.", closing: "Add details about the final event or collaboration here.", capacity: "", waitlistCta: "Join the Waitlist", pressCta: "See Press Release", pressHref: "/press", audioCta: "Listen to the Show" },
                 gallery: { eyebrow: "Sneak Peek", title: "Behind the Scenes", images: [] },
                 event: { flyer: { src: "", alt: "" }, badge: "Exclusive Event", title: "Partner", accentTitle: "Event", subtitle: "Pie Radio · Exclusive Live Event", tags: ["Live DJ sets", "Special guests"], facts: [{ label: "Venue", value: "Add venue details" }, { label: "Date & Time", value: "Add date and time" }, { label: "Entry", value: "Add ticket or entry details" }], fullNameLabel: "Full name", fullNamePlaceholder: "Your name", emailLabel: "Email address", emailPlaceholder: "you@example.com", consent: "I agree to receive updates about this event.", submitLabel: "Join the Waitlist", successTitle: "You’re in!", successMessage: "We’ll send event updates to your email." },
@@ -117,6 +119,10 @@ export function PartnershipForm({ initialData }: PartnershipFormProps) {
     const setImage = (path: FieldPath<CreatePartnershipInput>, next: { src: string; alt: string }) => {
         setValue(`${path}.src` as FieldPath<CreatePartnershipInput>, next.src, { shouldDirty: true, shouldValidate: true });
         setValue(`${path}.alt` as FieldPath<CreatePartnershipInput>, next.alt, { shouldDirty: true, shouldValidate: true });
+    };
+
+    const setThemeColor = (key: keyof CreatePartnershipInput["content"]["theme"], value: string) => {
+        setValue(`content.theme.${key}` as FieldPath<CreatePartnershipInput>, value, { shouldDirty: true, shouldValidate: true });
     };
 
     const save = async (values: CreatePartnershipInput) => {
@@ -243,6 +249,10 @@ export function PartnershipForm({ initialData }: PartnershipFormProps) {
                 {savedStatus === "published" && <p className="mt-4 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">{isPublished ? "This page is live. Saving publishes the changes immediately. Its URL is locked after publishing." : `This page is currently live. Saving will take it offline and move it to ${data.status === "draft" ? "Drafts" : "Archived"}.`}</p>}
                 {savedStatus !== "published" && isPublished && <p className="mt-4 rounded-xl bg-blue-50 p-3 text-sm text-blue-950">Saving will publish this page on the public website. Its URL will be locked after publishing.</p>}
             </section>
+
+            <Section title="Appearance" description="Choose colors that reflect your partner's brand. The hero keeps its photo overlay for readable text." open>
+                <PartnershipThemeEditor theme={content.theme} onChange={setThemeColor} />
+            </Section>
 
             <Section title="1. Hero" description="Logos, headline, partnership copy, show details and calls to action." open>
                 <div className="grid gap-4 md:grid-cols-3">

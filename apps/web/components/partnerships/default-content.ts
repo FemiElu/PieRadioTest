@@ -1,4 +1,4 @@
-import type { CreatePartnershipInput } from "@/lib/partnerships/schema";
+import { DEFAULT_PARTNERSHIP_THEME, type CreatePartnershipInput } from "@/lib/partnerships/schema";
 
 export function createDefaultPartnership(): CreatePartnershipInput {
     return {
@@ -9,6 +9,7 @@ export function createDefaultPartnership(): CreatePartnershipInput {
         social_image_url: "",
         status: "draft",
         content: {
+            theme: { ...DEFAULT_PARTNERSHIP_THEME },
             hero: {
                 background: { src: "", alt: "" },
                 stationLogo: { src: "/assets/logo.png", alt: "Pie Radio logo" },
