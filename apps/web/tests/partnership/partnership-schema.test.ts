@@ -1,8 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { CreatePartnershipSchema, UpdatePartnershipSchema } from "@/lib/partnerships/schema";
+import { CreatePartnershipSchema, DEFAULT_PARTNERSHIP_THEME, UpdatePartnershipSchema } from "@/lib/partnerships/schema";
 import { createDefaultPartnership, isPartnershipReadyToPublish } from "@/components/partnerships/default-content";
 
 describe("partnership page content", () => {
+    it("loads older saved content without a theme using the original palette", () => {
+        const draft = createDefaultPartnership();
+        const { theme: _theme, ...legacyContent } = draft.content;
+        const parsed = CreatePartnershipSchema.parse({ ...draft, content: legacyContent });
+        expect(parsed.content.theme).toEqual(DEFAULT_PARTNERSHIP_THEME);
+    });
+
+    it("preserves custom colors and defaults omitted theme fields", () => {
+        const draft = createDefaultPartnership();
+        const parsed = CreatePartnershipSchema.parse({ ...draft, content: { ...draft.content, theme: { brandColor: "#123ABC" } } });
+        expect(parsed.content.theme).toEqual({ ...DEFAULT_PARTNERSHIP_THEME, brandColor: "#123ABC" });
+    });
+
+    it.each(["red", "#fff", "#12345G", "url(https://example.com/image)"])("rejects invalid theme colors: %s", (brandColor) => {
+        const draft = createDefaultPartnership();
+        draft.content.theme.brandColor = brandColor;
+        expect(CreatePartnershipSchema.safeParse(draft).success).toBe(false);
+    });
+
     it("accepts a complete draft and allows empty draft assets and social links", () => {
         expect(CreatePartnershipSchema.safeParse(createDefaultPartnership()).success).toBe(true);
     });

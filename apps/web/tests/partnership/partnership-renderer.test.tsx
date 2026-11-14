@@ -22,6 +22,15 @@ const page = {
 } satisfies PartnershipPage;
 
 describe("PartnershipPageView", () => {
+    it("scopes the saved brand palette to the rendered partnership", () => {
+        const themed = { ...page, content: { ...page.content, theme: { ...page.content.theme, brandColor: "#123ABC", pageBackground: "#F0F1F2" } } };
+        const { container } = render(React.createElement(PartnershipPageView, { page: themed, preview: true }));
+        const root = container.querySelector<HTMLElement>(".partnership-page")!;
+        expect(root.style.getPropertyValue("--partnership-brand-color")).toBe("#123ABC");
+        expect(root.style.getPropertyValue("--partnership-page-background")).toBe("#F0F1F2");
+        expect(document.documentElement.style.getPropertyValue("--partnership-brand-color")).toBe("");
+    });
+
     it("renders the fixed section order and partner supplied content", () => {
         render(React.createElement(PartnershipPageView, { page, preview: true }));
         expect(screen.getByText("A Pie Radio partnership")).toBeInTheDocument();
