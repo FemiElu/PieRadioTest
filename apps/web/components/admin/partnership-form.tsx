@@ -377,7 +377,7 @@ export function PartnershipForm({ initialData }: PartnershipFormProps) {
             </fieldset>
             </form>
             {initialData && <PartnershipEpisodeManager pageId={initialData.id} />}
-            <div className="sticky bottom-3 z-20 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/50 bg-white/95 p-3 backdrop-blur">
+            <div className="sticky bottom-24 z-20 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/50 bg-white/95 p-3 backdrop-blur md:bottom-28">
                 <div><p className="text-xs font-semibold text-zinc-700">{savedLabel}</p><p className="mt-1 text-xs text-zinc-500">{savedStatus === "published" ? isPublished ? "Live changes take effect as soon as they are saved." : "Saving will take this page offline." : isPublished ? "Publishing makes this page available on the public website." : initialData ? "Saving keeps this page in its selected publishing status." : "Save a draft before uploading images or DJ mixes."}</p></div>
                 <Button type="submit" form={pageFormId} disabled={isSaving} className="min-w-40"><Save className="mr-2 h-4 w-4" />{isSaving ? "Saving…" : saveLabel}</Button>
             </div>
